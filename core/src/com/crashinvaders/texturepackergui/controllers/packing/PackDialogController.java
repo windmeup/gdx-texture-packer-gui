@@ -3,7 +3,6 @@ package com.crashinvaders.texturepackergui.controllers.packing;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -25,7 +24,6 @@ import com.crashinvaders.texturepackergui.utils.WidgetUtils;
 import com.crashinvaders.texturepackergui.utils.packprocessing.CompositePackProcessor;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingManager;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
-import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
 import com.github.czyzby.autumn.annotation.Initiate;
 import com.github.czyzby.autumn.annotation.Inject;
 import com.github.czyzby.autumn.mvc.component.i18n.LocaleService;
@@ -33,7 +31,6 @@ import com.github.czyzby.autumn.mvc.component.ui.InterfaceService;
 import com.github.czyzby.autumn.mvc.stereotype.ViewDialog;
 import com.github.czyzby.autumn.mvc.stereotype.ViewStage;
 import com.github.czyzby.autumn.processor.event.EventDispatcher;
-import com.github.czyzby.kiwi.util.common.Exceptions;
 import com.github.czyzby.lml.annotation.LmlAction;
 import com.github.czyzby.lml.annotation.LmlActor;
 import com.github.czyzby.lml.annotation.LmlAfter;
@@ -64,7 +61,9 @@ public class PackDialogController implements ActionContainer {
     @LmlActor("progressBar") VisProgressBar progressBar;
     private VisImageButton btnClose;
 
-    /** Last show "reopen last packing results" toast notification */
+    /**
+     * Last show "reopen last packing results" toast notification
+     */
     private Toast prevReopenDialogToast;
 
     @Initiate
@@ -83,11 +82,13 @@ public class PackDialogController implements ActionContainer {
         cbAutoClose.setChecked(prefs.getBoolean(PREF_KEY_AUTO_CLOSE, false));
     }
 
-    @LmlAction("obtainListAdapter") ListAdapter obtainListAdapter() {
+    @LmlAction("obtainListAdapter")
+    ListAdapter obtainListAdapter() {
         return new PackProcessingListAdapter(interfaceService);
     }
 
-    @LmlAction("onAutoCloseChecked") void onAutoCloseChecked(VisCheckBox cbAutoClose) {
+    @LmlAction("onAutoCloseChecked")
+    void onAutoCloseChecked(VisCheckBox cbAutoClose) {
         prefs.putBoolean(PREF_KEY_AUTO_CLOSE, cbAutoClose.isChecked());
         prefs.flush();
     }
@@ -99,7 +100,7 @@ public class PackDialogController implements ActionContainer {
     public void launchPack(ProjectModel project, Array<PackModel> packs) {
         Array<PackProcessingNode> nodes = prepareProcessingNodes(project, packs);
 
-        PackProcessingListAdapter adapter = (PackProcessingListAdapter)listItems.getListView().getAdapter();
+        PackProcessingListAdapter adapter = (PackProcessingListAdapter) listItems.getListView().getAdapter();
         adapter.clear();
         for (PackProcessingNode node : nodes) {
             adapter.add(node);
@@ -137,9 +138,10 @@ public class PackDialogController implements ActionContainer {
                         new FileSizeMetadataProcessor(),
                         new PageAmountMetadataProcessor(),
                         new EndTimeMetadataProcessor(),
-                        new TotalTimeMetadataProcessor()),
+                        new TotalTimeMetadataProcessor(),
 
-//                        new TestProcessor(),
+                        new ImageQuantProcessor()
+                ),
                 new PackWorkerListener());
 
         for (int i = 0; i < nodes.size; i++) {
@@ -201,12 +203,16 @@ public class PackDialogController implements ActionContainer {
         prevReopenDialogToast = toastTable.getToast();
     }
 
-    /** @return localized string */
+    /**
+     * @return localized string
+     */
     private String getString(String key) {
         return localeService.getI18nBundle().get(key);
     }
 
-    /** @return localized string */
+    /**
+     * @return localized string
+     */
     private String getString(String key, Object... args) {
         return localeService.getI18nBundle().format(key, args);
     }
@@ -217,7 +223,7 @@ public class PackDialogController implements ActionContainer {
         int finishedCounter = 0;
 
         public PackWorkerListener() {
-            adapter = (PackProcessingListAdapter)listItems.getListView().getAdapter();
+            adapter = (PackProcessingListAdapter) listItems.getListView().getAdapter();
         }
 
         @Override
@@ -296,17 +302,4 @@ public class PackDialogController implements ActionContainer {
         }
     }
 
-    private static class TestProcessor implements PackProcessor {
-        @Override
-        public void processPackage(PackProcessingNode node) {
-            try {
-                System.out.println("start processing");
-                Thread.sleep(MathUtils.random(500, 2500));
-                if (MathUtils.randomBoolean()) throw new RuntimeException();
-                System.out.println("finish processing");
-            } catch (InterruptedException e) {
-                Exceptions.throwRuntimeException(e);
-            }
-        }
-    }
 }
