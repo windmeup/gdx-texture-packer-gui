@@ -23,7 +23,7 @@ public class PackSettingsActors {
     @LmlActor("eetbScaleFactors") ExpandEditTextButton eetbScaleFactors;
     @LmlActor("cbUseFastAlgorithm") VisCheckBox cbUseFastAlgorithm;
     @LmlActor("cbEdgePadding") VisCheckBox cbEdgePadding;
-    @LmlActor("cbKeepOriSize") VisCheckBox cbKeepOriSize;
+    @LmlActor("cbShrinkSize") VisCheckBox cbShrinkSize;
     @LmlActor("cbEvenSize") VisCheckBox cbEvenSize;
     @LmlActor("cbStripWhitespaceX") VisCheckBox cbStripWhitespaceX;
     @LmlActor("cbStripWhitespaceY") VisCheckBox cbStripWhitespaceY;

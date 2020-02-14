@@ -142,7 +142,7 @@ public class ProjectSerializer {
         sb.append("pot=").append(settings.pot).append("\n");
         sb.append("mof=").append(settings.multipleOfFour).append("\n");
         sb.append("rotation=").append(settings.rotation).append("\n");
-        sb.append("keepOriSize=").append(settings.keepOriSize).append("\n");
+        sb.append("shrinkSize=").append(settings.shrinkSize).append("\n");
         sb.append("evenSize=").append(settings.evenSize).append("\n");
         sb.append("stripWhitespaceX=").append(settings.stripWhitespaceX).append("\n");
         sb.append("stripWhitespaceY=").append(settings.stripWhitespaceY).append("\n");
@@ -281,7 +281,7 @@ public class ProjectSerializer {
         settings.pot = find(lines, "pot=", defaultSettings.pot);
         settings.multipleOfFour = find(lines, "mof=", defaultSettings.multipleOfFour);
         settings.rotation = find(lines, "rotation=", defaultSettings.rotation);
-        settings.keepOriSize = find(lines, "keepOriSize=", defaultSettings.keepOriSize);
+        settings.shrinkSize = find(lines, "shrinkSize=", defaultSettings.shrinkSize);
         settings.evenSize = find(lines, "evenSize=", defaultSettings.evenSize);
         settings.stripWhitespaceX = find(lines, "stripWhitespaceX=", defaultSettings.stripWhitespaceX);
         settings.stripWhitespaceY = find(lines, "stripWhitespaceY=", defaultSettings.stripWhitespaceY);

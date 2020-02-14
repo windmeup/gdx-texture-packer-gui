@@ -401,7 +401,7 @@ public class TexturePacker {
       if (rect.splits == null) writer.write("  split: 0, 0, 0, 0\n");
       writer.write("  pad: " + rect.pads[0] + ", " + rect.pads[1] + ", " + rect.pads[2] + ", " + rect.pads[3] + "\n");
     }
-    if ((settings.stripWhitespaceX || settings.stripWhitespaceY) && !settings.keepOriSize) {
+    if ((settings.stripWhitespaceX || settings.stripWhitespaceY) && settings.shrinkSize) {
       writer.write("  orig: " + regWidth + ", " + regHeight + "\n");
       writer.write("  offset: 0, 0\n");
     } else {
@@ -620,7 +620,7 @@ public class TexturePacker {
     public int minWidth = 16, minHeight = 16;
     public int maxWidth = 2048, maxHeight = 2048;
     public boolean square = false;
-    public boolean keepOriSize = true;
+    public boolean shrinkSize;
     public boolean evenSize;
     public boolean stripWhitespaceX, stripWhitespaceY;
     public int alphaThreshold;
@@ -674,7 +674,7 @@ public class TexturePacker {
       duplicatePadding = settings.duplicatePadding;
       alphaThreshold = settings.alphaThreshold;
       ignoreBlankImages = settings.ignoreBlankImages;
-      keepOriSize = settings.keepOriSize;
+      shrinkSize = settings.shrinkSize;
       evenSize = settings.evenSize;
       stripWhitespaceX = settings.stripWhitespaceX;
       stripWhitespaceY = settings.stripWhitespaceY;
