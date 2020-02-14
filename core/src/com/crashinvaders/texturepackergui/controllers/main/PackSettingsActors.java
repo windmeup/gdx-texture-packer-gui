@@ -24,6 +24,7 @@ public class PackSettingsActors {
     @LmlActor("cbUseFastAlgorithm") VisCheckBox cbUseFastAlgorithm;
     @LmlActor("cbEdgePadding") VisCheckBox cbEdgePadding;
     @LmlActor("cbKeepOriSize") VisCheckBox cbKeepOriSize;
+    @LmlActor("cbEvenSize") VisCheckBox cbEvenSize;
     @LmlActor("cbStripWhitespaceX") VisCheckBox cbStripWhitespaceX;
     @LmlActor("cbStripWhitespaceY") VisCheckBox cbStripWhitespaceY;
     @LmlActor("cbAllowRotation") VisCheckBox cbAllowRotation;

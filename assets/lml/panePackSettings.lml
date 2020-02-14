@@ -171,6 +171,8 @@
 
                     <vischeckbox id="cbKeepOriSize" onchange="onSettingsCbChecked" tooltip="@psTtKeepOriSize">@psKeepOriSize</vischeckbox>
 
+                    <vischeckbox id="cbEvenSize" onchange="onSettingsCbChecked" tooltip="@psTtEvenSize">@psEvenSize</vischeckbox>
+
                     <vischeckbox id="cbStripWhitespaceX" onchange="onSettingsCbChecked" tooltip="@psTtStripWhitespaceX">@psStripWhitespaceX</vischeckbox>
 
                     <vischeckbox id="cbStripWhitespaceY" onchange="onSettingsCbChecked" tooltip="@psTtStripWhitespaceY">@psStripWhitespaceY</vischeckbox>

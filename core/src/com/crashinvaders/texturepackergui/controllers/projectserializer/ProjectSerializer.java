@@ -143,6 +143,7 @@ public class ProjectSerializer {
         sb.append("mof=").append(settings.multipleOfFour).append("\n");
         sb.append("rotation=").append(settings.rotation).append("\n");
         sb.append("keepOriSize=").append(settings.keepOriSize).append("\n");
+        sb.append("evenSize=").append(settings.evenSize).append("\n");
         sb.append("stripWhitespaceX=").append(settings.stripWhitespaceX).append("\n");
         sb.append("stripWhitespaceY=").append(settings.stripWhitespaceY).append("\n");
         sb.append("wrapX=").append(settings.wrapX).append("\n");
@@ -281,6 +282,7 @@ public class ProjectSerializer {
         settings.multipleOfFour = find(lines, "mof=", defaultSettings.multipleOfFour);
         settings.rotation = find(lines, "rotation=", defaultSettings.rotation);
         settings.keepOriSize = find(lines, "keepOriSize=", defaultSettings.keepOriSize);
+        settings.evenSize = find(lines, "evenSize=", defaultSettings.evenSize);
         settings.stripWhitespaceX = find(lines, "stripWhitespaceX=", defaultSettings.stripWhitespaceX);
         settings.stripWhitespaceY = find(lines, "stripWhitespaceY=", defaultSettings.stripWhitespaceY);
         settings.wrapX = Texture.TextureWrap.valueOf(find(lines, "wrapX=", defaultSettings.wrapX.toString()));

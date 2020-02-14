@@ -382,8 +382,17 @@ public class TexturePacker {
     writer.write(Rect.getAtlasName(name, settings.flattenPaths) + "\n");
     writer.write("  rotate: " + rect.rotated + "\n");
     writer.write("  xy: " + (page.x + rect.x) + ", " + (page.y + page.height - rect.height - rect.y) + "\n");
-
-    writer.write("  size: " + rect.regionWidth + ", " + rect.regionHeight + "\n");
+    int regWidth = rect.regionWidth;
+    int regHeight = rect.regionHeight;
+    int oriWidth = rect.originalWidth;
+    int oriHeight = rect.originalHeight;
+    if (settings.evenSize) {
+      oriWidth = toEven(oriWidth);
+      regWidth = toEven(regWidth);
+      oriHeight = toEven(oriHeight);
+      regHeight = toEven(regHeight);
+    }
+    writer.write("  size: " + regWidth + ", " + regHeight + "\n");
     if (rect.splits != null) {
       writer.write("  split: " //
           + rect.splits[0] + ", " + rect.splits[1] + ", " + rect.splits[2] + ", " + rect.splits[3] + "\n");
@@ -393,11 +402,11 @@ public class TexturePacker {
       writer.write("  pad: " + rect.pads[0] + ", " + rect.pads[1] + ", " + rect.pads[2] + ", " + rect.pads[3] + "\n");
     }
     if ((settings.stripWhitespaceX || settings.stripWhitespaceY) && !settings.keepOriSize) {
-      writer.write("  orig: " + rect.regionWidth + ", " + rect.regionHeight + "\n");
+      writer.write("  orig: " + regWidth + ", " + regHeight + "\n");
       writer.write("  offset: 0, 0\n");
     } else {
-      writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n");
-      writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.regionHeight - rect.offsetY) + "\n");
+      writer.write("  orig: " + oriWidth + ", " + oriHeight + "\n");
+      writer.write("  offset: " + rect.offsetX + ", " + (oriHeight - regHeight - rect.offsetY) + "\n");
     }
     writer.write("  index: " + rect.index + "\n");
   }
@@ -422,6 +431,10 @@ public class TexturePacker {
       default:
         throw new RuntimeException("Unsupported format: " + settings.format);
     }
+  }
+
+  private int toEven(int v) {
+    return v % 2 == 0 ? v : v + 1;
   }
 
   /**
@@ -608,6 +621,7 @@ public class TexturePacker {
     public int maxWidth = 2048, maxHeight = 2048;
     public boolean square = false;
     public boolean keepOriSize = true;
+    public boolean evenSize;
     public boolean stripWhitespaceX, stripWhitespaceY;
     public int alphaThreshold;
     public TextureFilter filterMin = TextureFilter.Nearest, filterMag = TextureFilter.Nearest;
@@ -661,6 +675,7 @@ public class TexturePacker {
       alphaThreshold = settings.alphaThreshold;
       ignoreBlankImages = settings.ignoreBlankImages;
       keepOriSize = settings.keepOriSize;
+      evenSize = settings.evenSize;
       stripWhitespaceX = settings.stripWhitespaceX;
       stripWhitespaceY = settings.stripWhitespaceY;
       alias = settings.alias;
