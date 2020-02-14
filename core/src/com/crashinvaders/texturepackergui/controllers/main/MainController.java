@@ -431,6 +431,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         switch (checkBox.getName()) {
             case "cbUseFastAlgorithm": settings.fast = checkBox.isChecked(); break;
             case "cbEdgePadding": settings.edgePadding = checkBox.isChecked(); break;
+            case "cbKeepOriSize": settings.keepOriSize = checkBox.isChecked(); break;
             case "cbStripWhitespaceX": settings.stripWhitespaceX = checkBox.isChecked(); break;
             case "cbStripWhitespaceY": settings.stripWhitespaceY = checkBox.isChecked(); break;
             case "cbAllowRotation": settings.rotation = checkBox.isChecked(); break;
@@ -572,6 +573,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
             actorsPackSettings.cbUseFastAlgorithm.setChecked(settings.fast);
             actorsPackSettings.cbEdgePadding.setChecked(settings.edgePadding);
+            actorsPackSettings.cbKeepOriSize.setChecked(settings.keepOriSize);
             actorsPackSettings.cbStripWhitespaceX.setChecked(settings.stripWhitespaceX);
             actorsPackSettings.cbStripWhitespaceY.setChecked(settings.stripWhitespaceY);
             actorsPackSettings.cbAllowRotation.setChecked(settings.rotation);

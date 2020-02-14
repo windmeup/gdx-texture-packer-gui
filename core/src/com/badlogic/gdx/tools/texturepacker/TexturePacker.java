@@ -379,8 +379,13 @@ public class TexturePacker {
 			if (rect.splits == null) writer.write("  split: 0, 0, 0, 0\n");
 			writer.write("  pad: " + rect.pads[0] + ", " + rect.pads[1] + ", " + rect.pads[2] + ", " + rect.pads[3] + "\n");
 		}
-		writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n");
-		writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.regionHeight - rect.offsetY) + "\n");
+		if (settings.keepOriSize) {
+			writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n");
+			writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.regionHeight - rect.offsetY) + "\n");
+		} else {
+			writer.write("  orig: " + rect.regionWidth + ", " + rect.regionHeight + "\n");
+			writer.write("  offset: 0, 0\n");
+		}
 		writer.write("  index: " + rect.index + "\n");
 	}
 
@@ -579,6 +584,7 @@ public class TexturePacker {
 		public int minWidth = 16, minHeight = 16;
 		public int maxWidth = 2048, maxHeight = 2048;
 		public boolean square = false;
+		public boolean keepOriSize = true;
 		public boolean stripWhitespaceX, stripWhitespaceY;
 		public int alphaThreshold;
 		public TextureFilter filterMin = TextureFilter.Nearest, filterMag = TextureFilter.Nearest;
@@ -627,6 +633,7 @@ public class TexturePacker {
 			duplicatePadding = settings.duplicatePadding;
 			alphaThreshold = settings.alphaThreshold;
 			ignoreBlankImages = settings.ignoreBlankImages;
+			keepOriSize = settings.keepOriSize;
 			stripWhitespaceX = settings.stripWhitespaceX;
 			stripWhitespaceY = settings.stripWhitespaceY;
 			alias = settings.alias;
