@@ -185,7 +185,7 @@ public class PackingProcessor implements PackProcessor {
         }
     }
 
-    private static String obtainFilename(PackModel packModel) {
+    public static String obtainFilename(PackModel packModel) {
         String filename = packModel.getCanonicalFilename();
         if (filename.lastIndexOf(".") > -1) {
             String extension = filename.substring(filename.lastIndexOf("."));

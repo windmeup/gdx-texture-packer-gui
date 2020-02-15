@@ -46,20 +46,10 @@ public class Frames2SpineProcessor implements PackProcessor {
       throw new IllegalStateException("PageFileWriter is not set. Looks like something is wrong with file type processor setup.");
     }
     PackModel pack = node.getPack();
-    String fileName = pack.getFilename().trim();
-    if (fileName.isEmpty()) {
-      fileName = pack.getName();
-    }
-    String atlasName;
-    int dotIndex = fileName.lastIndexOf('.');
-    if (dotIndex < 0) {
-      atlasName = fileName;
-      fileName = atlasName + ".atlas";
-    } else {
-      atlasName = fileName.substring(0, dotIndex);
-    }
+    String fileName = PackingProcessor.obtainFilename(pack);
+    String regName = fileName.replaceAll("\\.", "\\.");
     FileFilter oldFileFilter =
-        new RegexFileFilter("^" + atlasName.replaceAll("\\.", "\\.") + "(\\d*)?\\.([\\s,\\S]*)$");
+        new RegexFileFilter(regName + "|^" + regName + "(\\d*)?\\.([A-Za-z0-9]*)$");
     String outputDir = pack.getOutputDir();
     FileHandle outputDirFile = new FileHandle(outputDir);
     for (FileHandle oldFile : outputDirFile.list(oldFileFilter)) {
@@ -87,8 +77,10 @@ public class Frames2SpineProcessor implements PackProcessor {
       }
     }
     texturePacker.pack(outputDirFile.file(), fileName);
+    String extension = pack.getSettings().atlasExtension;
     TextureAtlas.TextureAtlasData atlasData = new TextureAtlas.TextureAtlasData(
-        new FileHandle(outputDir + "/" + fileName), outputDirFile, false);
+        new FileHandle(outputDir + "/" + fileName + ((extension == null || extension.isEmpty()) ? "" : extension)),
+        outputDirFile, false);
     // skeleton
     Skeleton skeleton = new Skeleton();
     skeleton.setSpine("3.8.55");
@@ -140,7 +132,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     Json json = new Json(JsonWriter.OutputType.json);
     String rawJson = json.prettyPrint(data);
     String[] lines = rawJson.split("\\n");
-    Writer writer = new FileHandle(outputDir + "/" + atlasName + ".json").writer(false, "UTF-8");
+    Writer writer = new FileHandle(outputDir + "/" + fileName + ".json").writer(false, "UTF-8");
     boolean first = true;
     for (String line : lines) {
       if (!line.contains("\"class\":")) { // remove class
