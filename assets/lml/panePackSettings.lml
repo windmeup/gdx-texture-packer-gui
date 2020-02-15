@@ -169,10 +169,6 @@
 
                     <vischeckbox id="cbEdgePadding" onchange="onSettingsCbChecked" tooltip="@psTtEdgePadding">@psEdgePadding</vischeckbox>
 
-                    <vischeckbox id="cbShrinkSize" onchange="onSettingsCbChecked" tooltip="@psTtShrinkSize">@psShrinkSize</vischeckbox>
-
-                    <vischeckbox id="cbEvenSize" onchange="onSettingsCbChecked" tooltip="@psTtEvenSize">@psEvenSize</vischeckbox>
-
                     <vischeckbox id="cbStripWhitespaceX" onchange="onSettingsCbChecked" tooltip="@psTtStripWhitespaceX">@psStripWhitespaceX</vischeckbox>
 
                     <vischeckbox id="cbStripWhitespaceY" onchange="onSettingsCbChecked" tooltip="@psTtStripWhitespaceY">@psStripWhitespaceY</vischeckbox>

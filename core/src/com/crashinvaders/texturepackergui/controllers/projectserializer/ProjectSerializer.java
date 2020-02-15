@@ -142,8 +142,6 @@ public class ProjectSerializer {
         sb.append("pot=").append(settings.pot).append("\n");
         sb.append("mof=").append(settings.multipleOfFour).append("\n");
         sb.append("rotation=").append(settings.rotation).append("\n");
-        sb.append("shrinkSize=").append(settings.shrinkSize).append("\n");
-        sb.append("evenSize=").append(settings.evenSize).append("\n");
         sb.append("stripWhitespaceX=").append(settings.stripWhitespaceX).append("\n");
         sb.append("stripWhitespaceY=").append(settings.stripWhitespaceY).append("\n");
         sb.append("wrapX=").append(settings.wrapX).append("\n");
