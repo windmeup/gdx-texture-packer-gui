@@ -42,6 +42,7 @@
             <separator growy="true" height="0" width="2" padtop="1" padbottom="1"/>
 
             <:sidebutton id="btnFrames2spine" icon="custom/ic-frames2spine" onchange="frames2spine" tooltip="@frames2spine" style="accent"/>
+            <:sidebutton id="btnFrames2spineAll" icon="custom/ic-frames2spine-all" onchange="frames2spineAll" tooltip="@frames2spineAll" style="accent"/>
         </vistable>
 
         <vistable grow="true" pad="4">

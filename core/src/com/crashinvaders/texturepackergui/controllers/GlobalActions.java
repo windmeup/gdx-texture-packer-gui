@@ -167,9 +167,19 @@ public class GlobalActions implements ActionContainer {
         if (pack == null) {
             return;
         }
-        ProjectModel project = getProject();
         interfaceService.showDialog(packDialogController.getClass());
-        packDialogController.launch2Spine(project, pack);
+        packDialogController.launch2Spine(getProject(), pack);
+    }
+
+    @LmlAction("frames2spineAll")
+    public void frames2spineAll() {
+        ProjectModel project = getProject();
+        Array<PackModel> packs = project.getPacks();
+        if (packs.size == 0) {
+            return;
+        }
+        interfaceService.showDialog(packDialogController.getClass());
+        packDialogController.launch2Spine(project, packs);
     }
 
     @LmlAction("newProject") public void newProject() {
