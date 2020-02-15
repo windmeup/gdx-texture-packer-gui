@@ -190,6 +190,10 @@ public class TexturePacker {
     }
   }
 
+  public ImageProcessor getImageProcessor() {
+    return imageProcessor;
+  }
+
   private void writeImages(File outputDir, String scaledPackFileName, Array<Page> pages) {
     File packFileNoExt = new File(outputDir, scaledPackFileName);
     File packDir = packFileNoExt.getParentFile();
