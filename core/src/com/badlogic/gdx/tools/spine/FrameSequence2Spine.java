@@ -32,7 +32,7 @@ public class FrameSequence2Spine {
 
   private final ImageProcessor imageProcessor;
 
-  private final int centerX = 250;
+  private final int centerX = 245;
 
   private final int centerY = 108;
 
@@ -113,11 +113,13 @@ public class FrameSequence2Spine {
   private Bound getBound(TextureAtlas.TextureAtlasData.Region region, String oriImageDir) {
     TexturePacker.Rect rect = imageProcessor.addImage(Paths.get(oriImageDir, region.name + ".png").toFile(), null);
     int offsetY = (rect.originalHeight - rect.regionHeight - rect.offsetY); // rect y coords down
+    int regWidth = toEven(rect.regionWidth);
+    int regHeight = toEven(rect.regionHeight);
     Bound bound = new Bound();
-    bound.setX(rect.offsetX - centerX);
-    bound.setY(offsetY - centerY);
-    bound.setWidth(toEven(rect.regionWidth));
-    bound.setHeight(toEven(rect.regionHeight));
+    bound.setX(rect.offsetX - centerX + regWidth / 2); // x,y is location of bound's center
+    bound.setY(offsetY - centerY + regHeight / 2);
+    bound.setWidth(regWidth);
+    bound.setHeight(regHeight);
     return bound;
   }
 
