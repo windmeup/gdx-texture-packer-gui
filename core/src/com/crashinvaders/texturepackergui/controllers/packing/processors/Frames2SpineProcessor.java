@@ -1,7 +1,6 @@
-package com.badlogic.gdx.tools.spine;
+package com.crashinvaders.texturepackergui.controllers.packing.processors;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.tools.spine.data.Animation;
 import com.badlogic.gdx.tools.spine.data.AnimationAttachment;
@@ -13,100 +12,83 @@ import com.badlogic.gdx.tools.spine.data.Skin;
 import com.badlogic.gdx.tools.spine.data.Slot;
 import com.badlogic.gdx.tools.spine.data.SpineData;
 import com.badlogic.gdx.tools.texturepacker.ImageProcessor;
-import com.badlogic.gdx.tools.texturepacker.PngPageFileWriter;
+import com.badlogic.gdx.tools.texturepacker.PageFileWriter;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import com.crashinvaders.texturepackergui.controllers.model.PackModel;
+import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
+import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
 
 import java.io.FileFilter;
-import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class FrameSequence2Spine {
+public class Frames2SpineProcessor implements PackProcessor {
 
-  private static final float FRAME_DURATION = 0.125f;
+  private static final float FRAME_DURATION = 0.125f; // TODO config
 
-  public FrameSequence2Spine() {
-  }
+  private static final int centerX = 245; // TODO config
 
-  public void toSpine(String imageDir, String outputDir, int centerX, int centerY) throws IOException {
-    FileHandle outputDirFile = new FileHandle(outputDir);
-    FileHandle imageDirFile = new FileHandle(imageDir);
-    String atlasName = imageDirFile.name();
-    FileFilter oldFileFilter = new RegexFileFilter("^" + atlasName + "(\\d*)?\\.([\\s,\\S]*)$");
-    for (FileHandle old : outputDirFile.list(oldFileFilter)) {
-      old.delete();
+  private static final int centerY = 108; // TODO config
+
+  @Override
+  public void processPackage(PackProcessingNode node) throws Exception {
+    PageFileWriter pageFileWriter = node.getPageFileWriter();
+    if (pageFileWriter == null) {
+      throw new IllegalStateException("PageFileWriter is not set. Looks like something is wrong with file type processor setup.");
     }
-    TexturePacker.Settings settings = new TexturePacker.Settings();
-    settings.alias = false;
-    settings.alphaThreshold = 0;
-    settings.debug = false;
-    settings.duplicatePadding = false;
-    settings.edgePadding = true;
-    settings.fast = false;
-    settings.filterMag = Texture.TextureFilter.Linear;
-    settings.filterMin = Texture.TextureFilter.Linear;
-    settings.ignoreBlankImages = true;
-    settings.maxHeight = 2048;
-    settings.maxWidth = 2048;
-    settings.minHeight = 16;
-    settings.minWidth = 16;
-    settings.paddingX = 1;
-    settings.paddingY = 1;
-    settings.pot = true;
-    settings.multipleOfFour = false;
-    settings.rotation = false;
-    settings.shrinkSize = true;
-    settings.evenSize = true;
+    PackModel pack = node.getPack();
+    String fileName = pack.getFilename().trim();
+    if (fileName.isEmpty()) {
+      fileName = pack.getName();
+    }
+    String atlasName;
+    int dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex < 0) {
+      atlasName = fileName;
+      fileName = atlasName + ".atlas";
+    } else {
+      atlasName = fileName.substring(0, dotIndex);
+    }
+    FileFilter oldFileFilter =
+        new RegexFileFilter("^" + atlasName.replaceAll("\\.", "\\.") + "(\\d*)?\\.([\\s,\\S]*)$");
+    String outputDir = pack.getOutputDir();
+    FileHandle outputDirFile = new FileHandle(outputDir);
+    for (FileHandle oldFile : outputDirFile.list(oldFileFilter)) {
+      oldFile.delete();
+    }
+    Array<PackingProcessor.ImageEntry> imageEntries = PackingProcessor.collectImageFiles(pack);
+    if (imageEntries.size == 0) {
+      throw new IllegalStateException("No images to pack");
+    }
+    imageEntries.sort(Comparator.comparing(e -> e.regionName));
+    TexturePacker.Settings settings = new TexturePacker.Settings(pack.getSettings());
     settings.stripWhitespaceX = true;
     settings.stripWhitespaceY = true;
-    settings.wrapX = Texture.TextureWrap.ClampToEdge;
-    settings.wrapY = Texture.TextureWrap.ClampToEdge;
-    settings.premultiplyAlpha = false;
-    settings.grid = false;
-    settings.square = false;
-    settings.bleed = true;
-    settings.limitMemory = true;
+    settings.shrinkSize = true;
+    settings.evenSize = true;
+    settings.edgePadding = true;
     settings.useIndexes = false;
-    TexturePacker texturePacker = new TexturePacker(settings, new PngPageFileWriter());
-    FileFilter suffixFileFilter = new SuffixFileFilter(new String[]{".png", ".jpg", "jpeg"});
-    addImage(texturePacker, imageDirFile, "", suffixFileFilter);
-    texturePacker.pack(outputDirFile.file(), atlasName);
-    toSpine(imageDir, outputDir, centerX, centerY, atlasName, texturePacker.getImageProcessor());
-  }
-
-  private void addImage(TexturePacker texturePacker, FileHandle file, String prefix, FileFilter suffixFileFilter) {
-    FileHandle[] images = file.list(suffixFileFilter);
-    Arrays.sort(images, Comparator.comparing(FileHandle::name));
-    for (FileHandle image : images) {
-      texturePacker.addImage(image.file(), prefix + image.nameWithoutExtension());
+    settings.scale = new float[]{1};
+    settings.paddingX = Math.max(settings.paddingX, 1);
+    settings.paddingY = Math.max(settings.paddingY, 1);
+    TexturePacker texturePacker = new TexturePacker(settings, pageFileWriter);
+    for (PackingProcessor.ImageEntry entry : imageEntries) {
+      if (!entry.ninePatch) {
+        texturePacker.addImage(entry.fileHandle.file(), entry.name);
+      }
     }
-    FileHandle[] subDirs = file.list((FileFilter) DirectoryFileFilter.DIRECTORY);
-    Arrays.sort(subDirs, Comparator.comparing(FileHandle::name));
-    for (FileHandle subDir : subDirs) {
-      addImage(texturePacker, subDir, prefix + subDir.name() + "/", suffixFileFilter);
-    }
-  }
-
-  private void toSpine(
-      String imageDir, String outputDir, int centerX, int centerY,
-      String atlasName, ImageProcessor imageProcessor) throws IOException {
-    String atlasFile = outputDir + "/" + atlasName + ".atlas";
-    String outputFile = outputDir + "/" + atlasName + ".json";
-    TextureAtlas.TextureAtlasData atlas = new TextureAtlas.TextureAtlasData(
-        new FileHandle(atlasFile), new FileHandle(outputDir), false);
+    texturePacker.pack(outputDirFile.file(), fileName);
+    TextureAtlas.TextureAtlasData atlasData = new TextureAtlas.TextureAtlasData(
+        new FileHandle(outputDir + "/" + fileName), outputDirFile, false);
     // skeleton
     Skeleton skeleton = new Skeleton();
     skeleton.setSpine("3.8.55");
@@ -124,11 +106,15 @@ public class FrameSequence2Spine {
     body.setAttachment("body");
     Array<Slot> slots = Array.with(body);
     // skin
-    Map<String, Bound> bodySkins = new TreeMap<>();
-    for (TextureAtlas.TextureAtlasData.Region region : atlas.getRegions()) {
-      bodySkins.put(region.name, getBound(region, imageProcessor, centerX, centerY, imageDir));
+    Map<String, PackingProcessor.ImageEntry> entryMap = new HashMap<>();
+    for (PackingProcessor.ImageEntry entry : imageEntries) {
+      entryMap.put(entry.regionName, entry);
     }
-    imageProcessor.clear();
+    ImageProcessor imageProcessor = texturePacker.getImageProcessor();
+    Map<String, Bound> bodySkins = new TreeMap<>();
+    for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
+      bodySkins.put(region.name, getBound(region, imageProcessor, entryMap));
+    }
     Map<String, Map<String, Bound>> attachments = new HashMap<>();
     attachments.put("body", bodySkins);
     Skin skin = new Skin();
@@ -137,7 +123,7 @@ public class FrameSequence2Spine {
     Array<Skin> skins = Array.with(skin);
     // animation
     Map<String, List<String>> actions = new HashMap<>();
-    for (TextureAtlas.TextureAtlasData.Region region : atlas.getRegions()) {
+    for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
       addFrame(actions, region.name);
     }
     Map<String, Animation> animations = new HashMap<>();
@@ -154,7 +140,7 @@ public class FrameSequence2Spine {
     Json json = new Json(JsonWriter.OutputType.json);
     String rawJson = json.prettyPrint(data);
     String[] lines = rawJson.split("\\n");
-    Writer writer = new FileHandle(outputFile).writer(false, "UTF-8");
+    Writer writer = new FileHandle(outputDir + "/" + atlasName + ".json").writer(false, "UTF-8");
     boolean first = true;
     for (String line : lines) {
       if (!line.contains("\"class\":")) { // remove class
@@ -172,8 +158,9 @@ public class FrameSequence2Spine {
 
   private Bound getBound(
       TextureAtlas.TextureAtlasData.Region region, ImageProcessor imageProcessor,
-      int centerX, int centerY, String oriImageDir) {
-    TexturePacker.Rect rect = imageProcessor.addImage(Paths.get(oriImageDir, region.name + ".png").toFile(), null);
+      Map<String, PackingProcessor.ImageEntry> imageEntries) {
+    TexturePacker.Rect rect = imageProcessor.addImage(imageEntries.get(region.name).fileHandle.file(), null);
+    imageProcessor.clear();
     int offsetY = (rect.originalHeight - rect.regionHeight - rect.offsetY); // rect y coords down
     int regWidth = toEven(rect.regionWidth);
     int regHeight = toEven(rect.regionHeight);
@@ -227,12 +214,5 @@ public class FrameSequence2Spine {
     Animation animation = new Animation();
     animation.setSlots(slots);
     return animation;
-  }
-
-
-  public static void main(String[] args) throws IOException {
-    new FrameSequence2Spine().toSpine(
-        "E:/falling resource/character/role_0", "E:/falling resource/character/packed",
-        245, 108);
   }
 }

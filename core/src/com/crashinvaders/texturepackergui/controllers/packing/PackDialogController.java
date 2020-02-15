@@ -93,10 +93,22 @@ public class PackDialogController implements ActionContainer {
     }
 
     public void launchPack(ProjectModel project, PackModel pack) {
-        launchPack(project, Array.with(pack));
+        launchPack(project, Array.with(pack), false);
     }
 
     public void launchPack(ProjectModel project, Array<PackModel> packs) {
+        launchPack(project, packs, false);
+    }
+
+    public void launch2Spine(ProjectModel project, PackModel pack) {
+        launchPack(project, Array.with(pack), true);
+    }
+
+    public void launch2Spine(ProjectModel project, Array<PackModel> packs) {
+        launchPack(project, packs, true);
+    }
+
+    public void launchPack(ProjectModel project, Array<PackModel> packs, boolean toSpine) {
         Array<PackProcessingNode> nodes = prepareProcessingNodes(project, packs);
 
         PackProcessingListAdapter adapter = (PackProcessingListAdapter)listItems.getListView().getAdapter();
@@ -125,7 +137,7 @@ public class PackDialogController implements ActionContainer {
                         new KtxFileTypeProcessor(),
 
                         // Packing
-                        new PackingProcessor(),
+                        toSpine ? new Frames2SpineProcessor() : new PackingProcessor(),
 
                         // Png compressors
                         new PngtasticCompressingProcessor(),

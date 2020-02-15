@@ -161,6 +161,17 @@ public class GlobalActions implements ActionContainer {
         packDialogController.launchPack(project, pack);
     }
 
+    @LmlAction("frames2spine")
+    public void frames2spine() {
+        PackModel pack = getSelectedPack();
+        if (pack == null) {
+            return;
+        }
+        ProjectModel project = getProject();
+        interfaceService.showDialog(packDialogController.getClass());
+        packDialogController.launch2Spine(project, pack);
+    }
+
     @LmlAction("newProject") public void newProject() {
         commonDialogs.checkUnsavedChanges(new Runnable() {
             @Override

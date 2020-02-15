@@ -63,7 +63,7 @@ public class PackingProcessor implements PackProcessor {
         packer.pack(new File(packModel.getOutputDir()), filename);
     }
 
-    private static Array<ImageEntry> collectImageFiles(PackModel packModel) {
+    public static Array<ImageEntry> collectImageFiles(PackModel packModel) {
         final ImageEntryList images = new ImageEntryList();
         Array<InputFile> inputFiles = new Array<>(packModel.getInputFiles());
         inputFiles.sort(new Comparator<InputFile>() {
@@ -210,7 +210,7 @@ public class PackingProcessor implements PackProcessor {
         return image;
     }
 
-    private static class ImageEntry {
+    public static class ImageEntry {
         final FileHandle fileHandle;
         final String name;
 

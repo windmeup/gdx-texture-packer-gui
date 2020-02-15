@@ -39,6 +39,9 @@
             <:sidebutton id="btnSpPackSelected" icon="custom/ic-process" onchange="packSelected" tooltip="@packSelected" style="accent"/>
             <:sidebutton id="btnSpPackAll" icon="custom/ic-process-all" onchange="packAll" tooltip="@packAll" style="accent"/>
 
+            <separator growy="true" height="0" width="2" padtop="1" padbottom="1"/>
+
+            <:sidebutton id="btnFrames2spine" icon="custom/ic-frames2spine" onchange="frames2spine" tooltip="@frames2spine" style="accent"/>
         </vistable>
 
         <vistable grow="true" pad="4">
