@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!DOCTYPE stack SYSTEM "/lml.dtd">
+
+<stack grow="true">
+
+    <visscrollpane style="list" disabledx="true" fadescrollbars="false" flickscroll="false" scrollcapture="true">
+
+        <vistable tablealign="top" tablepad="6" onecolumn="true">
+
+            <vistable growx="true" defaultalign="center" tablepadbottom="12">
+
+                <:macro alias="item" replace="content" title>
+                    <label ellipsis="true" align="right" padright="4">{title}</label>
+                    <container growx="true" fillx="true" row="true" minwidth="0">{content}</container>
+                </:macro>
+
+                <:macro alias="separator" replace="content">
+                    <actor growx="true" height="6" colspan="2" row="true"/>
+                </:macro>
+
+                <vistable growx="true" defaultpad="2" defaultminwidth="0">
+                    <:column column="1" prefwidth="150"/>
+
+                    <:item title="@ssSkeletonX">
+                        <intseekbar
+                                id="skbSkeletonX"
+                                onchange="onSettingsIntSeekBarChanged"
+                                value="0"
+                                tooltip="@ssTtSkeletonX"
+                                min="-1024"
+                                max="1024"
+                                step="1"/>
+                    </:item>
+
+                    <:item title="@ssSkeletonY">
+                        <intseekbar
+                                id="skbSkeletonY"
+                                onchange="onSettingsIntSeekBarChanged"
+                                value="0"
+                                tooltip="@ssTtSkeletonY"
+                                min="-1024"
+                                max="1024"
+                                step="1"/>
+                    </:item>
+
+                    <:item title="@ssSkeletonWidth">
+                        <intseekbar
+                                id="skbSkeletonWidth"
+                                onchange="onSettingsIntSeekBarChanged"
+                                value="0"
+                                tooltip="@ssTtSkeletonWidth"
+                                min="0"
+                                max="1024"
+                                step="1"/>
+                    </:item>
+
+                    <:item title="@ssSkeletonHeight">
+                        <intseekbar
+                                id="skbSkeletonHeight"
+                                onchange="onSettingsIntSeekBarChanged"
+                                value="0"
+                                tooltip="@ssTtSkeletonHeight"
+                                min="0"
+                                max="1024"
+                                step="1"/>
+                    </:item>
+
+                    <:separator/>
+
+                    <:item title="@ssAnchorX">
+                        <intseekbar
+                                id="skbAnchorX"
+                                onchange="onSettingsIntSeekBarChanged"
+                                value="0"
+                                tooltip="@ssTtAnchorX"
+                                min="0"
+                                max="1024"/>
+                    </:item>
+
+                    <:item title="@ssAnchorY">
+                        <intseekbar
+                                id="skbAnchorY"
+                                onchange="onSettingsIntSeekBarChanged"
+                                value="0"
+                                tooltip="@ssTtAnchorY"
+                                min="0"
+                                max="1024"/>
+                    </:item>
+
+                    <:separator/>
+
+                    <:item title="@ssDuration">
+                        <floatseekbar
+                                id="skbDuration"
+                                onchange="onSettingsFloatSeekBarChanged"
+                                value="0.125"
+                                tooltip="@ssTtDuration"
+                                precision="3"
+                                min="0.02"
+                                max="100"
+                                step="0.02"/>
+                    </:item>
+
+                </vistable>
+
+            </vistable>
+
+        </vistable>
+    </visscrollpane>
+
+    <:import path="lml/paneLockPack.lml" replace="id">paneLockSkeletonSettings</:import>
+
+</stack>

@@ -39,6 +39,7 @@ import com.crashinvaders.texturepackergui.lml.attributes.OnRightClickLmlAttribut
 import com.crashinvaders.texturepackergui.utils.CommonUtils;
 import com.crashinvaders.texturepackergui.utils.LmlAutumnUtils;
 import com.crashinvaders.texturepackergui.views.canvas.PagePreviewCanvas;
+import com.crashinvaders.texturepackergui.views.seekbar.FloatSeekBarModel;
 import com.crashinvaders.texturepackergui.views.seekbar.IntSeekBarModel;
 import com.crashinvaders.texturepackergui.views.seekbar.SeekBar;
 import com.github.czyzby.autumn.annotation.Destroy;
@@ -95,6 +96,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlActor({"paneLockGlobalSettings",
             "paneLockSettings",
+            "paneLockSkeletonSettings",
             "paneLockPreview",
             "paneLockPackFiles",
             "paneLockPackGeneral"})
@@ -102,6 +104,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlInject PackListActors actorsPacks;
     @LmlInject PackSettingsActors actorsPackSettings;
+    @LmlInject SkeletonSettingsActors actorsSkeletonSettings;
     @LmlInject GlobalSettingsActors actorsGlobalSettings;
     @LmlInject FileMenuActors actorsFileMenu;
     @LmlInject PackMenuActors actorsPackMenu;
@@ -465,6 +468,19 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         }
     }
 
+    @LmlAction("onSettingsFloatSeekBarChanged") void onSettingsFloatSeekBarChanged(SeekBar seekBar) {
+        PackModel pack = getSelectedPack();
+        if (pack == null) return;
+
+        TexturePacker.Settings settings = pack.getSettings();
+        FloatSeekBarModel model = (FloatSeekBarModel) seekBar.getModel();
+        switch (seekBar.getName()) {
+            case "skbDuration":
+                // TODO skeleton
+                break;
+        }
+    }
+
 //    @LmlAction("onSettingsFloatSpinnerChanged") void onSettingsFloatSpinnerChanged(SeekBar seekBar) {
 //        PackModel pack = getSelectedPack();
 //        if (pack == null) return;
@@ -611,6 +627,16 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
                 }
                 actorsPackSettings.eetbScaleFactors.setText(sb.toString());
             }
+
+            // Skeleton settings
+            // TODO skeleton
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonX.getModel()).setValue(0);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonY.getModel()).setValue(0);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonWidth.getModel()).setValue(500);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(400);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(245);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(108);
+            ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(0.125f);
         }
 
         // Update pane lockers

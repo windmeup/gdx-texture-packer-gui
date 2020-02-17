@@ -52,6 +52,12 @@
                         <:import path="lml/panePackSettings.lml"/>
                     </:titledpane>
                 </container>
+
+                <container growy="true" fill="true">
+                    <:titledpane id="titledPaneSkeletonSettings" title="@panelTitleSkeletonSettings" icon="custom/ic-title-pack-settings">
+                        <:import path="lml/paneSkeletonSettings.lml"/>
+                    </:titledpane>
+                </container>
             </vistable>
 
             <separator growy="true"/>
