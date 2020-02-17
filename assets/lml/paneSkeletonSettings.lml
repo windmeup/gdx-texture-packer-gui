@@ -21,6 +21,21 @@
                 <vistable growx="true" defaultpad="2" defaultminwidth="0">
                     <:column column="1" prefwidth="150"/>
 
+                    <label
+                            align="right"
+                            text="@ssSlotName"
+                            tooltip="@ssTtSlotName"/>
+                    <textfield
+                            id="edtSlotName"
+                            minwidth="24"
+                            growx="true"
+                            padright="0"
+                            padbottom="0"
+                            tooltip="@ssTtSlotName"
+                            onchange="onSlotNameChanged"/>
+
+                    <:separator/>
+
                     <:item title="@ssSkeletonX">
                         <intseekbar
                                 id="skbSkeletonX"

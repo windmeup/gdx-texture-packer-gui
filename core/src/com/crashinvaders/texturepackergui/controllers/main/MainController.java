@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -456,6 +457,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         if (pack == null) return;
 
         TexturePacker.Settings settings = pack.getSettings();
+        SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
         IntSeekBarModel model = (IntSeekBarModel) seekBar.getModel();
         switch (seekBar.getName()) {
             case "skbMinPageWidth": settings.minWidth = model.getValue(); break;
@@ -465,20 +467,31 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             case "skbAlphaThreshold": settings.alphaThreshold = model.getValue(); break;
             case "skbPaddingX": settings.paddingX = model.getValue(); break;
             case "skbPaddingY": settings.paddingY = model.getValue(); break;
+            case "skbSkeletonX": skeletonSettings.setX(model.getValue()); break;
+            case "skbSkeletonY": skeletonSettings.setY(model.getValue()); break;
+            case "skbSkeletonWidth": skeletonSettings.setWidth(model.getValue()); break;
+            case "skbSkeletonHeight": skeletonSettings.setHeight(model.getValue()); break;
+            case "skbAnchorX": skeletonSettings.setAnchorX(model.getValue()); break;
+            case "skbAnchorY": skeletonSettings.setAnchorY(model.getValue()); break;
         }
     }
 
     @LmlAction("onSettingsFloatSeekBarChanged") void onSettingsFloatSeekBarChanged(SeekBar seekBar) {
         PackModel pack = getSelectedPack();
         if (pack == null) return;
-
-        TexturePacker.Settings settings = pack.getSettings();
-        FloatSeekBarModel model = (FloatSeekBarModel) seekBar.getModel();
+        SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
+        float value = ((FloatSeekBarModel) seekBar.getModel()).getValue();
         switch (seekBar.getName()) {
             case "skbDuration":
-                // TODO skeleton
+                skeletonSettings.setDuration(value);
                 break;
         }
+    }
+
+    @LmlAction("onSlotNameChanged") void onSlotNameChanged(VisTextField textField) {
+        PackModel pack = getSelectedPack();
+        if (pack == null) return;
+        pack.getSkeletonSettings().setSlotName(textField.getText());
     }
 
 //    @LmlAction("onSettingsFloatSpinnerChanged") void onSettingsFloatSpinnerChanged(SeekBar seekBar) {
@@ -629,14 +642,15 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             }
 
             // Skeleton settings
-            // TODO skeleton
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonX.getModel()).setValue(0);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonY.getModel()).setValue(0);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonWidth.getModel()).setValue(500);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(400);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(245);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(108);
-            ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(0.125f);
+            SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
+            actorsSkeletonSettings.edtSlotName.setText(skeletonSettings.getSlotName());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonX.getModel()).setValue(skeletonSettings.getX());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonY.getModel()).setValue(skeletonSettings.getY());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonWidth.getModel()).setValue(skeletonSettings.getWidth());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(skeletonSettings.getHeight());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(skeletonSettings.getAnchorX());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(skeletonSettings.getAnchorY());
+            ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(skeletonSettings.getDuration());
         }
 
         // Update pane lockers

@@ -3,6 +3,7 @@ package com.crashinvaders.texturepackergui.controllers.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
 import com.badlogic.gdx.utils.Array;
@@ -23,6 +24,7 @@ public class PackModel implements StateHashable {
     private final Array<ScaleFactorModel> scaleFactors = new Array<>();
     private final Array<InputFile> inputFiles = new Array<>();
     private final Settings settings = new Settings();
+    private final SkeletonSettings skeletonSettings = new SkeletonSettings();
     private String name = "";
     private String filename = "";
     private String outputDir = "";
@@ -35,6 +37,7 @@ public class PackModel implements StateHashable {
 
     public PackModel(PackModel pack) {
         settings.set(pack.settings);
+        skeletonSettings.set(pack.skeletonSettings);
 
         this.name = pack.name;
         this.filename = pack.filename;
@@ -102,6 +105,14 @@ public class PackModel implements StateHashable {
 
     public void setSettings(Settings settings) {
         this.settings.set(settings);
+    }
+
+    public SkeletonSettings getSkeletonSettings() {
+        return skeletonSettings;
+    }
+
+    public void setSkeletonSettings(SkeletonSettings settings) {
+        skeletonSettings.set(settings);
     }
 
     public String getCanonicalName() {
@@ -198,21 +209,24 @@ public class PackModel implements StateHashable {
 
     @Override
     public int computeStateHash() {
-        int settingsHash = computeSettingsStateHash(settings);
+        int settingsHash = computeSettingsStateHash();
         return StateHashUtils.computeHash(scaleFactors, inputFiles, settingsHash, name, filename, outputDir);
     }
 
-    private static int computeSettingsStateHash(Settings s) {
-        int result = Objects.hash(s.pot, s.multipleOfFour, s.paddingX, s.paddingY, s.edgePadding, s.duplicatePadding,
-                s.rotation, s.minWidth, s.minHeight, s.maxWidth, s.maxHeight,
-                s.square, s.stripWhitespaceX, s.stripWhitespaceY, s.alphaThreshold,
-                s.filterMin, s.filterMag, s.wrapX, s.wrapY, s.format, s.alias, s.ignoreBlankImages,
-                s.fast, s.debug, s.silent, s.combineSubdirectories, s.ignore, s.flattenPaths,
-                s.premultiplyAlpha, s.useIndexes, s.bleed, s.bleedIterations, s.limitMemory,
-                s.grid, s.atlasExtension);
-        result = 31 * result + Arrays.hashCode(s.scale);
-        result = 31 * result + Arrays.hashCode(s.scaleSuffix);
-        result = 31 * result + Arrays.hashCode(s.scaleResampling);
+    private int computeSettingsStateHash() {
+        int result = Objects.hash(settings.pot, settings.multipleOfFour, settings.paddingX, settings.paddingY, settings.edgePadding, settings.duplicatePadding,
+                settings.rotation, settings.minWidth, settings.minHeight, settings.maxWidth, settings.maxHeight,
+                settings.square, settings.stripWhitespaceX, settings.stripWhitespaceY, settings.alphaThreshold,
+                settings.filterMin, settings.filterMag, settings.wrapX, settings.wrapY, settings.format, settings.alias, settings.ignoreBlankImages,
+                settings.fast, settings.debug, settings.silent, settings.combineSubdirectories, settings.ignore, settings.flattenPaths,
+                settings.premultiplyAlpha, settings.useIndexes, settings.bleed, settings.bleedIterations, settings.limitMemory,
+                settings.grid, settings.atlasExtension,
+                skeletonSettings.getSlotName(), skeletonSettings.getX(), skeletonSettings.getY(), skeletonSettings.getWidth(), skeletonSettings.getHeight(),
+                skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), skeletonSettings.getDuration()
+            );
+        result = 31 * result + Arrays.hashCode(settings.scale);
+        result = 31 * result + Arrays.hashCode(settings.scaleSuffix);
+        result = 31 * result + Arrays.hashCode(settings.scaleResampling);
         return result;
     }
 }

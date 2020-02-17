@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
@@ -155,6 +156,18 @@ public class ProjectSerializer {
 
         sb.append("\n");
 
+        SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
+        sb.append("slotName=").append(skeletonSettings.getSlotName()).append("\n");
+        sb.append("skeletonX=").append(skeletonSettings.getX()).append("\n");
+        sb.append("skeletonY=").append(skeletonSettings.getY()).append("\n");
+        sb.append("skeletonWidth=").append(skeletonSettings.getWidth()).append("\n");
+        sb.append("skeletonHeight=").append(skeletonSettings.getHeight()).append("\n");
+        sb.append("anchorX=").append(skeletonSettings.getAnchorX()).append("\n");
+        sb.append("anchorY=").append(skeletonSettings.getAnchorY()).append("\n");
+        sb.append("duration=").append(skeletonSettings.getDuration()).append("\n");
+
+        sb.append('\n');
+
         sb.append("scaleFactors=").append(json.toJson(pack.getScaleFactors())).append("\n");
 
         inputFileSerializer.setRoot(root.file());
@@ -291,6 +304,17 @@ public class ProjectSerializer {
         settings.bleed = find(lines, "bleed=", defaultSettings.bleed);
         settings.limitMemory = find(lines, "limitMemory=", defaultSettings.limitMemory);
         settings.useIndexes = find(lines, "useIndexes=", defaultSettings.useIndexes);
+
+        SkeletonSettings defaultSkeletonSettings = new SkeletonSettings();
+        SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
+        skeletonSettings.setSlotName(find(lines, "slotName=", defaultSkeletonSettings.getSlotName()));
+        skeletonSettings.setX(find(lines, "skeletonX=", defaultSkeletonSettings.getX()));
+        skeletonSettings.setY(find(lines, "skeletonY=", defaultSkeletonSettings.getY()));
+        skeletonSettings.setWidth(find(lines, "skeletonWidth=", defaultSkeletonSettings.getWidth()));
+        skeletonSettings.setHeight(find(lines, "skeletonHeight=", defaultSkeletonSettings.getHeight()));
+        skeletonSettings.setAnchorX(find(lines, "anchorX=", defaultSkeletonSettings.getAnchorX()));
+        skeletonSettings.setAnchorY(find(lines, "anchorY=", defaultSkeletonSettings.getAnchorY()));
+        skeletonSettings.setDuration(find(lines, "duration=", defaultSkeletonSettings.getDuration()));
 
         String scaleFactorsSerialized = find(lines, "scaleFactors=", null);
         if (scaleFactorsSerialized != null) {

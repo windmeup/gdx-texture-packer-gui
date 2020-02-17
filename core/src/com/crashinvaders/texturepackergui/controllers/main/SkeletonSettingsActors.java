@@ -2,8 +2,12 @@ package com.crashinvaders.texturepackergui.controllers.main;
 
 import com.crashinvaders.texturepackergui.views.seekbar.SeekBar;
 import com.github.czyzby.lml.annotation.LmlActor;
+import com.kotcrab.vis.ui.widget.VisTextField;
 
 public class SkeletonSettingsActors {
+
+  @LmlActor("edtSlotName")
+  VisTextField edtSlotName;
 
   @LmlActor("skbSkeletonX")
   SeekBar skbSkeletonX;
