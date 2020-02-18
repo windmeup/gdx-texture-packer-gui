@@ -21,6 +21,8 @@ public class SkeletonSettings {
 
   private int anchorY;
 
+  private String anchorFilesDir = "";
+
   private float duration = 0.125f;
 
   public void set(SkeletonSettings settings) {
@@ -32,5 +34,6 @@ public class SkeletonSettings {
     this.anchorX = settings.anchorX;
     this.anchorY = settings.anchorY;
     this.duration = settings.duration;
+    this.anchorFilesDir = settings.getAnchorFilesDir();
   }
 }

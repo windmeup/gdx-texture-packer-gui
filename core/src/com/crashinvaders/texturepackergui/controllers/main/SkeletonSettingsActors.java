@@ -27,6 +27,9 @@ public class SkeletonSettingsActors {
   @LmlActor("skbAnchorY")
   SeekBar skbAnchorY;
 
+  @LmlActor("edtAnchorFilesDir")
+  VisTextField edtAnchorFilesDir;
+
   @LmlActor("skbDuration")
   SeekBar skbDuration;
 }

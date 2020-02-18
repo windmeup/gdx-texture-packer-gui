@@ -165,6 +165,7 @@ public class ProjectSerializer {
         sb.append("anchorX=").append(skeletonSettings.getAnchorX()).append("\n");
         sb.append("anchorY=").append(skeletonSettings.getAnchorY()).append("\n");
         sb.append("duration=").append(skeletonSettings.getDuration()).append("\n");
+        sb.append("anchorFilesDir=").append(skeletonSettings.getAnchorFilesDir()).append('\n');
 
         sb.append('\n');
 
@@ -315,6 +316,7 @@ public class ProjectSerializer {
         skeletonSettings.setAnchorX(find(lines, "anchorX=", defaultSkeletonSettings.getAnchorX()));
         skeletonSettings.setAnchorY(find(lines, "anchorY=", defaultSkeletonSettings.getAnchorY()));
         skeletonSettings.setDuration(find(lines, "duration=", defaultSkeletonSettings.getDuration()));
+        skeletonSettings.setAnchorFilesDir(find(lines, "anchorFilesDir=", defaultSkeletonSettings.getAnchorFilesDir()));
 
         String scaleFactorsSerialized = find(lines, "scaleFactors=", null);
         if (scaleFactorsSerialized != null) {

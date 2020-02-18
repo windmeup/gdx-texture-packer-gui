@@ -11,11 +11,11 @@
 
                 <:macro alias="item" replace="content" title>
                     <label ellipsis="true" align="right" padright="4">{title}</label>
-                    <container growx="true" fillx="true" row="true" minwidth="0">{content}</container>
+                    <container growx="true" fillx="true" row="true" minwidth="0" colspan="3">{content}</container>
                 </:macro>
 
                 <:macro alias="separator" replace="content">
-                    <actor growx="true" height="6" colspan="2" row="true"/>
+                    <actor growx="true" height="6" colspan="3" row="true"/>
                 </:macro>
 
                 <vistable growx="true" defaultpad="2" defaultminwidth="0">
@@ -27,6 +27,7 @@
                             tooltip="@ssTtSlotName"/>
                     <textfield
                             id="edtSlotName"
+                            colspan="2"
                             minwidth="24"
                             growx="true"
                             padright="0"
@@ -101,6 +102,27 @@
                                 min="0"
                                 max="1024"/>
                     </:item>
+
+                    <label
+                            align="right"
+                            text="@ssAnchorFilesDir"
+                            tooltip="@ssTtAnchorFilesDir"/>
+                    <textfield
+                            id="edtAnchorFilesDir"
+                            minwidth="24"
+                            growx="true"
+                            padright="0"
+                            padbottom="0"
+                            tooltip="@ssTtAnchorFilesDir"
+                            onchange="onAnchorFilesDirChanged"/>
+                    <imagebutton
+                            image="custom/ic-folder-pick"
+                            imagescaling="none"
+                            width="22"
+                            padright="0"
+                            filly="true"
+                            onchange="pickAnchorFilesDir"
+                            focusborderenabled="false"/>
 
                     <:separator/>
 

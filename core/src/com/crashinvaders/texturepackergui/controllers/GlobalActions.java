@@ -300,6 +300,27 @@ public class GlobalActions implements ActionContainer {
         getStage().addActor(fileChooser.fadeIn());
     }
 
+    @LmlAction("pickAnchorFilesDir") public void pickAnchorFilesDir() {
+        final PackModel pack = getSelectedPack();
+        if (pack == null) return;
+        FileHandle dir = FileUtils.obtainIfExists(pack.getOutputDir());
+        if (dir == null) {
+            dir = fileChooserHistory.getLastDir(FileChooserHistory.Type.ANCHOR_FILES_DIR);
+        }
+        FileChooser fileChooser = new FileChooser(dir, FileChooser.Mode.OPEN);
+        fileChooser.setIconProvider(new AppIconProvider(fileChooser));
+        fileChooser.setSelectionMode(FileChooser.SelectionMode.DIRECTORIES);
+        fileChooser.setListener(new FileChooserAdapter() {
+            @Override
+            public void selected (Array<FileHandle> file) {
+                FileHandle chosenFile = file.first();
+                fileChooserHistory.putLastDir(FileChooserHistory.Type.ANCHOR_FILES_DIR, chosenFile);
+                pack.setAnchorFilesDir(chosenFile.file().getAbsolutePath());
+            }
+        });
+        getStage().addActor(fileChooser.fadeIn());
+    }
+
     //TODO move model logic code to ModelUtils
     @LmlAction("copySettingsToAllPacks") public void copySettingsToAllPacks() {
         PackModel selectedPack = getSelectedPack();
@@ -457,7 +478,8 @@ public class GlobalActions implements ActionContainer {
         public enum Type {
             PROJECT ("last_proj_dir"),
             INPUT_DIR ("last_input_dir"),
-            OUTPUT_DIR ("last_output_dir");
+            OUTPUT_DIR ("last_output_dir"),
+            ANCHOR_FILES_DIR ("last_anchor_files_dir");
 
             final String prefKey;
 

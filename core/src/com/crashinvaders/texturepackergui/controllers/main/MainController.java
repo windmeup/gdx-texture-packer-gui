@@ -266,6 +266,13 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
                         actorsPacks.edtFileName.setProgrammaticChangeEvents(true);
                     }
                     break;
+                case ANCHOR_FILES:
+                    if (event.getPack() == getSelectedPack()) {
+                        actorsSkeletonSettings.edtAnchorFilesDir.setProgrammaticChangeEvents(false);
+                        actorsSkeletonSettings.edtAnchorFilesDir.setText(event.getPack().getSkeletonSettings().getAnchorFilesDir());
+                        actorsSkeletonSettings.edtAnchorFilesDir.setProgrammaticChangeEvents(true);
+                    }
+                    break;
             }
         }
     }
@@ -491,7 +498,13 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     @LmlAction("onSlotNameChanged") void onSlotNameChanged(VisTextField textField) {
         PackModel pack = getSelectedPack();
         if (pack == null) return;
-        pack.getSkeletonSettings().setSlotName(textField.getText());
+        pack.getSkeletonSettings().setSlotName(textField.getText().trim());
+    }
+
+    @LmlAction("onAnchorFilesDirChanged") void onAnchorFilesDirChanged(VisTextField textField) {
+        PackModel pack = getSelectedPack();
+        if (pack == null) return;
+        pack.getSkeletonSettings().setAnchorFilesDir(textField.getText().trim());
     }
 
 //    @LmlAction("onSettingsFloatSpinnerChanged") void onSettingsFloatSpinnerChanged(SeekBar seekBar) {
@@ -650,6 +663,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(skeletonSettings.getHeight());
             ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(skeletonSettings.getAnchorX());
             ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(skeletonSettings.getAnchorY());
+            actorsSkeletonSettings.edtAnchorFilesDir.setText(skeletonSettings.getAnchorFilesDir());
             ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(skeletonSettings.getDuration());
         }
 

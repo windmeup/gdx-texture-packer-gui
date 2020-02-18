@@ -21,10 +21,13 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
+import com.github.czyzby.kiwi.util.common.Strings;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
+import java.io.BufferedReader;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -116,7 +119,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     Map<String, Bound> bodySkins = new TreeMap<>();
     for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
       bodySkins.put(region.name,
-          getBound(region, skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), imageProcessor, entryMap));
+          getBound(region, skeletonSettings, imageProcessor, entryMap));
     }
     Map<String, Map<String, Bound>> attachments = new HashMap<>();
     attachments.put("body", bodySkins);
@@ -160,13 +163,31 @@ public class Frames2SpineProcessor implements PackProcessor {
   }
 
   private Bound getBound(
-      TextureAtlas.TextureAtlasData.Region region, int anchorX, int anchorY, ImageProcessor imageProcessor,
-      Map<String, PackingProcessor.ImageEntry> imageEntries) {
+      TextureAtlas.TextureAtlasData.Region region, SkeletonSettings settings, ImageProcessor imageProcessor,
+      Map<String, PackingProcessor.ImageEntry> imageEntries) throws IOException {
     TexturePacker.Rect rect = imageProcessor.addImage(imageEntries.get(region.name).fileHandle.file(), null);
     imageProcessor.clear();
     int offsetY = (rect.originalHeight - rect.regionHeight - rect.offsetY); // rect y coords down
     int regWidth = toEven(rect.regionWidth);
     int regHeight = toEven(rect.regionHeight);
+    String dir = settings.getAnchorFilesDir();
+    int anchorX;
+    int anchorY;
+    if (Strings.isEmpty(dir)) {
+      anchorX = settings.getAnchorX();
+      anchorY = settings.getAnchorY();
+    } else {
+      String[] splits = region.name.split("/");
+      FileHandle handle = new FileHandle(dir + "/" + splits[splits.length - 1] + ".txt");
+      if (handle.exists()) {
+        BufferedReader reader = handle.reader(8);
+        anchorX = Integer.parseInt(reader.readLine());
+        anchorY = rect.originalHeight - 1 + Integer.parseInt(reader.readLine());
+      } else {
+        anchorX = settings.getAnchorX();
+        anchorY = settings.getAnchorY();
+      }
+    }
     Bound bound = new Bound();
     bound.setX(rect.offsetX - anchorX + regWidth / 2); // x,y is location of bound's center
     bound.setY(offsetY - anchorY + regHeight / 2);

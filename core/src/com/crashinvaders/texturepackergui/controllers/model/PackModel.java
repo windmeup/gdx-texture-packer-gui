@@ -83,6 +83,16 @@ public class PackModel implements StateHashable {
         }
     }
 
+    public void setAnchorFilesDir(String dir) {
+        if (Strings.equals(skeletonSettings.getAnchorFilesDir(), dir)) {
+            return;
+        }
+        skeletonSettings.setAnchorFilesDir(dir);
+        if (eventDispatcher != null) {
+            eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.ANCHOR_FILES));
+        }
+    }
+
     public String getName() {
         return name;
     }
@@ -221,8 +231,10 @@ public class PackModel implements StateHashable {
                 settings.fast, settings.debug, settings.silent, settings.combineSubdirectories, settings.ignore, settings.flattenPaths,
                 settings.premultiplyAlpha, settings.useIndexes, settings.bleed, settings.bleedIterations, settings.limitMemory,
                 settings.grid, settings.atlasExtension,
-                skeletonSettings.getSlotName(), skeletonSettings.getX(), skeletonSettings.getY(), skeletonSettings.getWidth(), skeletonSettings.getHeight(),
-                skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), skeletonSettings.getDuration()
+                skeletonSettings.getSlotName(), skeletonSettings.getX(), skeletonSettings.getY(),
+                skeletonSettings.getWidth(), skeletonSettings.getHeight(),
+                skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), skeletonSettings.getDuration(),
+                skeletonSettings.getAnchorFilesDir()
             );
         result = 31 * result + Arrays.hashCode(settings.scale);
         result = 31 * result + Arrays.hashCode(settings.scaleSuffix);
