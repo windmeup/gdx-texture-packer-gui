@@ -11,6 +11,7 @@ import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
 import com.github.czyzby.kiwi.util.common.Strings;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 
@@ -98,7 +99,8 @@ public class PackingProcessor implements PackProcessor {
 
                 class RecursiveCollector {
                     void collectImages(FileHandle fileHandle, String prefix, boolean recursive, boolean flattenPath) {
-                        FileHandle[] children = fileHandle.list((FileFilter) new SuffixFileFilter(new String[]{".png", ".jpg", "jpeg"}));
+                        FileHandle[] children = fileHandle.list((FileFilter) new SuffixFileFilter(
+                            new String[]{".png", ".jpg", "jpeg"}, IOCase.INSENSITIVE));
                         for (FileHandle child : children) {
                             String name = child.nameWithoutExtension();
                             name = prefix + name;
