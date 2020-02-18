@@ -2,6 +2,7 @@ package com.crashinvaders.texturepackergui.controllers.packing.processors;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.spine.data.Animation;
 import com.badlogic.gdx.tools.spine.data.AnimationAttachment;
 import com.badlogic.gdx.tools.spine.data.AnimationSlot;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
+import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import java.io.FileFilter;
@@ -33,12 +35,6 @@ import java.util.TreeMap;
 
 public class Frames2SpineProcessor implements PackProcessor {
 
-  private static final float FRAME_DURATION = 0.125f; // TODO config
-
-  private static final int centerX = 245; // TODO config
-
-  private static final int centerY = 108; // TODO config
-
   @Override
   public void processPackage(PackProcessingNode node) throws Exception {
     PageFileWriter pageFileWriter = node.getPageFileWriter();
@@ -46,10 +42,22 @@ public class Frames2SpineProcessor implements PackProcessor {
       throw new IllegalStateException("PageFileWriter is not set. Looks like something is wrong with file type processor setup.");
     }
     PackModel pack = node.getPack();
+    SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
+    String slotName = skeletonSettings.getSlotName();
+    if (slotName == null) {
+      throw new IllegalStateException("Slot name is not set.");
+    }
+    slotName = slotName.trim();
+    if (slotName.isEmpty()) {
+      throw new IllegalStateException("Slot name is not set.");
+    }
+    float frameDuration = skeletonSettings.getDuration();
+    if (frameDuration <= 0f) {
+      throw new IllegalStateException("Duration must > 0");
+    }
     String fileName = PackingProcessor.obtainFilename(pack);
-    String regName = fileName.replaceAll("\\.", "\\.");
     FileFilter oldFileFilter =
-        new RegexFileFilter(regName + "|^" + regName + "(\\d*)?\\.([A-Za-z0-9]*)$");
+        new RegexFileFilter("^" + fileName.replaceAll("\\.", "\\.") + "(\\d*)?(\\.([a-z0-9]*))?$", IOCase.INSENSITIVE);
     String outputDir = pack.getOutputDir();
     FileHandle outputDirFile = new FileHandle(outputDir);
     for (FileHandle oldFile : outputDirFile.list(oldFileFilter)) {
@@ -84,8 +92,10 @@ public class Frames2SpineProcessor implements PackProcessor {
     // skeleton
     Skeleton skeleton = new Skeleton();
     skeleton.setSpine("3.8.55");
-    skeleton.setWidth(500f); // TODO AABB
-    skeleton.setHeight(400f);
+    skeleton.setX(skeletonSettings.getX());
+    skeleton.setY(skeletonSettings.getY());
+    skeleton.setWidth(skeletonSettings.getWidth());
+    skeleton.setHeight(skeletonSettings.getHeight());
     skeleton.setImages("./");
     // bone
     Bone root = new Bone();
@@ -105,7 +115,8 @@ public class Frames2SpineProcessor implements PackProcessor {
     ImageProcessor imageProcessor = texturePacker.getImageProcessor();
     Map<String, Bound> bodySkins = new TreeMap<>();
     for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
-      bodySkins.put(region.name, getBound(region, imageProcessor, entryMap));
+      bodySkins.put(region.name,
+          getBound(region, skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), imageProcessor, entryMap));
     }
     Map<String, Map<String, Bound>> attachments = new HashMap<>();
     attachments.put("body", bodySkins);
@@ -120,7 +131,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     }
     Map<String, Animation> animations = new HashMap<>();
     for (Map.Entry<String, List<String>> entry : actions.entrySet()) {
-      animations.put(entry.getKey(), toAnimation(entry.getValue()));
+      animations.put(entry.getKey(), toAnimation(entry.getValue(), slotName, frameDuration));
     }
     // data
     SpineData data = new SpineData();
@@ -149,7 +160,7 @@ public class Frames2SpineProcessor implements PackProcessor {
   }
 
   private Bound getBound(
-      TextureAtlas.TextureAtlasData.Region region, ImageProcessor imageProcessor,
+      TextureAtlas.TextureAtlasData.Region region, int anchorX, int anchorY, ImageProcessor imageProcessor,
       Map<String, PackingProcessor.ImageEntry> imageEntries) {
     TexturePacker.Rect rect = imageProcessor.addImage(imageEntries.get(region.name).fileHandle.file(), null);
     imageProcessor.clear();
@@ -157,8 +168,8 @@ public class Frames2SpineProcessor implements PackProcessor {
     int regWidth = toEven(rect.regionWidth);
     int regHeight = toEven(rect.regionHeight);
     Bound bound = new Bound();
-    bound.setX(rect.offsetX - centerX + regWidth / 2); // x,y is location of bound's center
-    bound.setY(offsetY - centerY + regHeight / 2);
+    bound.setX(rect.offsetX - anchorX + regWidth / 2); // x,y is location of bound's center
+    bound.setY(offsetY - anchorY + regHeight / 2);
     bound.setWidth(regWidth);
     bound.setHeight(regHeight);
     return bound;
@@ -183,7 +194,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     frames.add(name);
   }
 
-  private Animation toAnimation(List<String> frames) {
+  private Animation toAnimation(List<String> frames, String slotName, float frameDuration) {
     frames.sort(String::compareTo);
     Array<AnimationAttachment> attachment = new Array<>();
     float duration = 0f;
@@ -193,7 +204,7 @@ public class Frames2SpineProcessor implements PackProcessor {
       animationAttachment.setTime(duration);
       animationAttachment.setName(frame);
       attachment.add(animationAttachment);
-      duration += FRAME_DURATION;
+      duration += frameDuration;
     }
     animationAttachment = new AnimationAttachment(); // end attachment
     animationAttachment.setTime(duration);
@@ -202,7 +213,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     AnimationSlot bodySlot = new AnimationSlot();
     bodySlot.setAttachment(attachment);
     Map<String, AnimationSlot> slots = new HashMap<>();
-    slots.put("body", bodySlot);
+    slots.put(slotName, bodySlot);
     Animation animation = new Animation();
     animation.setSlots(slots);
     return animation;
