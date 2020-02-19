@@ -3,6 +3,12 @@
 
 <vistable background="canvasInfoPanel" tablealign="right" padright="8" defaultalign="left">
 
+    <vischeckbox id="cbShowAnimations" style="small"
+        onchange="onShowAnimationsCbChecked"
+        tooltip="@canvasTtShowAnimations">@canvasShowAnimations</vischeckbox>
+
+    <actor width="12"/>
+
     <vistable tooltip="@canvasInfoTtPages">
         <visimage style="custom/ic-small-pages" color="light-grey"/>
         <actor width="4"/>

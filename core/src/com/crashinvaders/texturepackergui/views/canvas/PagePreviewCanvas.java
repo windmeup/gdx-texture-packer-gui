@@ -25,12 +25,15 @@ import com.github.czyzby.lml.parser.tag.LmlTag;
 import com.github.czyzby.lml.parser.tag.LmlTagProvider;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
+import lombok.Getter;
 
 public class PagePreviewCanvas extends Stack {
 
 	private final InterfaceService interfaceService;
 
+	@Getter
 	private final PreviewHolder previewHolder;
+
 	private final InfoPanel infoPanel;
 	private final VisImageTextButton btnNextPage;
 	private final VisImageTextButton btnPrevPage;
