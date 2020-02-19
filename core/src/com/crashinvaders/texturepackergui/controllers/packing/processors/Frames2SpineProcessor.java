@@ -9,16 +9,15 @@ import com.badlogic.gdx.tools.spine.data.AnimationSlot;
 import com.badlogic.gdx.tools.spine.data.Bone;
 import com.badlogic.gdx.tools.spine.data.Bound;
 import com.badlogic.gdx.tools.spine.data.Skeleton;
+import com.badlogic.gdx.tools.spine.data.SkeletonData;
 import com.badlogic.gdx.tools.spine.data.Skin;
 import com.badlogic.gdx.tools.spine.data.Slot;
-import com.badlogic.gdx.tools.spine.data.SpineData;
 import com.badlogic.gdx.tools.texturepacker.ImageProcessor;
 import com.badlogic.gdx.tools.texturepacker.PageFileWriter;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonWriter;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
+import com.crashinvaders.texturepackergui.utils.JacksonUtils;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
 import com.github.czyzby.kiwi.util.common.Strings;
@@ -28,8 +27,9 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import java.io.BufferedReader;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.Writer;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -103,13 +103,13 @@ public class Frames2SpineProcessor implements PackProcessor {
     // bone
     Bone root = new Bone();
     root.setName("root");
-    Array<Bone> bones = Array.with(root);
+    List<Bone> bones = Collections.singletonList(root);
     // slot
     Slot body = new Slot();
     body.setName("body");
     body.setBone("root");
     body.setAttachment("body");
-    Array<Slot> slots = Array.with(body);
+    List<Slot> slots = Collections.singletonList(body);
     // skin
     Map<String, PackingProcessor.ImageEntry> entryMap = new HashMap<>();
     for (PackingProcessor.ImageEntry entry : imageEntries) {
@@ -126,7 +126,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     Skin skin = new Skin();
     skin.setName("default");
     skin.setAttachments(attachments);
-    Array<Skin> skins = Array.with(skin);
+    List<Skin> skins = Collections.singletonList(skin);
     // animation
     Map<String, List<String>> actions = new HashMap<>();
     for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
@@ -137,29 +137,13 @@ public class Frames2SpineProcessor implements PackProcessor {
       animations.put(entry.getKey(), toAnimation(entry.getValue(), slotName, frameDuration));
     }
     // data
-    SpineData data = new SpineData();
+    SkeletonData data = new SkeletonData();
     data.setSkeleton(skeleton);
     data.setBones(bones);
     data.setSlots(slots);
     data.setSkins(skins);
     data.setAnimations(animations);
-    Json json = new Json(JsonWriter.OutputType.json);
-    String rawJson = json.prettyPrint(data);
-    String[] lines = rawJson.split("\\n");
-    Writer writer = new FileHandle(outputDir + "/" + fileName + ".json").writer(false, "UTF-8");
-    boolean first = true;
-    for (String line : lines) {
-      if (!line.contains("\"class\":")) { // remove class
-        if (first) {
-          first = false;
-        } else {
-          writer.append('\n');
-        }
-        writer.write(line);
-      }
-    }
-    writer.flush();
-    writer.close();
+    JacksonUtils.writeValue(Paths.get(outputDir + "/" + fileName + ".json").toFile(), data);
   }
 
   private Bound getBound(
@@ -217,7 +201,7 @@ public class Frames2SpineProcessor implements PackProcessor {
 
   private Animation toAnimation(List<String> frames, String slotName, float frameDuration) {
     frames.sort(String::compareTo);
-    Array<AnimationAttachment> attachment = new Array<>();
+    List<AnimationAttachment> attachment = new ArrayList<>();
     float duration = 0f;
     AnimationAttachment animationAttachment;
     for (String frame : frames) {

@@ -16,6 +16,7 @@ eclipse.project {
 }
 
 dependencies {
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     apt "org.projectlombok:lombok:$lombokVersion"
 }

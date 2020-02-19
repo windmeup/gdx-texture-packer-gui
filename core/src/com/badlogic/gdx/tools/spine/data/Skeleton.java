@@ -1,5 +1,6 @@
 package com.badlogic.gdx.tools.spine.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,12 +20,16 @@ public class Skeleton {
 
   private String spine;
 
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private float x;
 
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private float y;
 
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private float width;
 
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private float height;
 
   private String images;
