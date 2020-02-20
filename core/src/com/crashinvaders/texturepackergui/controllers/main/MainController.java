@@ -586,7 +586,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     //endregion
 
     @LmlAction("onShowAnimationsCbChecked") void onShowAnimationsCbChecked(VisCheckBox checkBox) {
-        canvas.getPreviewHolder().setShowAnimations(checkBox.isChecked());
+        canvas.setShowAnimations(checkBox.isChecked());
     }
 
     private void updateViewsFromPack(PackModel pack) {

@@ -17,6 +17,7 @@ eclipse.project {
 
 dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    compile "com.esotericsoftware.spine:spine-libgdx:$spineVersion"
     compileOnly "org.projectlombok:lombok:$lombokVersion"
     apt "org.projectlombok:lombok:$lombokVersion"
 }

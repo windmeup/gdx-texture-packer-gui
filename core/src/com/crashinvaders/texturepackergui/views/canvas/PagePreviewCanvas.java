@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -17,7 +18,9 @@ import com.crashinvaders.texturepackergui.views.canvas.model.AtlasModel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.BackgroundWidget;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.InfoPanel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.preview.PreviewHolder;
-import com.github.czyzby.autumn.mvc.component.ui.InterfaceService;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationViewer;
+import com.esotericsoftware.spine.SkeletonData;
+import com.esotericsoftware.spine.SkeletonJson;
 import com.github.czyzby.lml.parser.LmlParser;
 import com.github.czyzby.lml.parser.impl.tag.AbstractNonParentalActorLmlTag;
 import com.github.czyzby.lml.parser.tag.LmlActorBuilder;
@@ -25,13 +28,9 @@ import com.github.czyzby.lml.parser.tag.LmlTag;
 import com.github.czyzby.lml.parser.tag.LmlTagProvider;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
-import lombok.Getter;
 
 public class PagePreviewCanvas extends Stack {
 
-	private final InterfaceService interfaceService;
-
-	@Getter
 	private final PreviewHolder previewHolder;
 
 	private final InfoPanel infoPanel;
@@ -46,9 +45,11 @@ public class PagePreviewCanvas extends Stack {
 	private AtlasModel atlas;
 	private int pageIndex = 0;
 
-	public PagePreviewCanvas(Skin skin) {
-		this.interfaceService = App.inst().getInterfaceService();
+	private boolean showAnimations;
 
+	private AnimationViewer animationViewer;
+
+	public PagePreviewCanvas(Skin skin) {
 		// Layout
 		{
 			// Background
@@ -69,6 +70,10 @@ public class PagePreviewCanvas extends Stack {
 
 				addActor(previewHolder);
 			}
+
+			animationViewer = new AnimationViewer();
+			animationViewer.setVisible(false);
+			addActor(animationViewer);
 
 			// Page buttons
 			{
@@ -120,7 +125,7 @@ public class PagePreviewCanvas extends Stack {
 				table.row().padTop(6f);
 				table.add(btnPrevPage);
 
-				Container container = new Container<>(table);
+				Container<Actor> container = new Container<>(table);
 				container.align(Align.topRight);
 				container.padTop(30f);
 				addActor(container);
@@ -128,10 +133,19 @@ public class PagePreviewCanvas extends Stack {
 
 			// Info pane
 			{
-				infoPanel = new InfoPanel(interfaceService.getParser());
+				infoPanel = new InfoPanel(App.inst().getInterfaceService().getParser());
 				addActor(infoPanel);
 			}
 		}
+	}
+
+	public void setShowAnimations(boolean showAnimations) {
+		this.showAnimations = showAnimations;
+		boolean reverse = !showAnimations;
+		previewHolder.setVisible(reverse);
+		btnNextPage.setVisible(reverse);
+		btnPrevPage.setVisible(reverse);
+		animationViewer.setVisible(showAnimations);
 	}
 
 	// Apply scissors
@@ -182,6 +196,17 @@ public class PagePreviewCanvas extends Stack {
 					}
 					callback.atlasLoadError(pack);
 				}
+				if (atlas != null) {
+					String skeletonPath = pack.getSkeletonPath();
+					if (skeletonPath != null) {
+						FileHandle skeletonHandle = new FileHandle(skeletonPath);
+						if (skeletonHandle.exists() && !skeletonHandle.isDirectory()) {
+							SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlas.getAtlasData()));
+							SkeletonData skeletonData = skeletonJson.readSkeletonData(skeletonHandle);
+							animationViewer.setSkeletonData(skeletonData);
+						}
+					}
+				}
 			}
 		}
 		updatePageButtonsVisibility();
@@ -216,13 +241,15 @@ public class PagePreviewCanvas extends Stack {
 	}
 
 	private void updatePageButtonsVisibility() {
+		if (showAnimations) {
+			return;
+		}
 		if (atlas == null) {
 			btnNextPage.setVisible(false);
 			btnPrevPage.setVisible(false);
 			return;
 		}
 
-		int pageIndex = this.pageIndex;
 		int pagesAmount = atlas.getPages().size;
 
 		btnNextPage.setVisible(pagesAmount > 1);

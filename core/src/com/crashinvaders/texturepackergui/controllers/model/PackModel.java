@@ -9,6 +9,7 @@ import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
 import com.badlogic.gdx.utils.Array;
 import com.crashinvaders.common.statehash.StateHashUtils;
 import com.crashinvaders.common.statehash.StateHashable;
+import com.crashinvaders.texturepackergui.controllers.packing.processors.PackingProcessor;
 import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent;
 import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent.Property;
 import com.github.czyzby.autumn.processor.event.EventDispatcher;
@@ -154,6 +155,13 @@ public class PackModel implements StateHashable {
             atlasPath = outputDir + File.separator + filename;
         }
         return atlasPath;
+    }
+
+    public String getSkeletonPath() {
+        if (outputDir != null && !outputDir.trim().isEmpty()) {
+            return outputDir + File.separator + PackingProcessor.obtainFilename(this) + ".json";
+        }
+        return null;
     }
 
     public Array<ScaleFactorModel> getScaleFactors() {
