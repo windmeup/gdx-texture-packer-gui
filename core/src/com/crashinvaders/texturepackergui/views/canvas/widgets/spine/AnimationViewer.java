@@ -67,7 +67,9 @@ public class AnimationViewer extends WidgetGroup {
   @Override
   public void act(float delta) {
     super.act(delta);
-    Gdx.graphics.requestRendering();
+    if (isVisible()) {
+      Gdx.graphics.requestRendering();
+    }
   }
 
   private Rectangle getBound(RegionAttachment attachment) {
