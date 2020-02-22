@@ -84,7 +84,9 @@ public class AnimationPanel extends Group {
     float frameHeight;
     float lineHeight = GAP;
     float scaleX = getScaleX();
-    float width = Math.max((getParent().getWidth() - GAP * 2f) / scaleX, maxFrameWidth + GAP * 2f);
+    Group parent = getParent();
+    float parentWidth = parent.getWidth();
+    float width = Math.max((parentWidth - GAP * 2f) / scaleX, maxFrameWidth + GAP * 2f);
     float height = GAP;
     float lineIncrease;
     List<SkeletonActor> frames = new ArrayList<>();
@@ -120,8 +122,16 @@ public class AnimationPanel extends Group {
       addActor(frame);
     }
     setSize(width, height);
-    setPosition(Math.round((getParent().getWidth() - width * scaleX) / 2f),
-        Math.round((getParent().getHeight() - height * getScaleY()) / 2f));
+    float parentHeight = parent.getHeight();
+    height *= getScaleY();
+    float x = Math.round((parentWidth - width * scaleX) / 2f);
+    if (parentHeight > height) {
+      setPosition(x,
+          Math.round((parentHeight - height) / 2f));
+    } else {
+      setPosition(x,
+          Math.round(parentHeight - height - 18f - GAP)); // 18 approach to infoPanel's height
+    }
   }
 
   private Rectangle getBound(RegionAttachment attachment) {
