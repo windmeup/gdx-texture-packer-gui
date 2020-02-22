@@ -35,6 +35,7 @@ import com.kotcrab.vis.ui.Locales;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogAdapter;
 import com.kotcrab.vis.ui.util.dialog.OptionDialogAdapter;
+import com.kotcrab.vis.ui.widget.VisImageButton;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 
@@ -417,6 +418,14 @@ public class GlobalActions implements ActionContainer {
         if (commonDialogs.checkExtensionModuleActivated(CjkFontExtensionModule.class)) {
             changeLanguage(AppConstants.LOCALE_ZH_TW);
         }
+    }
+
+    @LmlAction("onZoomIn") void onZoomIn(VisImageButton button) {
+        mainController.getCanvas().getAnimationViewer().zoomIn();
+    }
+
+    @LmlAction("onZoomOut") void onZoomOut(VisImageButton button) {
+        mainController.getCanvas().getAnimationViewer().zoomOut();
     }
 
     public void changeLanguage(Locale locale) {

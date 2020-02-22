@@ -61,6 +61,7 @@ import com.github.czyzby.lml.parser.LmlData;
 import com.github.czyzby.lml.parser.action.ActionContainer;
 import com.kotcrab.vis.ui.util.adapter.ListSelectionAdapter;
 import com.kotcrab.vis.ui.widget.*;
+import lombok.Getter;
 
 import java.util.Locale;
 
@@ -91,6 +92,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlActor("mainRoot") Group mainRoot;
     @LmlActor("toastHostGroup") Group toastHostGroup;
+    @Getter
     @LmlActor("canvas") PagePreviewCanvas canvas;
     @LmlActor("packListSplitPane") VisSplitPane packListSplitPane;
     @LmlActor("menuBarTable") MenuBarX.MenuBarTable menuBarTable;
@@ -591,14 +593,6 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlAction("onShowAtlas") void onShowAtlas(VisImageButton button) {
         canvas.setShowAnimations(false);
-    }
-
-    @LmlAction("onZoomIn") void onZoomIn(VisImageButton button) {
-        canvas.getAnimationViewer().zoomIn();
-    }
-
-    @LmlAction("onZoomOut") void onZoomOut(VisImageButton button) {
-        canvas.getAnimationViewer().zoomOut();
     }
 
     private void updateViewsFromPack(PackModel pack) {

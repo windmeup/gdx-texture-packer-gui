@@ -72,6 +72,9 @@ public class AnimationViewer extends WidgetGroup {
   }
 
   private void zoom(int amount) {
+    if (!isVisible()) {
+      return;
+    }
     int zoomIndex = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, this.zoomIndex + amount));
     if (this.zoomIndex == zoomIndex) {
       return;

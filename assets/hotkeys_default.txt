@@ -39,3 +39,6 @@ showMenuFile: ALT+F
 showMenuPack: ALT+P
 showMenuTools: ALT+T
 showMenuHelp: ALT+H
+
+onZoomIn: CTRL+L
+onZoomOut: CTRL+K
