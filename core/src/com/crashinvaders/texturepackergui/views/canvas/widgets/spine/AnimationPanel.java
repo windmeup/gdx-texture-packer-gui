@@ -98,6 +98,7 @@ public class AnimationPanel extends Group {
       }
       frameHeight = bound.getHeight() + GAP;
       frameWidth = bound.getWidth();
+      width = Math.max(frameWidth + GAP * 2f , width);
       if (frameX + frameWidth + GAP > width) {
         frameX = GAP;
         for (SkeletonActor frame : frames) {
