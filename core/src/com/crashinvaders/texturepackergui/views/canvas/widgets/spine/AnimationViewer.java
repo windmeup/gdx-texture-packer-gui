@@ -14,7 +14,9 @@ import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
 import com.esotericsoftware.spine.utils.SkeletonActor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AnimationViewer extends WidgetGroup {
@@ -39,7 +41,12 @@ public class AnimationViewer extends WidgetGroup {
     }
     SkeletonActor skeletonActor;
     Rectangle bound;
-    float actorX = GAP;
+    float frameX = GAP;
+    float frameWidth;
+    float lineHeight = GAP;
+    float width = getWidth();
+    float height = GAP;
+    List<SkeletonActor> frames = new ArrayList<>();
     for (Animation animation : skeletonData.getAnimations()) {
       bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
       for (Animation.Timeline timeline : animation.getTimelines()) {
@@ -51,12 +58,28 @@ public class AnimationViewer extends WidgetGroup {
           }
         }
       }
+      lineHeight = Math.max(lineHeight, bound.getHeight() + GAP);
+      frameWidth = bound.getWidth();
+      if (frameX + frameWidth + GAP > width) {
+        frameX = GAP;
+        for (SkeletonActor frame : frames) {
+          frame.setY(frame.getY() + lineHeight);
+        }
+        height += lineHeight;
+        lineHeight = bound.getHeight() + GAP;
+      }
       skeletonActor = new SkeletonActor(skeletonRenderer, new Skeleton(skeletonData),
           new AnimationState(new AnimationStateData(skeletonData)));
       skeletonActor.getAnimationState().setAnimation(0, animation.getName(), true);
-      skeletonActor.setPosition(actorX - bound.getX(), GAP - bound.getY());
-      addActor(skeletonActor);
-      actorX += bound.getWidth() + GAP;
+      skeletonActor.setPosition(frameX - bound.getX(), GAP - bound.getY());
+      frames.add(skeletonActor);
+      frameX += bound.getWidth() + GAP;
+    }
+    height += lineHeight;
+    float yOffset = (getHeight() - height) / 2f;
+    for (SkeletonActor frame : frames) {
+      frame.setY(frame.getY() + yOffset);
+      addActor(frame);
     }
   }
 
