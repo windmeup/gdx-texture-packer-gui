@@ -132,7 +132,7 @@ public class Frames2SpineProcessor implements PackProcessor {
     for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
       addFrame(actions, region.name);
     }
-    Map<String, Animation> animations = new HashMap<>();
+    Map<String, Animation> animations = new TreeMap<>();
     for (Map.Entry<String, List<String>> entry : actions.entrySet()) {
       animations.put(entry.getKey(), toAnimation(entry.getValue(), slotName, frameDuration));
     }
