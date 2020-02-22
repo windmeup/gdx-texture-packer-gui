@@ -1,18 +1,15 @@
 package com.crashinvaders.texturepackergui.views.canvas.widgets.preview;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.crashinvaders.common.scene2d.ScrollFocusCaptureInputListener;
 import com.crashinvaders.texturepackergui.views.canvas.model.AtlasModel;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.OuterFade;
 
 public class PreviewHolder extends WidgetGroup {
     private static final float SAVE_PADDING = 24f;
@@ -22,6 +19,7 @@ public class PreviewHolder extends WidgetGroup {
 
     private final Skin skin;
     private final NoPageHint noPageHint;
+    private final OuterFade outerFade;
     private PageGroup pageGroup;
     private boolean pageMoved;
 
@@ -34,7 +32,8 @@ public class PreviewHolder extends WidgetGroup {
         noPageHint = new NoPageHint(skin);
         addActor(noPageHint);
 
-        addActor(new OuterFade(skin));
+        outerFade = new OuterFade(skin);
+        addActor(outerFade);
         addListener(new PanZoomListener());
         addListener(new ScrollFocusCaptureInputListener());
     }
@@ -64,6 +63,7 @@ public class PreviewHolder extends WidgetGroup {
 
         if (pageGroup != null) { removeActor(pageGroup); }
         pageGroup = new PageGroup(skin, atlas.getPages().get(pageIndex));
+        outerFade.setCenter(pageGroup);
         addActor(pageGroup);
 
         pageMoved = false;
@@ -209,54 +209,6 @@ public class PreviewHolder extends WidgetGroup {
 
             fixPagePosition();
             return true;
-        }
-    }
-
-    /** Draws fade outside of page (when  page is present) */
-    private class OuterFade extends Widget {
-        private final Color COLOR_DIM = new Color(0x00000040);
-
-        private final TextureRegion whiteTexture;
-
-        public OuterFade(Skin skin) {
-            whiteTexture = skin.getRegion("white");
-            setFillParent(true);
-        }
-
-        @Override
-        public void draw(Batch batch, float parentAlpha) {
-            super.draw(batch, parentAlpha);
-            if (pageGroup == null) return;
-
-            Color col;
-            float x = pageGroup.getX();
-            float y = pageGroup.getY();
-            float width = pageGroup.getWidth() * pageGroup.getScaleX();
-            float height = pageGroup.getHeight() * pageGroup.getScaleY();
-
-            // Fading all around page
-            col = COLOR_DIM;
-            batch.setColor(col.r, col.g, col.b, col.a * getColor().a * parentAlpha);
-            batch.draw(whiteTexture,
-                    getX() + 0f,
-                    getY() + y + height,
-                    getWidth(),
-                    getHeight());
-            batch.draw(whiteTexture,
-                    getX() + 0f,
-                    getY() + y - getHeight(),
-                    getWidth(),
-                    getHeight());
-            batch.draw(whiteTexture,
-                    getX() + 0f,
-                    getY() + y,
-                    x,
-                    height);
-            batch.draw(whiteTexture,
-                    getX() + x + width,
-                    getY() + y,
-                    getWidth(),
-                    height);
         }
     }
 }

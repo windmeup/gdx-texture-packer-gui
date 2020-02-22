@@ -71,7 +71,7 @@ public class PagePreviewCanvas extends Stack {
 				addActor(previewHolder);
 			}
 
-			animationViewer = new AnimationViewer();
+			animationViewer = new AnimationViewer(skin);
 			animationViewer.setVisible(false);
 			addActor(animationViewer);
 
