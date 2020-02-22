@@ -29,6 +29,7 @@ import com.github.czyzby.lml.parser.tag.LmlTag;
 import com.github.czyzby.lml.parser.tag.LmlTagProvider;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
+import lombok.Getter;
 
 public class PagePreviewCanvas extends Stack {
 
@@ -48,6 +49,7 @@ public class PagePreviewCanvas extends Stack {
 
 	private boolean showAnimations;
 
+	@Getter
 	private AnimationViewer animationViewer;
 
 	private AnimationInfoPanel animationInfoPanel;

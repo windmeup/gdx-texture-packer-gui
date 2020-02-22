@@ -593,6 +593,14 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         canvas.setShowAnimations(false);
     }
 
+    @LmlAction("onZoomIn") void onZoomIn(VisImageButton button) {
+        canvas.getAnimationViewer().zoomIn();
+    }
+
+    @LmlAction("onZoomOut") void onZoomOut(VisImageButton button) {
+        canvas.getAnimationViewer().zoomOut();
+    }
+
     private void updateViewsFromPack(PackModel pack) {
         if (actorsPacks.packListAdapter.getSelected() != pack) {
             actorsPacks.packListAdapter.getSelectionManager().deselectAll();
