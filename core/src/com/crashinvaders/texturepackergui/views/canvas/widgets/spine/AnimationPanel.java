@@ -29,6 +29,8 @@ public class AnimationPanel extends Group {
 
   private final NinePatchDrawable borderFrame;
 
+  private SkeletonData skeletonData;
+
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
     borderFrame = new NinePatchDrawable(skin.getPatch("custom/white_frame")).tint(Color.BLACK);
   }
@@ -41,7 +43,15 @@ public class AnimationPanel extends Group {
   }
 
   public void setSkeletonData(SkeletonData skeletonData) {
+    this.skeletonData = skeletonData;
+    layout();
+  }
+
+  public void layout() {
     clear();
+    if (skeletonData == null) {
+      return;
+    }
     Skin skin = skeletonData.getDefaultSkin();
     if (skin == null) {
       return;
@@ -58,9 +68,11 @@ public class AnimationPanel extends Group {
     Rectangle bound;
     float frameX = GAP;
     float frameWidth;
+    float frameHeight;
     float lineHeight = GAP;
     float width = getParent().getWidth() - GAP * 2f;
     float height = GAP;
+    float lineIncrease;
     List<SkeletonActor> frames = new ArrayList<>();
     for (Animation animation : skeletonData.getAnimations()) {
       bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
@@ -73,15 +85,23 @@ public class AnimationPanel extends Group {
           }
         }
       }
-      lineHeight = Math.max(lineHeight, bound.getHeight() + GAP);
+      frameHeight = bound.getHeight() + GAP;
       frameWidth = bound.getWidth();
       if (frameX + frameWidth + GAP > width) {
         frameX = GAP;
         for (SkeletonActor frame : frames) {
-          frame.setY(frame.getY() + lineHeight);
+          frame.setY(frame.getY() + frameHeight);
         }
         height += lineHeight;
-        lineHeight = bound.getHeight() + GAP;
+        lineHeight = frameHeight;
+      } else {
+        lineIncrease = frameHeight - lineHeight;
+        if (lineIncrease > 0f) {
+          for (SkeletonActor frame : frames) {
+            frame.setY(frame.getY() + lineIncrease);
+          }
+          lineHeight = frameHeight;
+        }
       }
       skeletonActor = new SkeletonActor(skeletonRenderer, new Skeleton(skeletonData),
           new AnimationState(new AnimationStateData(skeletonData)));
