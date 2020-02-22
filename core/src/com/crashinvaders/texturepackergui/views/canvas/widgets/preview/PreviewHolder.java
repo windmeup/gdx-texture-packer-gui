@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.crashinvaders.common.scene2d.ScrollFocusCaptureInputListener;
@@ -39,15 +38,6 @@ public class PreviewHolder extends WidgetGroup {
     }
 
     @Override
-    protected void setStage(Stage stage) {
-        super.setStage(stage);
-
-        if (stage != null) {
-            stage.setScrollFocus(this);
-        }
-    }
-
-    @Override
     protected void sizeChanged() {
         super.sizeChanged();
 
@@ -55,6 +45,14 @@ public class PreviewHolder extends WidgetGroup {
             fitPageAtCenter();
         }
         fixPagePosition();
+    }
+
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (visible && getStage() != null) {
+            getStage().setScrollFocus(this);
+        }
     }
 
     public void setPage(AtlasModel atlas, int pageIndex) {

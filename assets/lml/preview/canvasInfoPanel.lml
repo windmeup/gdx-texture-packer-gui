@@ -3,9 +3,15 @@
 
 <vistable background="canvasInfoPanel" tablealign="right" padright="8" defaultalign="left">
 
-    <vischeckbox id="cbShowAnimations" style="small"
-        onchange="onShowAnimationsCbChecked"
-        tooltip="@canvasTtShowAnimations">@canvasShowAnimations</vischeckbox>
+    <visimagebutton id="btShowAnimations"
+        icon="custom/ic-small-view"
+        onchange="onShowAnimations"
+        tooltip="@canvasTtShowAnimations"
+        width="12"
+        height="12"
+        imagescaling="none"
+        generatedisabled="true"
+        focusborder="false"/>
 
     <actor width="12"/>
 

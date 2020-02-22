@@ -1,4 +1,4 @@
-package com.crashinvaders.texturepackergui.views.canvas.widgets;
+package com.crashinvaders.texturepackergui.views.canvas.widgets.preview;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -31,7 +31,7 @@ public class InfoPanel extends Container {
         // Workaround of parser's only single parsing operation limitation
         LmlParser localParser = new DefaultLmlParser(parser.getData());
         localParser.setSyntax(parser.getSyntax());
-        Group root = (Group) (localParser.parseTemplate(Gdx.files.internal("lml/canvasInfoPanel.lml")).first());
+        Group root = (Group) (localParser.parseTemplate(Gdx.files.internal("lml/preview/canvasInfoPanel.lml")).first());
         setActor(root);
 
         lblPages = root.findActor("lblPages");

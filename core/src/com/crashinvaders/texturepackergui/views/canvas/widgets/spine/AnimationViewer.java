@@ -32,4 +32,12 @@ public class AnimationViewer extends WidgetGroup {
       Gdx.graphics.requestRendering();
     }
   }
+
+  @Override
+  public void setVisible(boolean visible) {
+    super.setVisible(visible);
+    if (visible && getStage() != null) {
+      getStage().setScrollFocus(this);
+    }
+  }
 }

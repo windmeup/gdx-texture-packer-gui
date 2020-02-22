@@ -16,8 +16,9 @@ import com.crashinvaders.texturepackergui.App;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.views.canvas.model.AtlasModel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.BackgroundWidget;
-import com.crashinvaders.texturepackergui.views.canvas.widgets.InfoPanel;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.preview.InfoPanel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.preview.PreviewHolder;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationInfoPanel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationViewer;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.SkeletonJson;
@@ -49,6 +50,8 @@ public class PagePreviewCanvas extends Stack {
 
 	private AnimationViewer animationViewer;
 
+	private AnimationInfoPanel animationInfoPanel;
+
 	public PagePreviewCanvas(Skin skin) {
 		// Layout
 		{
@@ -67,12 +70,10 @@ public class PagePreviewCanvas extends Stack {
 						infoPanel.setZoomLevel(percentage);
 					}
 				});
-
 				addActor(previewHolder);
 			}
 
 			animationViewer = new AnimationViewer(skin);
-			animationViewer.setVisible(false);
 			addActor(animationViewer);
 
 			// Page buttons
@@ -135,7 +136,10 @@ public class PagePreviewCanvas extends Stack {
 			{
 				infoPanel = new InfoPanel(App.inst().getInterfaceService().getParser());
 				addActor(infoPanel);
+				animationInfoPanel = new AnimationInfoPanel(App.inst().getInterfaceService().getParser());
+				addActor(animationInfoPanel);
 			}
+			setShowAnimations(false);
 		}
 	}
 
@@ -145,7 +149,9 @@ public class PagePreviewCanvas extends Stack {
 		previewHolder.setVisible(reverse);
 		btnNextPage.setVisible(reverse);
 		btnPrevPage.setVisible(reverse);
+		infoPanel.setVisible(reverse);
 		animationViewer.setVisible(showAnimations);
+		animationInfoPanel.setVisible(showAnimations);
 	}
 
 	// Apply scissors
