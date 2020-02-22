@@ -73,7 +73,9 @@ public class PagePreviewCanvas extends Stack {
 				addActor(previewHolder);
 			}
 
-			animationViewer = new AnimationViewer(skin);
+			animationViewer = new AnimationViewer(skin, percentage -> {
+				animationInfoPanel.setZoomLevel(percentage);
+			});
 			addActor(animationViewer);
 
 			// Page buttons

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationState;
@@ -31,15 +32,24 @@ public class AnimationPanel extends Group {
 
   private SkeletonData skeletonData;
 
+  private final List<SkeletonActor> frames = new ArrayList<>();
+
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
+    setTouchable(Touchable.disabled);
     borderFrame = new NinePatchDrawable(skin.getPatch("custom/white_frame")).tint(Color.BLACK);
   }
 
   @Override
   public void draw(Batch batch, float parentAlpha) {
     batch.setColor(Color.BLACK);
-    borderFrame.draw(batch, getX(), getY(), getWidth(), getHeight());
+    borderFrame.draw(batch, getX(), getY(), getWidth() * getScaleX(), getHeight() * getScaleY());
     super.draw(batch, parentAlpha);
+  }
+
+  @Override
+  public void setScale(float scaleXY) {
+    super.setScale(scaleXY);
+    layout();
   }
 
   public void setSkeletonData(SkeletonData skeletonData) {
@@ -70,10 +80,11 @@ public class AnimationPanel extends Group {
     float frameWidth;
     float frameHeight;
     float lineHeight = GAP;
-    float width = getParent().getWidth() - GAP * 2f;
+    float scaleX = getScaleX();
+    float width = (getParent().getWidth() - GAP * 2f) / scaleX;
     float height = GAP;
     float lineIncrease;
-    List<SkeletonActor> frames = new ArrayList<>();
+    frames.clear();
     for (Animation animation : skeletonData.getAnimations()) {
       bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
       for (Animation.Timeline timeline : animation.getTimelines()) {
@@ -115,7 +126,8 @@ public class AnimationPanel extends Group {
       addActor(frame);
     }
     setSize(width, height);
-    setPosition(Math.round((getParent().getWidth() - width) / 2f), Math.round((getParent().getHeight() - height) / 2f));
+    setPosition(Math.round((getParent().getWidth() - width * scaleX) / 2f),
+        Math.round((getParent().getHeight() - height * getScaleY()) / 2f));
   }
 
   private Rectangle getBound(RegionAttachment attachment) {

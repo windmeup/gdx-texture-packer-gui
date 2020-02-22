@@ -11,11 +11,18 @@ import com.esotericsoftware.spine.SkeletonData;
 
 public class AnimationViewer extends WidgetGroup {
 
+  private static final int[] ZOOM_LEVELS = {100, 150, 200, 300, 400, 600, 800, 1000};
+
   private final AnimationPanel animationPanel;
 
-  public AnimationViewer(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
+  private final Listener listener;
+
+  private int zoomIndex;
+
+  public AnimationViewer(com.badlogic.gdx.scenes.scene2d.ui.Skin skin, Listener listener) {
     animationPanel = new AnimationPanel(skin);
     addActor(animationPanel);
+    this.listener = listener;
     OuterFade outerFade = new OuterFade(skin);
     outerFade.setCenter(animationPanel);
     addActor(outerFade);
@@ -52,6 +59,10 @@ public class AnimationViewer extends WidgetGroup {
     animationPanel.layout();
   }
 
+  public interface Listener {
+    void onZoomChanged(int percentage);
+  }
+
   private class AnimationZoomListener extends InputListener {
 
     private final Vector2 lastPos = new Vector2();
@@ -85,6 +96,15 @@ public class AnimationViewer extends WidgetGroup {
         return;
       }
       dragging = false;
+    }
+
+    @Override
+    public boolean scrolled(InputEvent event, float x, float y, int amount) {
+      zoomIndex = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, zoomIndex - amount));
+      float scale = (float) ZOOM_LEVELS[zoomIndex] / 100f;
+      animationPanel.setScale(scale);
+      listener.onZoomChanged(ZOOM_LEVELS[zoomIndex]);
+      return true;
     }
   }
 }
