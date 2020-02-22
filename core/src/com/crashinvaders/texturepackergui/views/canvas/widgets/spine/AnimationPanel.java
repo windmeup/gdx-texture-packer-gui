@@ -32,8 +32,6 @@ public class AnimationPanel extends Group {
 
   private SkeletonData skeletonData;
 
-  private final List<SkeletonActor> frames = new ArrayList<>();
-
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
     setTouchable(Touchable.disabled);
     borderFrame = new NinePatchDrawable(skin.getPatch("custom/white_frame")).tint(Color.BLACK);
@@ -74,31 +72,26 @@ public class AnimationPanel extends Group {
         frameBounds.put(attachment.getName(), getBound((RegionAttachment) attachment));
       }
     }
-    SkeletonActor skeletonActor;
     Rectangle bound;
+    float maxFrameWidth = 0f;
+    for (Animation animation : skeletonData.getAnimations()) {
+      bound = getBound(animation, frameBounds);
+      maxFrameWidth = Math.max(maxFrameWidth, bound.getWidth());
+    }
+    SkeletonActor skeletonActor;
     float frameX = GAP;
     float frameWidth;
     float frameHeight;
     float lineHeight = GAP;
     float scaleX = getScaleX();
-    float width = (getParent().getWidth() - GAP * 2f) / scaleX;
+    float width = Math.max((getParent().getWidth() - GAP * 2f) / scaleX, maxFrameWidth + GAP * 2f);
     float height = GAP;
     float lineIncrease;
-    frames.clear();
+    List<SkeletonActor> frames = new ArrayList<>();
     for (Animation animation : skeletonData.getAnimations()) {
-      bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
-      for (Animation.Timeline timeline : animation.getTimelines()) {
-        if (timeline instanceof Animation.AttachmentTimeline) {
-          for (String name : ((Animation.AttachmentTimeline) timeline).getAttachmentNames()) {
-            if (frameBounds.containsKey(name)) {
-              bound.merge(frameBounds.get(name));
-            }
-          }
-        }
-      }
+      bound = getBound(animation, frameBounds);
       frameHeight = bound.getHeight() + GAP;
       frameWidth = bound.getWidth();
-      width = Math.max(frameWidth + GAP * 2f , width);
       if (frameX + frameWidth + GAP > width) {
         frameX = GAP;
         for (SkeletonActor frame : frames) {
@@ -137,5 +130,19 @@ public class AnimationPanel extends Group {
     float width = attachment.getWidth();
     float height = attachment.getHeight();
     return new Rectangle(x - width / 2f, y - height / 2f, width, height);
+  }
+
+  private Rectangle getBound(Animation animation, Map<String, Rectangle> frameBounds) {
+    Rectangle bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
+    for (Animation.Timeline timeline : animation.getTimelines()) {
+      if (timeline instanceof Animation.AttachmentTimeline) {
+        for (String name : ((Animation.AttachmentTimeline) timeline).getAttachmentNames()) {
+          if (frameBounds.containsKey(name)) {
+            bound.merge(frameBounds.get(name));
+          }
+        }
+      }
+    }
+    return bound;
   }
 }
