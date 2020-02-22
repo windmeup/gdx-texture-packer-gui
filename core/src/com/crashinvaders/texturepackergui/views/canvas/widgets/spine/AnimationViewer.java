@@ -83,9 +83,20 @@ public class AnimationViewer extends WidgetGroup {
     @Override
     public void touchDragged(InputEvent event, float x, float y, int pointer) {
       if (dragging) {
+        float panelHeight = animationPanel.getHeight() * animationPanel.getScaleY();
+        float height = getHeight() - AnimationPanel.INFO_PANEL_HEIGHT;
+        float toY = animationPanel.getY() - lastPos.y + y;
+        if (panelHeight < height) {
+          toY = Math.min(Math.max(toY, AnimationPanel.GAP)
+              , height - panelHeight - AnimationPanel.GAP);
+        } else {
+          toY = Math.max(Math.min(toY, AnimationPanel.GAP)
+              , height - panelHeight - AnimationPanel.GAP);
+        }
         animationPanel.setPosition(
-            animationPanel.getX() - lastPos.x + x,
-            animationPanel.getY() - lastPos.y + y);
+            Math.max(Math.min(animationPanel.getX() - lastPos.x + x, AnimationPanel.GAP)
+                , getWidth() - animationPanel.getWidth() * animationPanel.getScaleX() - AnimationPanel.GAP),
+            toY);
         lastPos.set(x, y);
       }
     }

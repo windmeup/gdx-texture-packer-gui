@@ -24,9 +24,11 @@ import java.util.Map;
 
 public class AnimationPanel extends Group {
 
-  private static final SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
+  public static final float GAP = 10f;
 
-  private static final float GAP = 10f;
+  public static final float INFO_PANEL_HEIGHT = 18f;
+
+  private static final SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
 
   private final NinePatchDrawable borderFrame;
 
@@ -122,7 +124,7 @@ public class AnimationPanel extends Group {
       addActor(frame);
     }
     setSize(width, height);
-    float parentHeight = parent.getHeight();
+    float parentHeight = parent.getHeight() - INFO_PANEL_HEIGHT;
     height *= getScaleY();
     float x = Math.round((parentWidth - width * scaleX) / 2f);
     if (parentHeight > height) {
@@ -130,7 +132,7 @@ public class AnimationPanel extends Group {
           Math.round((parentHeight - height) / 2f));
     } else {
       setPosition(x,
-          Math.round(parentHeight - height - 18f - GAP)); // 18 approach to infoPanel's height
+          Math.round(parentHeight - height - GAP));
     }
   }
 
