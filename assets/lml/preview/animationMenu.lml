@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE popupmenu SYSTEM "/lml.dtd">
+
+<popupmenu>
+    <menuitem
+            id="miRepack"
+            text="@repack"
+            onchange="frames2spine"
+            icon="custom/ic-frames2spine"/>
+    <menuitem
+            id="miChangeBackground"
+            text="@dPbChangeBackground"
+            onchange="changePreviewBackground"
+            icon="custom/ic-bucket"/>
+</popupmenu>

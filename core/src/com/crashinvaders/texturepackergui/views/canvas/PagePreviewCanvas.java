@@ -47,6 +47,7 @@ public class PagePreviewCanvas extends Stack {
 	private AtlasModel atlas;
 	private int pageIndex = 0;
 
+	@Getter
 	private boolean showAnimations;
 
 	@Getter

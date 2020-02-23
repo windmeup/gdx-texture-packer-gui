@@ -5,7 +5,12 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -20,7 +25,10 @@ import com.crashinvaders.common.scene2d.Scene2dUtils;
 import com.crashinvaders.common.scene2d.visui.Toast;
 import com.crashinvaders.common.scene2d.visui.ToastManager;
 import com.crashinvaders.texturepackergui.AppConstants;
-import com.crashinvaders.texturepackergui.controllers.*;
+import com.crashinvaders.texturepackergui.controllers.FileDragDropController;
+import com.crashinvaders.texturepackergui.controllers.GlobalActions;
+import com.crashinvaders.texturepackergui.controllers.RecentProjectsRepository;
+import com.crashinvaders.texturepackergui.controllers.ScaleFactorsDialogController;
 import com.crashinvaders.texturepackergui.controllers.main.filetype.FileTypeController;
 import com.crashinvaders.texturepackergui.controllers.main.filetype.JpegFileTypeController;
 import com.crashinvaders.texturepackergui.controllers.main.filetype.KtxFileTypeController;
@@ -35,7 +43,14 @@ import com.crashinvaders.texturepackergui.controllers.model.filetype.JpegFileTyp
 import com.crashinvaders.texturepackergui.controllers.model.filetype.KtxFileTypeModel;
 import com.crashinvaders.texturepackergui.controllers.model.filetype.PngFileTypeModel;
 import com.crashinvaders.texturepackergui.controllers.projectserializer.ProjectSerializer;
-import com.crashinvaders.texturepackergui.events.*;
+import com.crashinvaders.texturepackergui.events.PackListOrderChangedEvent;
+import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent;
+import com.crashinvaders.texturepackergui.events.ProjectInitializedEvent;
+import com.crashinvaders.texturepackergui.events.ProjectPropertyChangedEvent;
+import com.crashinvaders.texturepackergui.events.RecentProjectsUpdatedEvent;
+import com.crashinvaders.texturepackergui.events.RemoveToastEvent;
+import com.crashinvaders.texturepackergui.events.ShowToastEvent;
+import com.crashinvaders.texturepackergui.events.VersionUpdateCheckEvent;
 import com.crashinvaders.texturepackergui.lml.attributes.OnRightClickLmlAttribute;
 import com.crashinvaders.texturepackergui.utils.CommonUtils;
 import com.crashinvaders.texturepackergui.utils.LmlAutumnUtils;
@@ -382,7 +397,12 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     }
 
     @LmlAction("onCanvasRightClick") void onCanvasRightClick(OnRightClickLmlAttribute.Params params) {
-        PopupMenu popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/canvasMenu.lml"));
+        PopupMenu popupMenu;
+        if (canvas.isShowAnimations()) {
+            popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/animationMenu.lml"));
+        } else {
+            popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/canvasMenu.lml"));
+        }
         PackModel pack = getSelectedPack();
 
         MenuItem menuItem;
