@@ -17,7 +17,7 @@
 
     <visimagebutton id="btZoomIn"
         icon="custom/ic-small-zoom-in"
-        onchange="onZoomIn"
+        onchange="zoomIn"
         tooltip="@ttZoomIn"
         width="12"
         height="12"
@@ -29,7 +29,7 @@
 
     <visimagebutton id="btZoomOut"
         icon="custom/ic-small-zoom-out"
-        onchange="onZoomOut"
+        onchange="zoomOut"
         tooltip="@ttZoomOut"
         width="12"
         height="12"

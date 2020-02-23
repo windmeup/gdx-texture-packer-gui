@@ -420,11 +420,11 @@ public class GlobalActions implements ActionContainer {
         }
     }
 
-    @LmlAction("onZoomIn") void onZoomIn(VisImageButton button) {
+    @LmlAction("zoomIn") void onZoomIn(VisImageButton button) {
         mainController.getCanvas().getAnimationViewer().zoomIn();
     }
 
-    @LmlAction("onZoomOut") void onZoomOut(VisImageButton button) {
+    @LmlAction("zoomOut") void onZoomOut(VisImageButton button) {
         mainController.getCanvas().getAnimationViewer().zoomOut();
     }
 

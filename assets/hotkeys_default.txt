@@ -40,5 +40,6 @@ showMenuPack: ALT+P
 showMenuTools: ALT+T
 showMenuHelp: ALT+H
 
-onZoomIn: CTRL+L
-onZoomOut: CTRL+K
+# zoom animation preview
+zoomIn: CTRL+L
+zoomOut: CTRL+K
