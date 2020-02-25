@@ -2,6 +2,7 @@ package com.crashinvaders.texturepackergui.views.canvas.widgets.spine;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -15,7 +16,6 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.Skin;
 import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
-import com.esotericsoftware.spine.utils.SkeletonActor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,11 +32,14 @@ public class AnimationPanel extends Group {
 
   private final NinePatchDrawable borderFrame;
 
+  private final NinePatch actorBorder;
+
   private SkeletonData skeletonData;
 
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
     setTouchable(Touchable.disabled);
     borderFrame = new NinePatchDrawable(skin.getPatch("custom/white_frame")).tint(Color.BLACK);
+    actorBorder = skin.getPatch("custom/white_frame");
   }
 
   @Override
@@ -66,62 +69,62 @@ public class AnimationPanel extends Group {
     if (skin == null) {
       return;
     }
-    Map<String, Rectangle> frameBounds = new HashMap<>();
+    Map<String, Rectangle> actorBounds = new HashMap<>();
     Attachment attachment;
     for (Skin.SkinEntry skinEntry : skin.getAttachments()) {
       attachment = skinEntry.getAttachment();
       if (attachment instanceof RegionAttachment) {
-        frameBounds.put(attachment.getName(), getBound((RegionAttachment) attachment));
+        actorBounds.put(attachment.getName(), getBound((RegionAttachment) attachment));
       }
     }
-    Rectangle bound;
-    float maxFrameWidth = 0f;
+    Rectangle actorBound;
+    float maxActorWidth = 0f;
     for (Animation animation : skeletonData.getAnimations()) {
-      bound = getBound(animation, frameBounds);
-      maxFrameWidth = Math.max(maxFrameWidth, bound.getWidth());
+      actorBound = getBound(animation, actorBounds);
+      maxActorWidth = Math.max(maxActorWidth, actorBound.getWidth());
     }
-    SkeletonActor skeletonActor;
-    float frameX = GAP;
-    float frameWidth;
-    float frameHeight;
-    float lineHeight = GAP;
+    AnimationActor animationActor;
+    float actorX = GAP;
+    float actorWidth;
+    float actorHeight;
+    float rowHeight = GAP;
     float scaleX = getScaleX();
     Group parent = getParent();
     float parentWidth = parent.getWidth();
-    float width = Math.max((parentWidth - GAP * 2f) / scaleX, maxFrameWidth + GAP * 2f);
+    float width = Math.max((parentWidth - GAP * 2f) / scaleX, maxActorWidth + GAP * 2f);
     float height = GAP;
-    float lineIncrease;
-    List<SkeletonActor> frames = new ArrayList<>();
+    float rowIncrease;
+    List<AnimationActor> actors = new ArrayList<>();
     for (Animation animation : skeletonData.getAnimations()) {
-      bound = getBound(animation, frameBounds);
-      frameHeight = bound.getHeight() + GAP;
-      frameWidth = bound.getWidth();
-      if (frameX + frameWidth + GAP > width) {
-        frameX = GAP;
-        for (SkeletonActor frame : frames) {
-          frame.setY(frame.getY() + frameHeight);
+      actorBound = getBound(animation, actorBounds);
+      actorHeight = actorBound.getHeight() + GAP;
+      actorWidth = actorBound.getWidth();
+      if (actorX + actorWidth + GAP > width) {
+        actorX = GAP;
+        for (AnimationActor actor : actors) {
+          actor.setY(actor.getY() + actorHeight);
         }
-        height += lineHeight;
-        lineHeight = frameHeight;
+        height += rowHeight;
+        rowHeight = actorHeight;
       } else {
-        lineIncrease = frameHeight - lineHeight;
-        if (lineIncrease > 0f) {
-          for (SkeletonActor frame : frames) {
-            frame.setY(frame.getY() + lineIncrease);
+        rowIncrease = actorHeight - rowHeight;
+        if (rowIncrease > 0f) {
+          for (AnimationActor actor : actors) {
+            actor.setY(actor.getY() + rowIncrease);
           }
-          lineHeight = frameHeight;
+          rowHeight = actorHeight;
         }
       }
-      skeletonActor = new SkeletonActor(skeletonRenderer, new Skeleton(skeletonData),
-          new AnimationState(new AnimationStateData(skeletonData)));
-      skeletonActor.getAnimationState().setAnimation(0, animation.getName(), true);
-      skeletonActor.setPosition(frameX - bound.getX(), GAP - bound.getY());
-      frames.add(skeletonActor);
-      frameX += bound.getWidth() + GAP;
+      animationActor = new AnimationActor(skeletonRenderer, new Skeleton(skeletonData),
+          new AnimationState(new AnimationStateData(skeletonData)), actorBound, actorBorder);
+      animationActor.getAnimationState().setAnimation(0, animation.getName(), true);
+      animationActor.setPosition(actorX - actorBound.getX(), GAP - actorBound.getY());
+      actors.add(animationActor);
+      actorX += actorBound.getWidth() + GAP;
     }
-    height += lineHeight;
-    for (SkeletonActor frame : frames) {
-      addActor(frame);
+    height += rowHeight;
+    for (AnimationActor actor : actors) {
+      addActor(actor);
     }
     setSize(width, height);
     float parentHeight = parent.getHeight() - INFO_PANEL_HEIGHT;
@@ -144,13 +147,13 @@ public class AnimationPanel extends Group {
     return new Rectangle(x - width / 2f, y - height / 2f, width, height);
   }
 
-  private Rectangle getBound(Animation animation, Map<String, Rectangle> frameBounds) {
+  private Rectangle getBound(Animation animation, Map<String, Rectangle> actorBounds) {
     Rectangle bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
     for (Animation.Timeline timeline : animation.getTimelines()) {
       if (timeline instanceof Animation.AttachmentTimeline) {
         for (String name : ((Animation.AttachmentTimeline) timeline).getAttachmentNames()) {
-          if (frameBounds.containsKey(name)) {
-            bound.merge(frameBounds.get(name));
+          if (actorBounds.containsKey(name)) {
+            bound.merge(actorBounds.get(name));
           }
         }
       }
