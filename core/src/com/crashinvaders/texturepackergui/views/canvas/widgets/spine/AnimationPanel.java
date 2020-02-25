@@ -4,9 +4,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.crashinvaders.texturepackergui.utils.GraphicsUtils;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationState;
 import com.esotericsoftware.spine.AnimationStateData;
@@ -16,6 +18,7 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.Skin;
 import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +32,8 @@ public class AnimationPanel extends Group {
   public static final float INFO_PANEL_HEIGHT = 18f;
 
   private static final SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
+
+  private ShapeDrawer shapeDrawer;
 
   private final NinePatchDrawable borderFrame;
 
@@ -45,8 +50,22 @@ public class AnimationPanel extends Group {
   @Override
   public void draw(Batch batch, float parentAlpha) {
     batch.setColor(Color.BLACK);
-    borderFrame.draw(batch, getX(), getY(), getWidth() * getScaleX(), getHeight() * getScaleY());
+    float x = getX();
+    float y = getY();
+    float scaleX = getScaleX();
+    float scaleY = getScaleY();
+    borderFrame.draw(batch, x, y, getWidth() * scaleX, getHeight() * scaleY);
     super.draw(batch, parentAlpha);
+    if (shapeDrawer == null) {
+      shapeDrawer = new ShapeDrawer(batch, GraphicsUtils.onePix);
+    }
+    shapeDrawer.setColor(Color.GREEN);
+    shapeDrawer.setDefaultLineWidth(2f);
+    for (Actor actor : getChildren()) {
+      if (actor instanceof AnimationActor) {
+        ((AnimationActor) actor).drawCoords(shapeDrawer, x, y, scaleX, scaleY);
+      }
+    }
   }
 
   @Override

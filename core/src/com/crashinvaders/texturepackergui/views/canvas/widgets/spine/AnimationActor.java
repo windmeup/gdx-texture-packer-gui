@@ -8,6 +8,7 @@ import com.esotericsoftware.spine.AnimationState;
 import com.esotericsoftware.spine.Skeleton;
 import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.utils.SkeletonActor;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class AnimationActor extends SkeletonActor {
 
@@ -29,9 +30,16 @@ public class AnimationActor extends SkeletonActor {
   public void draw(Batch batch, float parentAlpha) {
     super.draw(batch, parentAlpha);
     batch.setColor(Color.BLACK);
-    float scaleX = getScaleX();
-    float scaleY = getScaleY();
-    border.draw(batch, getX() - PAD + bound.getX() * scaleX, getY() - PAD + bound.getY() * scaleY,
-        (bound.getWidth() + PAD * 2f) * scaleX, (bound.getHeight() + PAD * 2f) * scaleY);
+    border.draw(batch, getX() - PAD + bound.getX(), getY() - PAD + bound.getY(),
+        bound.getWidth() + PAD * 2f, bound.getHeight() + PAD * 2f);
+  }
+
+  public void drawCoords(ShapeDrawer shapeDrawer, float parentX, float parentY, float scaleX, float scaleY) {
+    float x = parentX + getX() * scaleX;
+    float y = parentY + getY() * scaleY;
+    float left = x + bound.getX() * scaleX;
+    float bottom = y + bound.getY() * scaleY;
+    shapeDrawer.line(left, y, left + bound.getWidth() * scaleX, y);
+    shapeDrawer.line(x, bottom, x, bottom + bound.getHeight() * scaleY);
   }
 }

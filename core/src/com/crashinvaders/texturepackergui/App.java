@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.crashinvaders.common.PrioritizedInputMultiplexer;
 import com.crashinvaders.texturepackergui.controllers.model.ModelService;
 import com.crashinvaders.texturepackergui.controllers.shortcuts.GlobalShortcutHandler;
+import com.crashinvaders.texturepackergui.utils.GraphicsUtils;
 import com.github.czyzby.autumn.annotation.Initiate;
 import com.github.czyzby.autumn.context.Context;
 import com.github.czyzby.autumn.context.ContextDestroyer;
@@ -174,6 +175,7 @@ public class App implements ApplicationListener {
     public void dispose() {
         Disposables.disposeOf(contextDestroyer);
         VisUI.dispose(false);
+        GraphicsUtils.dispose();
     }
 
     public void restart() {

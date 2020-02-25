@@ -11,7 +11,7 @@ import com.esotericsoftware.spine.SkeletonData;
 
 public class AnimationViewer extends WidgetGroup {
 
-  private static final int[] ZOOM_LEVELS = {100, 120, 150, 200, 300, 400, 600, 800, 1000};
+  private static final int[] ZOOM_LEVELS = {100, 120, 150, 200, 300, 400, 600, 800};
 
   private final AnimationPanel animationPanel;
 
