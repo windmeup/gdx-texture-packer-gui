@@ -43,11 +43,11 @@ public class AnimationActor extends SkeletonActor {
       float parentX, float parentY, float scaleX, float scaleY) {
     float x = parentX + getX() * scaleX;
     float y = parentY + getY() * scaleY;
-    float left = x + bound.getX() * scaleX;
-    float bottom = y + bound.getY() * scaleY;
+    float left = x + (bound.getX() - PAD) * scaleX;
+    float bottom = y + (bound.getY() - PAD) * scaleY;
     shapeDrawer.setColor(AXES);
-    shapeDrawer.line(left, y, left + bound.getWidth() * scaleX, y);
-    shapeDrawer.line(x, bottom, x, bottom + bound.getHeight() * scaleY);
+    shapeDrawer.line(left, y, left + (bound.getWidth() + PAD * 2f) * scaleX, y);
+    shapeDrawer.line(x, bottom, x, bottom + (bound.getHeight() + PAD * 2f) * scaleY);
     shapeDrawer.setColor(AABB);
     shapeDrawer.filledRectangle(
         x + aabb.x * scaleX, y + aabb.y * scaleY, aabb.width * scaleX, aabb.height * scaleY);
