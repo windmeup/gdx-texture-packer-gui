@@ -42,7 +42,13 @@ public class SeekBar extends Table implements Focusable, BorderOwner {
         this.style = style;
         this.setTransform(false);
 
-        textField = new VisValidatableTextField("", style.textFieldStyle);
+        textField = new VisValidatableTextField("", style.textFieldStyle){
+            @Override
+            public void focusGained() {
+                super.focusGained();
+                FocusManager.switchFocus(getStage(), SeekBar.this);
+            }
+        };
         slider = new VisSlider(0f, 1f, 0.01f, false, style.sliderStyle);
 
         this.add(textField).width(style.textFieldWidth);
