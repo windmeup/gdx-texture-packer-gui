@@ -65,8 +65,8 @@ public class SkeletonController {
   }
 
   private void modified(boolean dataChanged) throws IOException {
-    mainController.getCanvas().getAnimationViewer().getAnimationPanel().layout();
     if (dataChanged) {
+      mainController.getCanvas().getAnimationViewer().getAnimationPanel().layout();
       JacksonUtils.writeValue(skeletonFile, data);
     }
   }
