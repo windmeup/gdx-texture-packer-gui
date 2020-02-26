@@ -39,37 +39,35 @@ public class SkeletonController {
   public void setSkeletonX(int skeletonX) throws IOException {
     if (skeletonData != null) {
       skeletonData.setX(skeletonX);
-      data.getSkeleton().setX(skeletonX);
-      modified();
+      modified(data.getSkeleton().setX(skeletonX));
     }
   }
 
   public void setSkeletonY(int skeletonY) throws IOException {
     if (skeletonData != null) {
       skeletonData.setY(skeletonY);
-      data.getSkeleton().setY(skeletonY);
-      modified();
+      modified(data.getSkeleton().setY(skeletonY));
     }
   }
 
   public void setSkeletonWidth(int skeletonWidth) throws IOException {
     if (skeletonData != null) {
       skeletonData.setWidth(skeletonWidth);
-      data.getSkeleton().setWidth(skeletonWidth);
-      modified();
+      modified(data.getSkeleton().setWidth(skeletonWidth));
     }
   }
 
   public void setSkeletonHeight(int skeletonHeight) throws IOException {
     if (skeletonData != null) {
       skeletonData.setHeight(skeletonHeight);
-      data.getSkeleton().setHeight(skeletonHeight);
-      modified();
+      modified(data.getSkeleton().setHeight(skeletonHeight));
     }
   }
 
-  private void modified() throws IOException {
+  private void modified(boolean dataChanged) throws IOException {
     mainController.getCanvas().getAnimationViewer().getAnimationPanel().layout();
-    JacksonUtils.writeValue(skeletonFile, data);
+    if (dataChanged) {
+      JacksonUtils.writeValue(skeletonFile, data);
+    }
   }
 }

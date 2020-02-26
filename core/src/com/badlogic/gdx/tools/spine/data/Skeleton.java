@@ -15,9 +15,9 @@ import lombok.Setter;
  * "audio": ""
  */
 @Getter
-@Setter
 public class Skeleton {
 
+  @Setter
   private String spine;
 
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -32,5 +32,38 @@ public class Skeleton {
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private float height;
 
+  @Setter
   private String images;
+
+  public boolean setX(float x) {
+    if (this.x != x) {
+      this.x = x;
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setY(float y) {
+    if (this.y != y) {
+      this.y = y;
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setWidth(float width) {
+    if (this.width != width) {
+      this.width = width;
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setHeight(float height) {
+    if (this.height != height) {
+      this.height = height;
+      return true;
+    }
+    return false;
+  }
 }
