@@ -333,6 +333,7 @@ public class GlobalActions implements ActionContainer {
             if (pack == selectedPack) continue;
 
             pack.setSettings(generalSettings);
+            pack.setSkeletonSettings(selectedPack.getSkeletonSettings());
         }
 
         eventDispatcher.postEvent(new ShowToastEvent()
