@@ -18,8 +18,6 @@ public class AnimationActor extends SkeletonActor {
 
   private static final Color AABB = new Color(0xffff0066);
 
-  private static final Rectangle tempAABB = new Rectangle();
-
   private final Rectangle bound;
 
   private final NinePatch border;
@@ -51,16 +49,7 @@ public class AnimationActor extends SkeletonActor {
     shapeDrawer.line(left, y, left + bound.getWidth() * scaleX, y);
     shapeDrawer.line(x, bottom, x, bottom + bound.getHeight() * scaleY);
     shapeDrawer.setColor(AABB);
-    intersect(aabb);
     shapeDrawer.filledRectangle(
-        x + tempAABB.x * scaleX, y + tempAABB.y * scaleY, tempAABB.width * scaleX, tempAABB.height * scaleY);
-  }
-
-  private void intersect(Rectangle aabb) {
-    float left = Math.max(aabb.x, bound.x);
-    float bottom = Math.max(aabb.y, bound.y);
-    float right = Math.min(aabb.x + aabb.width, bound.x + bound.width);
-    float top = Math.min(aabb.y + aabb.height, bound.y + bound.height);
-    tempAABB.set(left, bottom, right - left, top - bottom);
+        x + aabb.x * scaleX, y + aabb.y * scaleY, aabb.width * scaleX, aabb.height * scaleY);
   }
 }

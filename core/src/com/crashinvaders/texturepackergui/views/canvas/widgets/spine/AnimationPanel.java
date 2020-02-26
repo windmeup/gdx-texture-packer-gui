@@ -187,6 +187,6 @@ public class AnimationPanel extends Group {
         }
       }
     }
-    return bound;
+    return bound.merge(aabb);
   }
 }
