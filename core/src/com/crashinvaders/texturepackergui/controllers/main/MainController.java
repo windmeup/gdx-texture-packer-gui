@@ -29,6 +29,7 @@ import com.crashinvaders.texturepackergui.controllers.FileDragDropController;
 import com.crashinvaders.texturepackergui.controllers.GlobalActions;
 import com.crashinvaders.texturepackergui.controllers.RecentProjectsRepository;
 import com.crashinvaders.texturepackergui.controllers.ScaleFactorsDialogController;
+import com.crashinvaders.texturepackergui.controllers.SkeletonController;
 import com.crashinvaders.texturepackergui.controllers.main.filetype.FileTypeController;
 import com.crashinvaders.texturepackergui.controllers.main.filetype.JpegFileTypeController;
 import com.crashinvaders.texturepackergui.controllers.main.filetype.KtxFileTypeController;
@@ -79,6 +80,7 @@ import com.kotcrab.vis.ui.util.adapter.ListSelectionAdapter;
 import com.kotcrab.vis.ui.widget.*;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.util.Locale;
 
 @SuppressWarnings("WeakerAccess")
@@ -129,6 +131,8 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     @LmlInject PackMenuActors actorsPackMenu;
     @LmlInject ToolsMenuActors actorsToolsMenu;
     @LmlInject HelpMenuActors actorsHelpMenu;
+
+    @Inject SkeletonController skeletonController;
 
     private final ArrayMap<WidgetData.FileType, FileTypeController> fileTypeControllers = new ArrayMap<>();
     private FileTypeController activeFileTypeController;
@@ -482,7 +486,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         }
     }
 
-    @LmlAction("onSettingsIntSeekBarChanged") void onSettingsIntSeekBarChanged(SeekBar seekBar) {
+    @LmlAction("onSettingsIntSeekBarChanged") void onSettingsIntSeekBarChanged(SeekBar seekBar) throws IOException {
         PackModel pack = getSelectedPack();
         if (pack == null) return;
 
@@ -497,10 +501,26 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             case "skbAlphaThreshold": settings.alphaThreshold = model.getValue(); break;
             case "skbPaddingX": settings.paddingX = model.getValue(); break;
             case "skbPaddingY": settings.paddingY = model.getValue(); break;
-            case "skbSkeletonX": skeletonSettings.setX(model.getValue()); break;
-            case "skbSkeletonY": skeletonSettings.setY(model.getValue()); break;
-            case "skbSkeletonWidth": skeletonSettings.setWidth(model.getValue()); break;
-            case "skbSkeletonHeight": skeletonSettings.setHeight(model.getValue()); break;
+            case "skbSkeletonX":
+                int skeletonX = model.getValue();
+                skeletonSettings.setX(skeletonX);
+                skeletonController.setSkeletonX(skeletonX);
+                break;
+            case "skbSkeletonY":
+                int skeletonY = model.getValue();
+                skeletonSettings.setY(skeletonY);
+                skeletonController.setSkeletonY(skeletonY);
+                break;
+            case "skbSkeletonWidth":
+                int skeletonWidth = model.getValue();
+                skeletonSettings.setWidth(skeletonWidth);
+                skeletonController.setSkeletonWidth(skeletonWidth);
+                break;
+            case "skbSkeletonHeight":
+                int skeletonHeight = model.getValue();
+                skeletonSettings.setHeight(skeletonHeight);
+                skeletonController.setSkeletonHeight(skeletonHeight);
+                break;
             case "skbAnchorX": skeletonSettings.setAnchorX(model.getValue()); break;
             case "skbAnchorY": skeletonSettings.setAnchorY(model.getValue()); break;
         }

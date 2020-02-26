@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.crashinvaders.texturepackergui.App;
+import com.crashinvaders.texturepackergui.controllers.SkeletonController;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.views.canvas.model.AtlasModel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.BackgroundWidget;
@@ -30,6 +31,8 @@ import com.github.czyzby.lml.parser.tag.LmlTagProvider;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
 import lombok.Getter;
+
+import java.io.IOException;
 
 public class PagePreviewCanvas extends Stack {
 
@@ -76,9 +79,8 @@ public class PagePreviewCanvas extends Stack {
 				addActor(previewHolder);
 			}
 
-			animationViewer = new AnimationViewer(skin, percentage -> {
-				animationInfoPanel.setZoomLevel(percentage);
-			});
+			animationViewer = new AnimationViewer(skin, percentage ->
+				animationInfoPanel.setZoomLevel(percentage));
 			addActor(animationViewer);
 
 			// Page buttons
@@ -171,7 +173,8 @@ public class PagePreviewCanvas extends Stack {
 		}
 	}
 
-	public void reloadPack(PackModel pack) {
+	public void reloadPack(PackModel pack, SkeletonController skeletonController) {
+		skeletonController.clear();
 		String atlasPath = null;
 		if (pack != null) {
 			atlasPath = pack.getAtlasPath();
@@ -215,6 +218,14 @@ public class PagePreviewCanvas extends Stack {
 							SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlas.getAtlasData()));
 							SkeletonData skeletonData = skeletonJson.readSkeletonData(skeletonHandle);
 							animationViewer.setSkeletonData(skeletonData);
+							try {
+								skeletonController.setSkeletonPath(skeletonPath);
+							} catch (IOException ex) {
+								atlas.dispose();
+								atlas = null;
+								callback.atlasLoadError(pack);
+							}
+							skeletonController.setSkeletonData(skeletonData);
 						}
 					}
 				}

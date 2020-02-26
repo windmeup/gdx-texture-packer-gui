@@ -1,6 +1,7 @@
 
 package com.crashinvaders.texturepackergui.controllers.main;
 
+import com.crashinvaders.texturepackergui.controllers.SkeletonController;
 import com.crashinvaders.texturepackergui.events.PackAtlasUpdatedEvent;
 import com.crashinvaders.texturepackergui.events.ProjectInitializedEvent;
 import com.crashinvaders.texturepackergui.events.ProjectPropertyChangedEvent;
@@ -22,6 +23,7 @@ public class CanvasController {
 	@Inject LocaleService localeService;
 	@Inject EventDispatcher eventDispatcher;
 	@Inject ModelService modelService;
+	@Inject SkeletonController skeletonController;
 
 	private PagePreviewCanvas canvas;
     private PackModel currentPack;
@@ -38,14 +40,14 @@ public class CanvasController {
         });
 
         currentPack = getSelectedPack();
-        canvas.reloadPack(currentPack);
+        canvas.reloadPack(currentPack, skeletonController);
     }
 
     @OnEvent(ProjectInitializedEvent.class) void onEvent(ProjectInitializedEvent event) {
         if (canvas == null) return;
 
         currentPack = event.getProject().getSelectedPack();
-        canvas.reloadPack(currentPack);
+        canvas.reloadPack(currentPack, skeletonController);
     }
 
     @OnEvent(ProjectPropertyChangedEvent.class) void onEvent(ProjectPropertyChangedEvent event) {
@@ -54,7 +56,7 @@ public class CanvasController {
         switch (event.getProperty()) {
             case SELECTED_PACK:
                 currentPack = event.getProject().getSelectedPack();
-                canvas.reloadPack(currentPack);
+                canvas.reloadPack(currentPack, skeletonController);
                 break;
         }
     }
@@ -63,7 +65,7 @@ public class CanvasController {
         if (canvas == null) return;
 
         if (event.getPack() == currentPack) {
-            canvas.reloadPack(currentPack);
+            canvas.reloadPack(currentPack, skeletonController);
         }
     }
 
