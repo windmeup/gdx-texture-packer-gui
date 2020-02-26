@@ -8,6 +8,7 @@ import com.esotericsoftware.spine.AnimationState;
 import com.esotericsoftware.spine.Skeleton;
 import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.utils.SkeletonActor;
+import lombok.Getter;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class AnimationActor extends SkeletonActor {
@@ -18,6 +19,7 @@ public class AnimationActor extends SkeletonActor {
 
   private static final Color AABB = new Color(0xffff0066);
 
+  @Getter
   private final Rectangle bound;
 
   private final NinePatch border;
