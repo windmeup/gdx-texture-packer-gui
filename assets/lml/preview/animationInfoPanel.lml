@@ -15,6 +15,18 @@
 
     <actor width="12"/>
 
+    <visimagebutton id="btShowCoords"
+        icon="custom/ic-small-coords"
+        onchange="onShowCoords"
+        tooltip="@ttShowCoords"
+        width="12"
+        height="12"
+        imagescaling="none"
+        generatedisabled="true"
+        focusborder="false"/>
+
+    <actor width="12"/>
+
     <visimagebutton id="btZoomIn"
         icon="custom/ic-small-zoom-in"
         onchange="zoomIn"

@@ -18,6 +18,8 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.Skin;
 import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
+import lombok.Getter;
+import lombok.Setter;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 import java.util.ArrayList;
@@ -39,7 +41,13 @@ public class AnimationPanel extends Group {
 
   private final NinePatch actorBorder;
 
+  private final Rectangle aabb = new Rectangle();
+
   private SkeletonData skeletonData;
+
+  @Getter
+  @Setter
+  private boolean showCoords;
 
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
     setTouchable(Touchable.disabled);
@@ -56,14 +64,15 @@ public class AnimationPanel extends Group {
     float scaleY = getScaleY();
     borderFrame.draw(batch, x, y, getWidth() * scaleX, getHeight() * scaleY);
     super.draw(batch, parentAlpha);
-    if (shapeDrawer == null) {
-      shapeDrawer = new ShapeDrawer(batch, GraphicsUtils.onePix);
-    }
-    shapeDrawer.setColor(Color.GREEN);
-    shapeDrawer.setDefaultLineWidth(2f);
-    for (Actor actor : getChildren()) {
-      if (actor instanceof AnimationActor) {
-        ((AnimationActor) actor).drawCoords(shapeDrawer, x, y, scaleX, scaleY);
+    if (showCoords) {
+      if (shapeDrawer == null) {
+        shapeDrawer = new ShapeDrawer(batch, GraphicsUtils.onePix);
+      }
+      shapeDrawer.setDefaultLineWidth(2f);
+      for (Actor actor : getChildren()) {
+        if (actor instanceof AnimationActor) {
+          ((AnimationActor) actor).drawCoords(shapeDrawer, aabb, x, y, scaleX, scaleY);
+        }
       }
     }
   }
@@ -88,6 +97,7 @@ public class AnimationPanel extends Group {
     if (skin == null) {
       return;
     }
+    aabb.set(skeletonData.getX(), skeletonData.getY(), skeletonData.getWidth(), skeletonData.getHeight());
     Map<String, Rectangle> actorBounds = new HashMap<>();
     Attachment attachment;
     for (Skin.SkinEntry skinEntry : skin.getAttachments()) {

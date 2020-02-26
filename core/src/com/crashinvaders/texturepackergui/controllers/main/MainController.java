@@ -55,6 +55,7 @@ import com.crashinvaders.texturepackergui.lml.attributes.OnRightClickLmlAttribut
 import com.crashinvaders.texturepackergui.utils.CommonUtils;
 import com.crashinvaders.texturepackergui.utils.LmlAutumnUtils;
 import com.crashinvaders.texturepackergui.views.canvas.PagePreviewCanvas;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationPanel;
 import com.crashinvaders.texturepackergui.views.seekbar.FloatSeekBarModel;
 import com.crashinvaders.texturepackergui.views.seekbar.IntSeekBarModel;
 import com.crashinvaders.texturepackergui.views.seekbar.SeekBar;
@@ -613,6 +614,11 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlAction("onShowAtlas") void onShowAtlas(VisImageButton button) {
         canvas.setShowAnimations(false);
+    }
+
+    @LmlAction("onShowCoords") void onShowCoords(VisImageButton button) {
+        AnimationPanel panel = canvas.getAnimationViewer().getAnimationPanel();
+        panel.setShowCoords(!panel.isShowCoords());
     }
 
     private void updateViewsFromPack(PackModel pack) {

@@ -8,11 +8,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.crashinvaders.common.scene2d.ScrollFocusCaptureInputListener;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.OuterFade;
 import com.esotericsoftware.spine.SkeletonData;
+import lombok.Getter;
 
 public class AnimationViewer extends WidgetGroup {
 
   private static final int[] ZOOM_LEVELS = {100, 120, 150, 200, 300, 400, 600, 800};
 
+  @Getter
   private final AnimationPanel animationPanel;
 
   private final Listener listener;

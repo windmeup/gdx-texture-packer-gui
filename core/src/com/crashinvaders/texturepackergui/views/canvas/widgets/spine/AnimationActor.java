@@ -14,6 +14,12 @@ public class AnimationActor extends SkeletonActor {
 
   private static final float PAD = 2f;
 
+  private static final Color AXES = new Color(0x00ff0066);
+
+  private static final Color AABB = new Color(0xffff0066);
+
+  private static final Rectangle tempAABB = new Rectangle();
+
   private final Rectangle bound;
 
   private final NinePatch border;
@@ -34,12 +40,27 @@ public class AnimationActor extends SkeletonActor {
         bound.getWidth() + PAD * 2f, bound.getHeight() + PAD * 2f);
   }
 
-  public void drawCoords(ShapeDrawer shapeDrawer, float parentX, float parentY, float scaleX, float scaleY) {
+  public void drawCoords(
+      ShapeDrawer shapeDrawer, Rectangle aabb,
+      float parentX, float parentY, float scaleX, float scaleY) {
     float x = parentX + getX() * scaleX;
     float y = parentY + getY() * scaleY;
     float left = x + bound.getX() * scaleX;
     float bottom = y + bound.getY() * scaleY;
+    shapeDrawer.setColor(AXES);
     shapeDrawer.line(left, y, left + bound.getWidth() * scaleX, y);
     shapeDrawer.line(x, bottom, x, bottom + bound.getHeight() * scaleY);
+    shapeDrawer.setColor(AABB);
+    intersect(aabb);
+    shapeDrawer.filledRectangle(
+        x + tempAABB.x * scaleX, y + tempAABB.y * scaleY, tempAABB.width * scaleX, tempAABB.height * scaleY);
+  }
+
+  private void intersect(Rectangle aabb) {
+    float left = Math.max(aabb.x, bound.x);
+    float bottom = Math.max(aabb.y, bound.y);
+    float right = Math.min(aabb.x + aabb.width, bound.x + bound.width);
+    float top = Math.min(aabb.y + aabb.height, bound.y + bound.height);
+    tempAABB.set(left, bottom, right - left, top - bottom);
   }
 }
