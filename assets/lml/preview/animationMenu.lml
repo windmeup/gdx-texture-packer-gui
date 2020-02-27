@@ -3,6 +3,11 @@
 
 <popupmenu>
     <menuitem
+            id="miEdit"
+            text="@edit"
+            onchange="editAnimations"
+            icon="custom/ic-settings"/>
+    <menuitem
             id="miRepack"
             text="@repack"
             onchange="frames2spine"
