@@ -405,6 +405,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         PopupMenu popupMenu;
         if (canvas.isShowAnimations()) {
             popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/animationMenu.lml"));
+            canvas.getAnimationViewer().getAnimationPanel().menuPopup(popupMenu);
         } else {
             popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/canvasMenu.lml"));
         }

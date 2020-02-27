@@ -24,6 +24,8 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.Skin;
 import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
+import com.kotcrab.vis.ui.widget.MenuItem;
+import com.kotcrab.vis.ui.widget.PopupMenu;
 import lombok.Getter;
 import lombok.Setter;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -56,6 +58,8 @@ public class AnimationPanel extends Group {
   @Getter
   @Setter
   private boolean showCoords;
+
+  private PopupMenu popupMenu;
 
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
     setTouchable(Touchable.disabled);
@@ -90,6 +94,13 @@ public class AnimationPanel extends Group {
   public void setScale(float scaleXY) {
     super.setScale(scaleXY);
     layout();
+  }
+
+  @Override
+  protected void positionChanged() {
+    if (popupMenu != null && popupMenu.getStage() != null) {
+      popupMenu.remove();
+    }
   }
 
   public void setSkeletonData(SkeletonData skeletonData) {
@@ -184,6 +195,14 @@ public class AnimationPanel extends Group {
     }
   }
 
+  public void menuPopup(PopupMenu popupMenu) {
+    this.popupMenu = popupMenu;
+    if (spotlight.animationActor == null) {
+      MenuItem menuItem = popupMenu.findActor("miEdit");
+      menuItem.setDisabled(true);
+    }
+  }
+
   private Rectangle getBound(RegionAttachment attachment) {
     float x = attachment.getX();
     float y = attachment.getY();
@@ -273,6 +292,13 @@ public class AnimationPanel extends Group {
 
     @Override
     public void act(float delta) {
+      if (popupMenu != null) {
+        if (popupMenu.getStage() == null) { // popupMenu closed
+          popupMenu = null;
+        } else {
+          return;
+        }
+      }
       AnimationPanel animationPanel = AnimationPanel.this;
       if (!animationPanel.isVisible()) {
         return;
