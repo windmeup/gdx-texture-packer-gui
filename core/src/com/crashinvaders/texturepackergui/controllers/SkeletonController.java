@@ -27,6 +27,7 @@ public class SkeletonController {
   public void clear() {
     skeletonFile = null;
     skeletonData = null;
+    data = null;
   }
 
   public void setSkeletonPath(String skeletonPath) throws IOException {
@@ -34,6 +35,11 @@ public class SkeletonController {
     data = JacksonUtils.readValue(
         skeletonFile, com.badlogic.gdx.tools.spine.data.SkeletonData.class
     );
+    if (data == null || data.getSkeleton() == null || data.getAnimations() == null || data.getBones() == null ||
+        data.getSkins() == null || data.getSlots() == null) {
+      clear();
+      throw new IOException("not skeleton json");
+    }
   }
 
   public void setSkeletonX(int skeletonX) throws IOException {

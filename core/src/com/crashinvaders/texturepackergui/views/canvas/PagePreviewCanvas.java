@@ -215,17 +215,18 @@ public class PagePreviewCanvas extends Stack {
 					if (skeletonPath != null) {
 						FileHandle skeletonHandle = new FileHandle(skeletonPath);
 						if (skeletonHandle.exists() && !skeletonHandle.isDirectory()) {
-							SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlas.getAtlasData()));
-							SkeletonData skeletonData = skeletonJson.readSkeletonData(skeletonHandle);
-							animationViewer.setSkeletonData(skeletonData);
+							boolean success = true;
 							try {
 								skeletonController.setSkeletonPath(skeletonPath);
 							} catch (IOException ex) {
-								atlas.dispose();
-								atlas = null;
-								callback.atlasLoadError(pack);
+								success = false;
 							}
-							skeletonController.setSkeletonData(skeletonData);
+							if (success) {
+								SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlas.getAtlasData()));
+								SkeletonData skeletonData = skeletonJson.readSkeletonData(skeletonHandle);
+								skeletonController.setSkeletonData(skeletonData);
+								animationViewer.setSkeletonData(skeletonData);
+							}
 						}
 					}
 				}
