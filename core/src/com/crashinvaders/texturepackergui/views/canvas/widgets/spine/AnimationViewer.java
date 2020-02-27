@@ -82,23 +82,6 @@ public class AnimationViewer extends WidgetGroup {
     listener.onZoomChanged(ZOOM_LEVELS[zoomIndex]);
   }
 
-  private void translate(float deltaX, float deltaY) {
-    float panelHeight = animationPanel.getHeight() * animationPanel.getScaleY();
-    float height = getHeight() - AnimationPanel.INFO_PANEL_HEIGHT;
-    float toY = animationPanel.getY() + deltaY;
-    if (panelHeight < height) {
-      toY = Math.min(Math.max(toY, AnimationPanel.GAP)
-          , height - panelHeight - AnimationPanel.GAP);
-    } else {
-      toY = Math.max(Math.min(toY, AnimationPanel.GAP)
-          , height - panelHeight - AnimationPanel.GAP);
-    }
-    animationPanel.setPosition(
-        Math.max(Math.min(animationPanel.getX() + deltaX, AnimationPanel.GAP)
-            , getWidth() - animationPanel.getWidth() * animationPanel.getScaleX() - AnimationPanel.GAP),
-        toY);
-  }
-
   private class AnimationZoomListener extends InputListener {
 
     private final Vector2 lastPos = new Vector2();
@@ -120,7 +103,7 @@ public class AnimationViewer extends WidgetGroup {
     @Override
     public void touchDragged(InputEvent event, float x, float y, int pointer) {
       if (dragging) {
-        translate(x - lastPos.x, y - lastPos.y);
+        animationPanel.translate(x - lastPos.x, y - lastPos.y, getWidth(), getHeight());
         lastPos.set(x, y);
       }
     }
@@ -135,7 +118,7 @@ public class AnimationViewer extends WidgetGroup {
 
     @Override
     public boolean scrolled(InputEvent event, float x, float y, int amount) {
-      translate(0f, amount * 200f * getScaleY());
+      animationPanel.translate(0f, amount * 200f * getScaleY(), getWidth(), getHeight());
       return true;
     }
   }

@@ -35,9 +35,9 @@ import java.util.Map;
 
 public class AnimationPanel extends Group {
 
-  public static final float GAP = 30f;
+  private static final float GAP = 30f;
 
-  public static final float INFO_PANEL_HEIGHT = 18f;
+  private static final float INFO_PANEL_HEIGHT = 18f;
 
   private static final SkeletonRenderer skeletonRenderer = new SkeletonRenderer();
 
@@ -114,6 +114,29 @@ public class AnimationPanel extends Group {
       selected.animationName = animationName;
     }
     layout();
+  }
+
+  public void translate(float deltaX, float deltaY, float parentWidth, float parentHeight) {
+    float panelHeight = getHeight() * getScaleY();
+    float height = parentHeight - AnimationPanel.INFO_PANEL_HEIGHT;
+    float toY = getY() + deltaY;
+    if (panelHeight < height) {
+      toY = Math.min(Math.max(toY, AnimationPanel.GAP)
+          , height - panelHeight - AnimationPanel.GAP);
+    } else {
+      toY = Math.max(Math.min(toY, AnimationPanel.GAP)
+          , height - panelHeight - AnimationPanel.GAP);
+    }
+    setPosition(
+        Math.max(Math.min(getX() + deltaX, AnimationPanel.GAP)
+            , parentWidth - getWidth() * getScaleX() - AnimationPanel.GAP),
+        toY);
+  }
+
+  public void select() {
+    if (spotlight.animationActor != null) {
+      selected.setAnimationActor(spotlight.animationActor);
+    }
   }
 
   private void layout() {
@@ -194,21 +217,23 @@ public class AnimationPanel extends Group {
     addActor(spotlight);
     addActor(selected);
     setSize(width, height);
-    float parentHeight = parent.getHeight() - INFO_PANEL_HEIGHT;
-    height *= getScaleY();
-    float x = Math.round((parentWidth - width * scaleX) / 2f);
-    if (parentHeight > height) {
-      setPosition(x,
-          Math.round((parentHeight - height) / 2f));
-    } else {
-      setPosition(x,
-          Math.round(parentHeight - height - GAP));
-    }
-  }
-
-  public void select() {
-    if (spotlight.animationActor != null) {
-      selected.setAnimationActor(spotlight.animationActor);
+    float parentHeight = parent.getHeight();
+    if (selected.animationActor == null) {
+      parentHeight -= INFO_PANEL_HEIGHT;
+      height *= getScaleY();
+      float x = Math.round((parentWidth - width * scaleX) / 2f);
+      if (parentHeight > height) {
+        setPosition(x,
+            Math.round((parentHeight - height) / 2f));
+      } else {
+        setPosition(x,
+            Math.round(parentHeight - height - GAP));
+      }
+    } else { // selected to center
+      actorBound = selected.animationActor.getBound();
+      float x = getX() + (actorBound.x + selected.animationActor.getX() + actorBound.width / 2f) * getScaleX();
+      float y = getY() + (actorBound.y + selected.animationActor.getY() + actorBound.height / 2f) * getScaleY();
+      translate(parentWidth / 2f - x, parentHeight / 2f - y, parentWidth, parentHeight);
     }
   }
 
