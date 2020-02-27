@@ -713,14 +713,14 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             // Skeleton settings
             SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
             actorsSkeletonSettings.edtSlotName.setText(skeletonSettings.getSlotName());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonX.getModel()).setValue(skeletonSettings.getX());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonY.getModel()).setValue(skeletonSettings.getY());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonWidth.getModel()).setValue(skeletonSettings.getWidth());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(skeletonSettings.getHeight());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(skeletonSettings.getAnchorX());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(skeletonSettings.getAnchorY());
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonX.getModel()).setValue(skeletonSettings.getX(), false);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonY.getModel()).setValue(skeletonSettings.getY(), false);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonWidth.getModel()).setValue(skeletonSettings.getWidth(), false);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(skeletonSettings.getHeight(), false);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(skeletonSettings.getAnchorX(), false);
+            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(skeletonSettings.getAnchorY(), false);
             actorsSkeletonSettings.edtAnchorFilesDir.setText(skeletonSettings.getAnchorFilesDir());
-            ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(skeletonSettings.getDuration());
+            ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(skeletonSettings.getDuration(), false);
         }
 
         // Update pane lockers
