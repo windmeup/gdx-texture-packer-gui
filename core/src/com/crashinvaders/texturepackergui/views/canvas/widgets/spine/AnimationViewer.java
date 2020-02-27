@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.crashinvaders.common.scene2d.ScrollFocusCaptureInputListener;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.OuterFade;
-import com.esotericsoftware.spine.SkeletonData;
 import lombok.Getter;
 
 public class AnimationViewer extends WidgetGroup {
@@ -32,10 +31,6 @@ public class AnimationViewer extends WidgetGroup {
     addListener(new ScrollFocusCaptureInputListener());
   }
 
-  public void setSkeletonData(SkeletonData skeletonData) {
-    animationPanel.setSkeletonData(skeletonData);
-  }
-
   /**
    * @see com.crashinvaders.common.scene2d.lml.AnimatedImage
    * Small patch to support non-continuous rendering mode
@@ -58,7 +53,7 @@ public class AnimationViewer extends WidgetGroup {
 
   @Override
   protected void sizeChanged() {
-    animationPanel.layout();
+    animationPanel.relayout();
   }
 
   public void zoomIn() {
@@ -116,6 +111,7 @@ public class AnimationViewer extends WidgetGroup {
       if (button != 0) {
         return false;
       }
+      animationPanel.select();
       dragging = true;
       lastPos.set(x, y);
       return true;

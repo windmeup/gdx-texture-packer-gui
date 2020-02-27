@@ -175,6 +175,7 @@ public class PagePreviewCanvas extends Stack {
 
 	public void reloadPack(PackModel pack, SkeletonController skeletonController) {
 		skeletonController.clear();
+		animationViewer.getAnimationPanel().clear();
 		String atlasPath = null;
 		if (pack != null) {
 			atlasPath = pack.getAtlasPath();
@@ -225,7 +226,7 @@ public class PagePreviewCanvas extends Stack {
 								SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlas.getAtlasData()));
 								SkeletonData skeletonData = skeletonJson.readSkeletonData(skeletonHandle);
 								skeletonController.setSkeletonData(skeletonData);
-								animationViewer.setSkeletonData(skeletonData);
+								animationViewer.getAnimationPanel().setSkeletonData(skeletonData);
 							}
 						}
 					}

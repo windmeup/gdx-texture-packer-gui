@@ -183,11 +183,6 @@ public class GlobalActions implements ActionContainer {
         packDialogController.launch2Spine(project, packs);
     }
 
-    @LmlAction("editAnimations")
-    public void editAnimations() {
-        // TODO
-    }
-
     @LmlAction("newProject") public void newProject() {
         commonDialogs.checkUnsavedChanges(new Runnable() {
             @Override

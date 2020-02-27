@@ -24,8 +24,6 @@ import com.esotericsoftware.spine.SkeletonRenderer;
 import com.esotericsoftware.spine.Skin;
 import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
-import com.kotcrab.vis.ui.widget.MenuItem;
-import com.kotcrab.vis.ui.widget.PopupMenu;
 import lombok.Getter;
 import lombok.Setter;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -55,17 +53,18 @@ public class AnimationPanel extends Group {
 
   private final Spotlight spotlight;
 
+  private final Selected selected;
+
   @Getter
   @Setter
   private boolean showCoords;
-
-  private PopupMenu popupMenu;
 
   AnimationPanel(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
     setTouchable(Touchable.disabled);
     borderFrame = new NinePatchDrawable(skin.getPatch("custom/white_frame")).tint(Color.BLACK);
     actorBorder = skin.getPatch("custom/white_frame");
     spotlight = new Spotlight(skin);
+    selected = new Selected(skin);
   }
 
   @Override
@@ -93,14 +92,14 @@ public class AnimationPanel extends Group {
   @Override
   public void setScale(float scaleXY) {
     super.setScale(scaleXY);
-    layout();
+    relayout();
   }
 
   @Override
-  protected void positionChanged() {
-    if (popupMenu != null && popupMenu.getStage() != null) {
-      popupMenu.remove();
-    }
+  public void clear() {
+    super.clear();
+    selected.clearAnimationActor();
+    spotlight.clearAnimationActor();
   }
 
   public void setSkeletonData(SkeletonData skeletonData) {
@@ -108,8 +107,16 @@ public class AnimationPanel extends Group {
     layout();
   }
 
-  public void layout() {
+  public void relayout() {
+    String animationName = selected.animationName;
     clear();
+    if (animationName != null) {
+      selected.animationName = animationName;
+    }
+    layout();
+  }
+
+  private void layout() {
     if (skeletonData == null) {
       return;
     }
@@ -180,8 +187,12 @@ public class AnimationPanel extends Group {
     height += rowHeight;
     for (AnimationActor actor : actors) {
       addActor(actor);
+      if (selected.animationName != null && actor.getName().equals(selected.animationName)) {
+        selected.setAnimationActor(actor);
+      }
     }
     addActor(spotlight);
+    addActor(selected);
     setSize(width, height);
     float parentHeight = parent.getHeight() - INFO_PANEL_HEIGHT;
     height *= getScaleY();
@@ -195,11 +206,9 @@ public class AnimationPanel extends Group {
     }
   }
 
-  public void menuPopup(PopupMenu popupMenu) {
-    this.popupMenu = popupMenu;
-    if (spotlight.animationActor == null) {
-      MenuItem menuItem = popupMenu.findActor("miEdit");
-      menuItem.setDisabled(true);
+  public void select() {
+    if (spotlight.animationActor != null) {
+      selected.setAnimationActor(spotlight.animationActor);
     }
   }
 
@@ -234,44 +243,54 @@ public class AnimationPanel extends Group {
     return tmpCoords;
   }
 
-  private class Spotlight extends Actor {
-    private final Color colorSpotlight;
-    private final Color colorTextFrame;
+  private class Selected extends ActorBorder {
+    private String animationName;
 
-    private final TextureRegion whiteTex;
-    private final NinePatch spotlightBorder;
+    private Selected(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
+      super(skin, "blue");
+    }
+
+    @Override
+    void setAnimationActor(AnimationActor animationActor) {
+      super.setAnimationActor(animationActor);
+      if (animationActor != null) {
+        this.animationName = animationActor.getName();
+      }
+    }
+
+    @Override
+    void clearAnimationActor() {
+      super.clearAnimationActor();
+      animationName = null;
+    }
+  }
+
+  private class Spotlight extends ActorBorder {
+    private final Color colorTextFrame;
     private final BitmapFont font;
     private final GlyphLayout glText;
-
+    private final TextureRegion whiteTex;
     private boolean active;
-    private AnimationActor animationActor;
 
-    public Spotlight(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
-      whiteTex = skin.getRegion("white");
-      spotlightBorder = skin.getPatch("custom/white_frame");
+    private Spotlight(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
+      super(skin, "orange");
       font = skin.getFont("default-font");
       glText = new GlyphLayout();
-
-      colorSpotlight = skin.getColor("orange");
       colorTextFrame = new Color(0x333333aa);
+      whiteTex = skin.getRegion("white");
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-      if (animationActor == null) return;
-
-      // Frame
+      if (animationActor == null) {
+        return;
+      }
+      super.draw(batch, parentAlpha);
       Rectangle bound = animationActor.getBound();
       float framePad = 1f;
       float x = animationActor.getX() + bound.getX() - framePad;
       float y = animationActor.getY() + bound.getY() - framePad;
       float width = bound.getWidth() + framePad * 2f;
-      float height = bound.getHeight() + framePad * 2f;
-
-      batch.setColor(colorSpotlight);
-      spotlightBorder.draw(batch, x, y, width, height);
-
-      // Text
       float textX;
       AnimationPanel parent = AnimationPanel.this;
       float parentWidth = parent.getWidth();
@@ -292,13 +311,6 @@ public class AnimationPanel extends Group {
 
     @Override
     public void act(float delta) {
-      if (popupMenu != null) {
-        if (popupMenu.getStage() == null) { // popupMenu closed
-          popupMenu = null;
-        } else {
-          return;
-        }
-      }
       AnimationPanel animationPanel = AnimationPanel.this;
       if (!animationPanel.isVisible()) {
         return;
@@ -308,30 +320,30 @@ public class AnimationPanel extends Group {
       boolean withinPage = tmpBounds.set(0f, 0f, animationPanel.getWidth(), animationPanel.getHeight())
           .contains(pointerPos);
       if (!withinPage && active) {
-        clearSpotlight();
+        clearAnimationActor();
       }
       if (withinPage) {
         AnimationActor hit = hit(pointerPos);
         if (hit != null) {
-          spotlight(hit);
+          setAnimationActor(hit);
         }
         if (hit == null && active) {
-          clearSpotlight();
+          clearAnimationActor();
         }
       }
     }
 
-    private void clearSpotlight() {
-      animationActor = null;
-      active = false;
-    }
-
-    private void spotlight(AnimationActor animationActor) {
-      if (this.animationActor == animationActor) return;
-      this.animationActor = animationActor;
-      active = true;
+    @Override
+    void setAnimationActor(AnimationActor animationActor) {
+      super.setAnimationActor(animationActor);
       font.getData().setScale(1f);
       glText.setText(font, animationActor.getName(), Color.WHITE, 0f, Align.left, false);
+      active = true;
+    }
+
+    void clearAnimationActor() {
+      super.clearAnimationActor();
+      active = false;
     }
 
     private AnimationActor hit(Vector2 position) {
@@ -348,6 +360,37 @@ public class AnimationPanel extends Group {
         }
       }
       return null;
+    }
+  }
+
+  private static class ActorBorder extends Actor {
+    private final Color colorSpotlight;
+    private final NinePatch spotlightBorder;
+    AnimationActor animationActor;
+
+    private ActorBorder(com.badlogic.gdx.scenes.scene2d.ui.Skin skin, String color) {
+      spotlightBorder = skin.getPatch("custom/white_frame");
+      colorSpotlight = skin.getColor(color);
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+      if (animationActor == null) return;
+      Rectangle bound = animationActor.getBound();
+      float framePad = 1f;
+      batch.setColor(colorSpotlight);
+      spotlightBorder.draw(batch, animationActor.getX() + bound.getX() - framePad,
+          animationActor.getY() + bound.getY() - framePad, bound.getWidth() + framePad * 2f,
+          bound.getHeight() + framePad * 2f);
+    }
+
+    void setAnimationActor(AnimationActor animationActor) {
+      if (this.animationActor == animationActor) return;
+      this.animationActor = animationActor;
+    }
+
+    void clearAnimationActor() {
+      animationActor = null;
     }
   }
 }
