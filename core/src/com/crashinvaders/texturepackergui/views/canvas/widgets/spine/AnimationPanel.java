@@ -273,26 +273,22 @@ public class AnimationPanel extends Group {
 
     @Override
     public void act(float delta) {
-      if (!AnimationPanel.this.isVisible()) {
+      AnimationPanel animationPanel = AnimationPanel.this;
+      if (!animationPanel.isVisible()) {
         return;
       }
       super.act(delta);
-
-      AnimationPanel animationPanel = AnimationPanel.this;
       Vector2 pointerPos = animationPanel.screenToLocal(Gdx.input.getX(), Gdx.input.getY());
       boolean withinPage = tmpBounds.set(0f, 0f, animationPanel.getWidth(), animationPanel.getHeight())
           .contains(pointerPos);
-
       if (!withinPage && active) {
         clearSpotlight();
       }
-
       if (withinPage) {
         AnimationActor hit = hit(pointerPos);
         if (hit != null) {
           spotlight(hit);
         }
-
         if (hit == null && active) {
           clearSpotlight();
         }

@@ -137,9 +137,13 @@ class PageGroup extends Group {
 
         @Override
         public void act(float delta) {
+            PageGroup pp = PageGroup.this;
+            if (!pp.isVisible()) {
+                return;
+            }
             super.act(delta);
 
-            PageGroup pp = PageGroup.this;
+
             Vector2 pointerPos = pp.screenToLocal(Gdx.input.getX(), Gdx.input.getY());
             boolean withinPage = tmpBounds.set(0f, 0f, pp.getWidth(), pp.getHeight()).contains(pointerPos);
 
