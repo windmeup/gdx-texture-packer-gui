@@ -133,6 +133,7 @@ public class AnimationPanel extends Group {
     float height = GAP;
     float rowIncrease;
     List<AnimationActor> actors = new ArrayList<>();
+    List<AnimationActor> currentRow = new ArrayList<>();
     for (Animation animation : skeletonData.getAnimations()) {
       actorBound = getBound(animation, actorBounds);
       actorHeight = actorBound.getHeight() + GAP;
@@ -144,11 +145,14 @@ public class AnimationPanel extends Group {
         }
         height += rowHeight;
         rowHeight = actorHeight;
+        currentRow.clear();
       } else {
         rowIncrease = actorHeight - rowHeight;
         if (rowIncrease > 0f) {
           for (AnimationActor actor : actors) {
-            actor.setY(actor.getY() + rowIncrease);
+            if (!currentRow.contains(actor)) {
+              actor.setY(actor.getY() + rowIncrease);
+            }
           }
           rowHeight = actorHeight;
         }
@@ -159,6 +163,7 @@ public class AnimationPanel extends Group {
       animationActor.getAnimationState().setAnimation(0, animation.getName(), true);
       animationActor.setPosition(actorX - actorBound.getX(), GAP - actorBound.getY());
       actors.add(animationActor);
+      currentRow.add(animationActor);
       actorX += actorBound.getWidth() + GAP;
     }
     height += rowHeight;
@@ -258,7 +263,7 @@ public class AnimationPanel extends Group {
         textX = Math.max(textX, 10f);
         textX = Math.min(textX, parentWidth - glText.width - 10f);
       }
-      float textY = y - glText.height - 4f;
+      float textY = y - glText.height - 5f;
       batch.setColor(colorTextFrame);
       batch.draw(whiteTex, textX - 10f, textY - 6f, glText.width + 20f, glText.height + 10f);
       batch.setColor(Color.WHITE);
