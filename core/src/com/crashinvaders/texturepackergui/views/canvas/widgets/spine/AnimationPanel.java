@@ -248,7 +248,16 @@ public class AnimationPanel extends Group {
       spotlightBorder.draw(batch, x, y, width, height);
 
       // Text
-      float textX = x + width * 0.5f - glText.width * 0.5f;
+      float textX;
+      AnimationPanel parent = AnimationPanel.this;
+      float parentWidth = parent.getWidth();
+      if (glText.width > parentWidth - 20f) {
+        textX = (parentWidth - glText.width) * 0.5f;
+      } else {
+        textX = x + width * 0.5f - glText.width * 0.5f;
+        textX = Math.max(textX, 10f);
+        textX = Math.min(textX, parentWidth - glText.width - 10f);
+      }
       float textY = y - glText.height - 4f;
       batch.setColor(colorTextFrame);
       batch.draw(whiteTex, textX - 10f, textY - 6f, glText.width + 20f, glText.height + 10f);
@@ -264,9 +273,10 @@ public class AnimationPanel extends Group {
       }
       super.act(delta);
 
-      AnimationPanel pp = AnimationPanel.this;
-      Vector2 pointerPos = pp.screenToLocal(Gdx.input.getX(), Gdx.input.getY());
-      boolean withinPage = tmpBounds.set(0f, 0f, pp.getWidth(), pp.getHeight()).contains(pointerPos);
+      AnimationPanel animationPanel = AnimationPanel.this;
+      Vector2 pointerPos = animationPanel.screenToLocal(Gdx.input.getX(), Gdx.input.getY());
+      boolean withinPage = tmpBounds.set(0f, 0f, animationPanel.getWidth(), animationPanel.getHeight())
+          .contains(pointerPos);
 
       if (!withinPage && active) {
         clearSpotlight();
