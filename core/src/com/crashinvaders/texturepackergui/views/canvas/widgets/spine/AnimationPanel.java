@@ -51,7 +51,7 @@ public class AnimationPanel extends Group {
 
   private SkeletonData skeletonData;
 
-  private final Spotlight spotlight;
+  private final Hovered hovered;
 
   private final Selected selected;
 
@@ -63,7 +63,7 @@ public class AnimationPanel extends Group {
     setTouchable(Touchable.disabled);
     borderFrame = new NinePatchDrawable(skin.getPatch("custom/white_frame")).tint(Color.BLACK);
     actorBorder = skin.getPatch("custom/white_frame");
-    spotlight = new Spotlight(skin);
+    hovered = new Hovered(skin);
     selected = new Selected(skin);
   }
 
@@ -99,7 +99,7 @@ public class AnimationPanel extends Group {
   public void clear() {
     super.clear();
     selected.clearAnimationActor();
-    spotlight.clearAnimationActor();
+    hovered.clearAnimationActor();
   }
 
   public void setSkeletonData(SkeletonData skeletonData) {
@@ -134,8 +134,8 @@ public class AnimationPanel extends Group {
   }
 
   public void select() {
-    if (spotlight.animationActor != null) {
-      selected.setAnimationActor(spotlight.animationActor);
+    if (hovered.animationActor != null) {
+      selected.setAnimationActor(hovered.animationActor);
     }
   }
 
@@ -214,7 +214,7 @@ public class AnimationPanel extends Group {
         selected.setAnimationActor(actor);
       }
     }
-    addActor(spotlight);
+    addActor(hovered);
     addActor(selected);
     setSize(width, height);
     float parentHeight = parent.getHeight();
@@ -268,11 +268,11 @@ public class AnimationPanel extends Group {
     return tmpCoords;
   }
 
-  private class Selected extends ActorBorder {
+  private class Selected extends Spotlight {
     private String animationName;
 
     private Selected(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
-      super(skin, "blue");
+      super(skin, "blue", "blue");
     }
 
     @Override
@@ -290,48 +290,19 @@ public class AnimationPanel extends Group {
     }
   }
 
-  private class Spotlight extends ActorBorder {
-    private final Color colorTextFrame;
-    private final BitmapFont font;
-    private final GlyphLayout glText;
-    private final TextureRegion whiteTex;
+  private class Hovered extends Spotlight {
     private boolean active;
 
-    private Spotlight(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
-      super(skin, "orange");
-      font = skin.getFont("default-font");
-      glText = new GlyphLayout();
-      colorTextFrame = new Color(0x333333aa);
-      whiteTex = skin.getRegion("white");
+    private Hovered(com.badlogic.gdx.scenes.scene2d.ui.Skin skin) {
+      super(skin, "orange", "white");
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-      if (animationActor == null) {
+      if (animationActor == null || animationActor == selected.animationActor) {
         return;
       }
       super.draw(batch, parentAlpha);
-      Rectangle bound = animationActor.getBound();
-      float framePad = 1f;
-      float x = animationActor.getX() + bound.getX() - framePad;
-      float y = animationActor.getY() + bound.getY() - framePad;
-      float width = bound.getWidth() + framePad * 2f;
-      float textX;
-      AnimationPanel parent = AnimationPanel.this;
-      float parentWidth = parent.getWidth();
-      if (glText.width > parentWidth - 20f) {
-        textX = (parentWidth - glText.width) * 0.5f;
-      } else {
-        textX = x + width * 0.5f - glText.width * 0.5f;
-        textX = Math.max(textX, 10f);
-        textX = Math.min(textX, parentWidth - glText.width - 10f);
-      }
-      float textY = y - glText.height - 5f;
-      batch.setColor(colorTextFrame);
-      batch.draw(whiteTex, textX - 10f, textY - 6f, glText.width + 20f, glText.height + 10f);
-      batch.setColor(Color.WHITE);
-      font.getData().setScale(1f);
-      font.draw(batch, glText, textX, textY + glText.height);
     }
 
     @Override
@@ -361,8 +332,6 @@ public class AnimationPanel extends Group {
     @Override
     void setAnimationActor(AnimationActor animationActor) {
       super.setAnimationActor(animationActor);
-      font.getData().setScale(1f);
-      glText.setText(font, animationActor.getName(), Color.WHITE, 0f, Align.left, false);
       active = true;
     }
 
@@ -388,14 +357,24 @@ public class AnimationPanel extends Group {
     }
   }
 
-  private static class ActorBorder extends Actor {
-    private final Color colorSpotlight;
-    private final NinePatch spotlightBorder;
+  private class Spotlight extends Actor {
+    private final NinePatch border;
+    private final Color borderColor;
+    private final Color textFrameColor;
+    private final Color textColor;
+    private final BitmapFont font;
+    private final GlyphLayout glText;
+    private final TextureRegion whiteTex;
     AnimationActor animationActor;
 
-    private ActorBorder(com.badlogic.gdx.scenes.scene2d.ui.Skin skin, String color) {
-      spotlightBorder = skin.getPatch("custom/white_frame");
-      colorSpotlight = skin.getColor(color);
+    private Spotlight(com.badlogic.gdx.scenes.scene2d.ui.Skin skin, String color, String textColor) {
+      border = skin.getPatch("custom/white_frame");
+      borderColor = skin.getColor(color);
+      textFrameColor = new Color(0x333333aa);
+      this.textColor = skin.getColor(textColor);
+      font = skin.getFont("default-font");
+      glText = new GlyphLayout();
+      whiteTex = skin.getRegion("white");
     }
 
     @Override
@@ -403,19 +382,43 @@ public class AnimationPanel extends Group {
       if (animationActor == null) return;
       Rectangle bound = animationActor.getBound();
       float framePad = 1f;
-      batch.setColor(colorSpotlight);
-      spotlightBorder.draw(batch, animationActor.getX() + bound.getX() - framePad,
-          animationActor.getY() + bound.getY() - framePad, bound.getWidth() + framePad * 2f,
-          bound.getHeight() + framePad * 2f);
+      float x = animationActor.getX() + bound.getX() - framePad;
+      float y = animationActor.getY() + bound.getY() - framePad;
+      float width = bound.getWidth() + framePad * 2f;
+      float height = bound.getHeight() + framePad * 2f;
+      batch.setColor(borderColor);
+      border.draw(batch, x, y, width, height);
+      drawText(batch, x, y, width);
     }
 
     void setAnimationActor(AnimationActor animationActor) {
       if (this.animationActor == animationActor) return;
       this.animationActor = animationActor;
+      font.getData().setScale(1f);
+      glText.setText(font, animationActor.getName(), textColor, 0f, Align.left, false);
     }
 
     void clearAnimationActor() {
       animationActor = null;
+    }
+
+    void drawText(Batch batch, float x, float y, float width) {
+      float textX;
+      AnimationPanel parent = AnimationPanel.this;
+      float parentWidth = parent.getWidth();
+      if (glText.width > parentWidth - 20f) {
+        textX = (parentWidth - glText.width) * 0.5f;
+      } else {
+        textX = x + width * 0.5f - glText.width * 0.5f;
+        textX = Math.max(textX, 10f);
+        textX = Math.min(textX, parentWidth - glText.width - 10f);
+      }
+      float textY = y - glText.height - 5f;
+      batch.setColor(textFrameColor);
+      batch.draw(whiteTex, textX - 10f, textY - 6f, glText.width + 20f, glText.height + 10f);
+      batch.setColor(Color.WHITE);
+      font.getData().setScale(1f);
+      font.draw(batch, glText, textX, textY + glText.height);
     }
   }
 }
