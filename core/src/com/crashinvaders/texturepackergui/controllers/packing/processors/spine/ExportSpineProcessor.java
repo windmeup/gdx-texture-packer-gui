@@ -1,4 +1,4 @@
-package com.crashinvaders.texturepackergui.controllers.packing.processors;
+package com.crashinvaders.texturepackergui.controllers.packing.processors.spine;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -13,38 +13,37 @@ import com.badlogic.gdx.tools.spine.data.SkeletonData;
 import com.badlogic.gdx.tools.spine.data.Skin;
 import com.badlogic.gdx.tools.spine.data.Slot;
 import com.badlogic.gdx.tools.texturepacker.ImageProcessor;
-import com.badlogic.gdx.tools.texturepacker.PageFileWriter;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
+import com.crashinvaders.texturepackergui.controllers.packing.processors.PackingProcessor;
 import com.crashinvaders.texturepackergui.utils.JacksonUtils;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
-import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessor;
 import com.github.czyzby.kiwi.util.common.Strings;
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import java.io.BufferedReader;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Frames2SpineProcessor implements PackProcessor {
+public class ExportSpineProcessor extends SpineProcessor {
 
   @Override
   public void processPackage(PackProcessingNode node) throws Exception {
-    PageFileWriter pageFileWriter = node.getPageFileWriter();
-    if (pageFileWriter == null) {
-      throw new IllegalStateException("PageFileWriter is not set. Looks like something is wrong with file type processor setup.");
-    }
     PackModel pack = node.getPack();
+    String outputDir = pack.getOutputDir();
+    String fileName = PackingProcessor.obtainFilename(pack);
+    String jsonPath = outputDir + "/" + fileName + ".json";
+    new FileHandle(jsonPath).delete();
+    Array<PackingProcessor.ImageEntry> imageEntries = PackingProcessor.collectImageFiles(pack);
+    if (imageEntries.size == 0) {
+      return;
+    }
     SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
     String slotName = skeletonSettings.getSlotName();
     if (slotName == null) {
@@ -58,37 +57,8 @@ public class Frames2SpineProcessor implements PackProcessor {
     if (frameDuration <= 0f) {
       throw new IllegalStateException("Duration must > 0");
     }
-    String fileName = PackingProcessor.obtainFilename(pack);
-    FileFilter oldFileFilter =
-        new RegexFileFilter("^" + fileName.replaceAll("\\.", "\\.") + "(\\d*)?(\\.([a-z0-9]*))?$", IOCase.INSENSITIVE);
-    String outputDir = pack.getOutputDir();
-    FileHandle outputDirFile = new FileHandle(outputDir);
-    for (FileHandle oldFile : outputDirFile.list(oldFileFilter)) {
-      oldFile.delete();
-    }
-    Array<PackingProcessor.ImageEntry> imageEntries = PackingProcessor.collectImageFiles(pack);
-    if (imageEntries.size == 0) {
-      throw new IllegalStateException("No images to pack");
-    }
-    imageEntries.sort(Comparator.comparing(e -> e.regionName));
-    TexturePacker.Settings settings = new TexturePacker.Settings(pack.getSettings());
-    settings.stripWhitespaceX = true;
-    settings.stripWhitespaceY = true;
-    settings.shrinkSize = true;
-    settings.evenSize = true;
-    settings.edgePadding = true;
-    settings.useIndexes = false;
-    settings.scale = new float[]{1};
-    settings.paddingX = Math.max(settings.paddingX, 1);
-    settings.paddingY = Math.max(settings.paddingY, 1);
-    TexturePacker texturePacker = new TexturePacker(settings, pageFileWriter);
-    for (PackingProcessor.ImageEntry entry : imageEntries) {
-      if (!entry.ninePatch) {
-        texturePacker.addImage(entry.fileHandle.file(), entry.name);
-      }
-    }
-    texturePacker.pack(outputDirFile.file(), fileName);
     String extension = pack.getSettings().atlasExtension;
+    FileHandle outputDirFile = new FileHandle(outputDir);
     TextureAtlas.TextureAtlasData atlasData = new TextureAtlas.TextureAtlasData(
         new FileHandle(outputDir + "/" + fileName + ((extension == null || extension.isEmpty()) ? "" : extension)),
         outputDirFile, false);
@@ -115,7 +85,8 @@ public class Frames2SpineProcessor implements PackProcessor {
     for (PackingProcessor.ImageEntry entry : imageEntries) {
       entryMap.put(entry.regionName, entry);
     }
-    ImageProcessor imageProcessor = texturePacker.getImageProcessor();
+    TexturePacker.Settings settings = toSpineSettings(pack.getSettings());
+    ImageProcessor imageProcessor = new ImageProcessor(settings);
     Map<String, Bound> bodySkins = new TreeMap<>();
     for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
       bodySkins.put(region.name,
@@ -143,13 +114,18 @@ public class Frames2SpineProcessor implements PackProcessor {
     data.setSlots(slots);
     data.setSkins(skins);
     data.setAnimations(animations);
-    JacksonUtils.writeValue(Paths.get(outputDir + "/" + fileName + ".json").toFile(), data);
+    JacksonUtils.writeValue(Paths.get(jsonPath).toFile(), data);
   }
 
   private Bound getBound(
       TextureAtlas.TextureAtlasData.Region region, SkeletonSettings settings, ImageProcessor imageProcessor,
       Map<String, PackingProcessor.ImageEntry> imageEntries) throws IOException {
-    TexturePacker.Rect rect = imageProcessor.addImage(imageEntries.get(region.name).fileHandle.file(), null);
+    PackingProcessor.ImageEntry imageEntry = imageEntries.get(region.name);
+    if (imageEntry == null) {
+      throw new IOException("Image not found, region name is " + region.name +
+          ". If you don't use it anymore, repack the textures");
+    }
+    TexturePacker.Rect rect = imageProcessor.addImage(imageEntry.fileHandle.file(), null);
     imageProcessor.clear();
     int offsetY = (rect.originalHeight - rect.regionHeight - rect.offsetY); // rect y coords down
     int regWidth = toEven(rect.regionWidth);

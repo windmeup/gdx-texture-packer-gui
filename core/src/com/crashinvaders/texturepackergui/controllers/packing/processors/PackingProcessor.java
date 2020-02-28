@@ -213,14 +213,14 @@ public class PackingProcessor implements PackProcessor {
     }
 
     public static class ImageEntry {
-        final FileHandle fileHandle;
-        final String name;
+        public final FileHandle fileHandle;
+        public final String name;
 
         /** The result name of the region in atlas. */
-        final String regionName;
+        public final String regionName;
 
         //BEWARE: Programmatic only 9-patch related fields!
-        boolean ninePatch = false;
+        public boolean ninePatch = false;
         int[] splits, pads;
 
         public ImageEntry(FileHandle fileHandle, String name) {

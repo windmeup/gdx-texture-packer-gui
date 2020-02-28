@@ -14,6 +14,8 @@ import com.crashinvaders.common.scene2d.visui.Toast;
 import com.crashinvaders.common.scene2d.visui.ToastTable;
 import com.crashinvaders.texturepackergui.AppConstants;
 import com.crashinvaders.texturepackergui.controllers.packing.processors.*;
+import com.crashinvaders.texturepackergui.controllers.packing.processors.spine.ExportSpineProcessor;
+import com.crashinvaders.texturepackergui.controllers.packing.processors.spine.SpinePackingProcessor;
 import com.crashinvaders.texturepackergui.events.PackAtlasUpdatedEvent;
 import com.crashinvaders.texturepackergui.events.RemoveToastEvent;
 import com.crashinvaders.texturepackergui.events.ShowToastEvent;
@@ -100,15 +102,53 @@ public class PackDialogController implements ActionContainer {
         launchPack(project, packs, false);
     }
 
-    public void launch2Spine(ProjectModel project, PackModel pack) {
+    public void launchPackSpine(ProjectModel project, PackModel pack) {
         launchPack(project, Array.with(pack), true);
     }
 
-    public void launch2Spine(ProjectModel project, Array<PackModel> packs) {
+    public void launchPackSpine(ProjectModel project, Array<PackModel> packs) {
         launchPack(project, packs, true);
     }
 
-    public void launchPack(ProjectModel project, Array<PackModel> packs, boolean toSpine) {
+    public void launchExportSpine(ProjectModel project, PackModel pack) {
+        launchExportSpine(project, Array.with(pack));
+    }
+
+    public void launchExportSpine(ProjectModel project, Array<PackModel> packs) {
+        launch(project, packs, new ExportSpineProcessor());
+    }
+
+    private void launchPack(ProjectModel project, Array<PackModel> packs, boolean toSpine) {
+        PackProcessor processor = new CompositePackProcessor(
+            // Startup metadata
+            new StartTimeMetadataProcessor(),
+
+            // Validation
+            new DataValidationProcessor(),
+
+            // File type
+            new PngFileTypeProcessor(),
+            new JpegFileTypeProcessor(),
+            new KtxFileTypeProcessor(),
+
+            // Packing
+            toSpine ? new SpinePackingProcessor() : new PackingProcessor(),
+
+            // Png compressors
+            new PngtasticCompressingProcessor(),
+            new ZopfliCompressingProcessor(),
+            new TinifyCompressingProcessor(tinifyService),
+            new Png8CompressingProcessor(),
+
+            // Trailing metadata
+            new FileSizeMetadataProcessor(),
+            new PageAmountMetadataProcessor(),
+            new EndTimeMetadataProcessor(),
+            new TotalTimeMetadataProcessor());
+        launch(project, packs, processor);
+    }
+
+    private void launch(ProjectModel project, Array<PackModel> packs, PackProcessor processor) {
         Array<PackProcessingNode> nodes = prepareProcessingNodes(project, packs);
 
         PackProcessingListAdapter adapter = (PackProcessingListAdapter)listItems.getListView().getAdapter();
@@ -120,39 +160,12 @@ public class PackDialogController implements ActionContainer {
         // Pack and align at center
         window.pack();
         window.setPosition(
-                Math.round((stage.getWidth() - window.getWidth()) / 2),
-                Math.round((stage.getHeight() - window.getHeight()) / 2));
+            Math.round((stage.getWidth() - window.getWidth()) / 2),
+            Math.round((stage.getHeight() - window.getHeight()) / 2));
 
         PackProcessingManager packProcessingManager = new PackProcessingManager(
-                new CompositePackProcessor(
-                        // Startup metadata
-                        new StartTimeMetadataProcessor(),
-
-                        // Validation
-                        new DataValidationProcessor(),
-
-                        // File type
-                        new PngFileTypeProcessor(),
-                        new JpegFileTypeProcessor(),
-                        new KtxFileTypeProcessor(),
-
-                        // Packing
-                        toSpine ? new Frames2SpineProcessor() : new PackingProcessor(),
-
-                        // Png compressors
-                        new PngtasticCompressingProcessor(),
-                        new ZopfliCompressingProcessor(),
-                        new TinifyCompressingProcessor(tinifyService),
-                        new Png8CompressingProcessor(),
-
-                        // Trailing metadata
-                        new FileSizeMetadataProcessor(),
-                        new PageAmountMetadataProcessor(),
-                        new EndTimeMetadataProcessor(),
-                        new TotalTimeMetadataProcessor()),
-
-//                        new TestProcessor(),
-                new PackWorkerListener());
+            processor,
+            new PackWorkerListener());
 
         for (int i = 0; i < nodes.size; i++) {
             PackProcessingNode node = nodes.get(i);

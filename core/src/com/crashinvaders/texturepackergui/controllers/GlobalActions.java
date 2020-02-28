@@ -162,25 +162,44 @@ public class GlobalActions implements ActionContainer {
         packDialogController.launchPack(project, pack);
     }
 
-    @LmlAction("frames2spine")
-    public void frames2spine() {
+    @LmlAction("packSpineAll") public void packSpineAll() {
+        ProjectModel project = getProject();
+        Array<PackModel> packs = getProject().getPacks();
+        if (packs.size == 0) return;
+
+        interfaceService.showDialog(packDialogController.getClass());
+        packDialogController.launchPackSpine(project, packs);
+
+    }
+
+    @LmlAction("packSpine") public void packSpine() {
+        ProjectModel project = getProject();
+        PackModel pack = getSelectedPack();
+        if (pack == null) return;
+
+        interfaceService.showDialog(packDialogController.getClass());
+        packDialogController.launchPackSpine(project, pack);
+    }
+
+    @LmlAction("exportSpine")
+    public void exportSpine() {
         PackModel pack = getSelectedPack();
         if (pack == null) {
             return;
         }
         interfaceService.showDialog(packDialogController.getClass());
-        packDialogController.launch2Spine(getProject(), pack);
+        packDialogController.launchExportSpine(getProject(), pack);
     }
 
-    @LmlAction("frames2spineAll")
-    public void frames2spineAll() {
+    @LmlAction("exportSpineAll")
+    public void exportSpineAll() {
         ProjectModel project = getProject();
         Array<PackModel> packs = project.getPacks();
         if (packs.size == 0) {
             return;
         }
         interfaceService.showDialog(packDialogController.getClass());
-        packDialogController.launch2Spine(project, packs);
+        packDialogController.launchExportSpine(project, packs);
     }
 
     @LmlAction("newProject") public void newProject() {
