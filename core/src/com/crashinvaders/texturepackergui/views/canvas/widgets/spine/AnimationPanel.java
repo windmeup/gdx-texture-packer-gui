@@ -214,8 +214,8 @@ public class AnimationPanel extends Group {
         selected.setAnimationActor(actor);
       }
     }
-    addActor(hovered);
     addActor(selected);
+    addActor(hovered);
     setSize(width, height);
     float parentHeight = parent.getHeight();
     if (selected.animationActor == null) {
