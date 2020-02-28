@@ -100,6 +100,8 @@ public class AnimationPanel extends Group {
     super.clear();
     selected.clearAnimationActor();
     hovered.clearAnimationActor();
+    skeletonData = null;
+    setSize(0f, 0f);
   }
 
   public void setSkeletonData(SkeletonData skeletonData) {
