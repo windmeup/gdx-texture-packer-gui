@@ -24,7 +24,7 @@ public class OuterFade extends Widget {
   @Override
   public void draw(Batch batch, float parentAlpha) {
     super.draw(batch, parentAlpha);
-    if (center == null) return;
+    if (center == null || center.getWidth() == 0f) return;
 
     Color col;
     float x = center.getX();

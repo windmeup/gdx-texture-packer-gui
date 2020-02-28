@@ -106,9 +106,9 @@ public class Frames2SpineProcessor implements PackProcessor {
     List<Bone> bones = Collections.singletonList(root);
     // slot
     Slot body = new Slot();
-    body.setName("body");
+    body.setName(slotName);
     body.setBone("root");
-    body.setAttachment("body");
+    body.setAttachment(slotName);
     List<Slot> slots = Collections.singletonList(body);
     // skin
     Map<String, PackingProcessor.ImageEntry> entryMap = new HashMap<>();
@@ -122,7 +122,7 @@ public class Frames2SpineProcessor implements PackProcessor {
           getBound(region, skeletonSettings, imageProcessor, entryMap));
     }
     Map<String, Map<String, Bound>> attachments = new HashMap<>();
-    attachments.put("body", bodySkins);
+    attachments.put(slotName, bodySkins);
     Skin skin = new Skin();
     skin.setName("default");
     skin.setAttachments(attachments);

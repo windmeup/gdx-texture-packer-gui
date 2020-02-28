@@ -111,7 +111,9 @@ public class AnimationPanel extends Group {
 
   public void relayout() {
     String animationName = selected.animationName;
-    clear();
+    super.clear();
+    selected.clearAnimationActor();
+    hovered.clearAnimationActor();
     if (animationName != null) {
       selected.animationName = animationName;
     }
