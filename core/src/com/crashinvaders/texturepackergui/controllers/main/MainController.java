@@ -628,17 +628,34 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     }
     //endregion
 
-    @LmlAction("onShowAnimations") void onShowAnimations(VisImageButton button) {
+    @LmlAction("onShowAnimations") void onShowAnimations() {
         canvas.setShowAnimations(true);
     }
 
-    @LmlAction("onShowAtlas") void onShowAtlas(VisImageButton button) {
+    @LmlAction("onShowAtlas") void onShowAtlas() {
         canvas.setShowAnimations(false);
     }
 
-    @LmlAction("onShowCoords") void onShowCoords(VisImageButton button) {
+    @LmlAction("onShowCoords") void onShowCoords() {
         AnimationPanel panel = canvas.getAnimationViewer().getAnimationPanel();
         panel.setShowCoords(!panel.isShowCoords());
+    }
+
+    @LmlAction("onMoveLeft") void onMoveLeft() {
+        skeletonController.moveSelected(-1, 0);
+    }
+
+    @LmlAction("onMoveRight") void onMoveRight() {
+        AnimationPanel panel = canvas.getAnimationViewer().getAnimationPanel();
+        skeletonController.moveSelected(1, 0);
+    }
+
+    @LmlAction("onMoveUp") void onMoveUp() {
+        skeletonController.moveSelected(0, 1);
+    }
+
+    @LmlAction("onMoveDown") void onMoveDown() {
+        skeletonController.moveSelected(0, -1);
     }
 
     private void updateViewsFromPack(PackModel pack) {

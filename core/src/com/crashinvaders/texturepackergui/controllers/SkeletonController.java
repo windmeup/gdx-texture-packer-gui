@@ -2,6 +2,7 @@ package com.crashinvaders.texturepackergui.controllers;
 
 import com.crashinvaders.texturepackergui.controllers.main.MainController;
 import com.crashinvaders.texturepackergui.utils.JacksonUtils;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationPanel;
 import com.esotericsoftware.spine.SkeletonData;
 import com.github.czyzby.autumn.annotation.Component;
 import com.github.czyzby.autumn.annotation.Inject;
@@ -70,10 +71,20 @@ public class SkeletonController {
     }
   }
 
+  public void moveSelected(int offsetX, int offsetY) {
+    if (skeletonData != null) {
+      // TODO delete data
+    }
+  }
+
   private void modified(boolean dataChanged) throws IOException {
     if (dataChanged) {
-      mainController.getCanvas().getAnimationViewer().getAnimationPanel().relayout();
+      getAnimationPanel().relayout();
       JacksonUtils.writeValue(skeletonFile, data);
     }
+  }
+
+  private AnimationPanel getAnimationPanel() {
+    return mainController.getCanvas().getAnimationViewer().getAnimationPanel();
   }
 }

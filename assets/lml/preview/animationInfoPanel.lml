@@ -27,6 +27,46 @@
 
     <actor width="12"/>
 
+    <vistextbutton id="btMoveLeft"
+        text="L"
+        onchange="onMoveLeft"
+        tooltip="@ttMoveLeft"
+        width="12"
+        height="12"
+        focusborder="false"/>
+
+    <actor width="12"/>
+
+    <vistextbutton id="btMoveRight"
+        text="R"
+        onchange="onMoveRight"
+        tooltip="@ttMoveRight"
+        width="12"
+        height="12"
+        focusborder="false"/>
+
+    <actor width="12"/>
+
+    <vistextbutton id="btMoveUp"
+        text="U"
+        onchange="onMoveUp"
+        tooltip="@ttMoveUp"
+        width="12"
+        height="12"
+        focusborder="false"/>
+
+    <actor width="12"/>
+
+    <vistextbutton id="btMoveDown"
+        text="D"
+        onchange="onMoveDown"
+        tooltip="@ttMoveDown"
+        width="12"
+        height="12"
+        focusborder="false"/>
+
+    <actor width="12"/>
+
     <visimagebutton id="btZoomIn"
         icon="custom/ic-small-zoom-in"
         onchange="zoomIn"
