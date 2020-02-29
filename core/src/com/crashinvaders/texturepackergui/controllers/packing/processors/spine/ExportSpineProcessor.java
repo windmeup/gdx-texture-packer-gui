@@ -12,9 +12,6 @@ import com.badlogic.gdx.tools.spine.data.Skeleton;
 import com.badlogic.gdx.tools.spine.data.SkeletonData;
 import com.badlogic.gdx.tools.spine.data.Skin;
 import com.badlogic.gdx.tools.spine.data.Slot;
-import com.badlogic.gdx.tools.texturepacker.ImageProcessor;
-import com.badlogic.gdx.tools.texturepacker.TexturePacker;
-import com.badlogic.gdx.utils.Array;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.controllers.packing.processors.PackingProcessor;
 import com.crashinvaders.texturepackergui.utils.JacksonUtils;
@@ -43,33 +40,41 @@ public class ExportSpineProcessor extends SpineProcessor {
     String fileName = PackingProcessor.obtainFilename(pack);
     String jsonPath = outputDir + "/" + fileName + ".json";
     new FileHandle(jsonPath).delete();
-    Array<PackingProcessor.ImageEntry> imageEntries = PackingProcessor.collectImageFiles(pack);
-    if (imageEntries.size == 0) {
-      return;
-    }
+    Map<String, Rect> rects = loadRects(pack);
     checkSettings(pack);
     String extension = pack.getSettings().atlasExtension;
     FileHandle outputDirFile = new FileHandle(outputDir);
     TextureAtlas.TextureAtlasData atlasData = new TextureAtlas.TextureAtlasData(
         new FileHandle(outputDir + "/" + fileName + ((extension == null || extension.isEmpty()) ? "" : extension)),
         outputDirFile, false);
-    JacksonUtils.writeValue(Paths.get(jsonPath).toFile(), toSkeletonData(pack, atlasData, imageEntries));
+    JacksonUtils.writeValue(Paths.get(jsonPath).toFile(), toSkeletonData(pack, atlasData, rects));
   }
 
   public com.esotericsoftware.spine.SkeletonData getSkeletonPreview(PackModel pack, TextureAtlas.TextureAtlasData atlasData) throws IOException {
-    Array<PackingProcessor.ImageEntry> imageEntries = PackingProcessor.collectImageFiles(pack);
-    if (imageEntries.size == 0) {
-      return null;
-    }
+    Map<String, Rect> rects = loadRects(pack);
     checkSettings(pack);
     File tempFile = Files.createTempFile(pack.getName(), ".jsonTemp").toFile();
-    JacksonUtils.writeValue(tempFile, toSkeletonData(pack, atlasData, imageEntries));
+    JacksonUtils.writeValue(tempFile, toSkeletonData(pack, atlasData, rects));
     SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlasData));
     com.esotericsoftware.spine.SkeletonData data = skeletonJson.readSkeletonData(new FileHandle(tempFile));
     if (!tempFile.delete()) {
       tempFile.deleteOnExit();
     }
     return data;
+  }
+
+  private Map<String, Rect> loadRects(PackModel pack) throws IOException {
+    String fileName = PackingProcessor.obtainFilename(pack);
+    String rtsPath = pack.getOutputDir() + "/" + fileName + ".rts";
+    File rtsFile = Paths.get(rtsPath).toFile();
+    if (!rtsFile.exists()) {
+      throw new IllegalStateException("File is not exists: " + fileName + ".rts, repack the textures to create it.");
+    }
+    Map<String, Rect> rects = JacksonUtils.readValue(rtsFile, Rects.class).getRects();
+    if (rects == null) {
+      rects = Collections.emptyMap();
+    }
+    return rects;
   }
 
   private void checkSettings(PackModel pack) {
@@ -90,7 +95,7 @@ public class ExportSpineProcessor extends SpineProcessor {
 
   private SkeletonData toSkeletonData(
       PackModel pack, TextureAtlas.TextureAtlasData atlasData,
-      Array<PackingProcessor.ImageEntry> imageEntries) throws IOException {
+      Map<String, Rect> rects) throws IOException {
     SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
     // skeleton
     Skeleton skeleton = new Skeleton();
@@ -112,16 +117,10 @@ public class ExportSpineProcessor extends SpineProcessor {
     body.setAttachment(slotName);
     List<Slot> slots = Collections.singletonList(body);
     // skin
-    Map<String, PackingProcessor.ImageEntry> entryMap = new HashMap<>();
-    for (PackingProcessor.ImageEntry entry : imageEntries) {
-      entryMap.put(entry.regionName, entry);
-    }
-    TexturePacker.Settings settings = toSpineSettings(pack.getSettings());
-    ImageProcessor imageProcessor = new ImageProcessor(settings);
     Map<String, Bound> bodySkins = new TreeMap<>();
     for (TextureAtlas.TextureAtlasData.Region region : atlasData.getRegions()) {
       bodySkins.put(region.name,
-          getBound(region, skeletonSettings, imageProcessor, entryMap));
+          getBound(region, skeletonSettings, rects));
     }
     Map<String, Map<String, Bound>> attachments = new HashMap<>();
     attachments.put(slotName, bodySkins);
@@ -150,18 +149,16 @@ public class ExportSpineProcessor extends SpineProcessor {
   }
 
   private Bound getBound(
-      TextureAtlas.TextureAtlasData.Region region, SkeletonSettings settings, ImageProcessor imageProcessor,
-      Map<String, PackingProcessor.ImageEntry> imageEntries) throws IOException {
-    PackingProcessor.ImageEntry imageEntry = imageEntries.get(region.name);
-    if (imageEntry == null) {
-      throw new IOException("Image not found, region name is " + region.name +
-          ". If you don't use it anymore, repack the textures");
+      TextureAtlas.TextureAtlasData.Region region, SkeletonSettings settings,
+      Map<String, Rect> rects) throws IOException {
+    Rect rect = rects.get(region.name);
+    if (rect == null) {
+      throw new IOException("Region info not found, region name is " + region.name +
+          ", repack the textures to fix it.");
     }
-    TexturePacker.Rect rect = imageProcessor.addImage(imageEntry.fileHandle.file(), null);
-    imageProcessor.clear();
-    int offsetY = (rect.originalHeight - rect.regionHeight - rect.offsetY); // rect y coords down
-    int regWidth = toEven(rect.regionWidth);
-    int regHeight = toEven(rect.regionHeight);
+    int offsetY = rect.getOriginalHeight() - rect.getRegionHeight() - rect.getOffsetY(); // rect y coords down
+    int regWidth = toEven(rect.getRegionWidth());
+    int regHeight = toEven(rect.getRegionHeight());
     String dir = settings.getAnchorFilesDir();
     int anchorX;
     int anchorY;
@@ -174,14 +171,14 @@ public class ExportSpineProcessor extends SpineProcessor {
       if (handle.exists()) {
         BufferedReader reader = handle.reader(8);
         anchorX = Integer.parseInt(reader.readLine());
-        anchorY = rect.originalHeight - 1 + Integer.parseInt(reader.readLine());
+        anchorY = rect.getOriginalHeight() - 1 + Integer.parseInt(reader.readLine());
       } else {
         anchorX = settings.getAnchorX();
         anchorY = settings.getAnchorY();
       }
     }
     Bound bound = new Bound();
-    bound.setX(rect.offsetX - anchorX + regWidth / 2); // x,y is location of bound's center
+    bound.setX(rect.getOffsetX() - anchorX + regWidth / 2); // x,y is location of bound's center
     bound.setY(offsetY - anchorY + regHeight / 2);
     bound.setWidth(regWidth);
     bound.setHeight(regHeight);
