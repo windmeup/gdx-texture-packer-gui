@@ -19,10 +19,13 @@ import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.controllers.packing.processors.PackingProcessor;
 import com.crashinvaders.texturepackergui.utils.JacksonUtils;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
+import com.esotericsoftware.spine.SkeletonJson;
 import com.github.czyzby.kiwi.util.common.Strings;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +47,32 @@ public class ExportSpineProcessor extends SpineProcessor {
     if (imageEntries.size == 0) {
       return;
     }
+    checkSettings(pack);
+    String extension = pack.getSettings().atlasExtension;
+    FileHandle outputDirFile = new FileHandle(outputDir);
+    TextureAtlas.TextureAtlasData atlasData = new TextureAtlas.TextureAtlasData(
+        new FileHandle(outputDir + "/" + fileName + ((extension == null || extension.isEmpty()) ? "" : extension)),
+        outputDirFile, false);
+    JacksonUtils.writeValue(Paths.get(jsonPath).toFile(), toSkeletonData(pack, atlasData, imageEntries));
+  }
+
+  public com.esotericsoftware.spine.SkeletonData getSkeletonPreview(PackModel pack, TextureAtlas.TextureAtlasData atlasData) throws IOException {
+    Array<PackingProcessor.ImageEntry> imageEntries = PackingProcessor.collectImageFiles(pack);
+    if (imageEntries.size == 0) {
+      return null;
+    }
+    checkSettings(pack);
+    File tempFile = Files.createTempFile(pack.getName(), ".jsonTemp").toFile();
+    JacksonUtils.writeValue(tempFile, toSkeletonData(pack, atlasData, imageEntries));
+    SkeletonJson skeletonJson = new SkeletonJson(new TextureAtlas(atlasData));
+    com.esotericsoftware.spine.SkeletonData data = skeletonJson.readSkeletonData(new FileHandle(tempFile));
+    if (!tempFile.delete()) {
+      tempFile.deleteOnExit();
+    }
+    return data;
+  }
+
+  private void checkSettings(PackModel pack) {
     SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
     String slotName = skeletonSettings.getSlotName();
     if (slotName == null) {
@@ -57,11 +86,12 @@ public class ExportSpineProcessor extends SpineProcessor {
     if (frameDuration <= 0f) {
       throw new IllegalStateException("Duration must > 0");
     }
-    String extension = pack.getSettings().atlasExtension;
-    FileHandle outputDirFile = new FileHandle(outputDir);
-    TextureAtlas.TextureAtlasData atlasData = new TextureAtlas.TextureAtlasData(
-        new FileHandle(outputDir + "/" + fileName + ((extension == null || extension.isEmpty()) ? "" : extension)),
-        outputDirFile, false);
+  }
+
+  private SkeletonData toSkeletonData(
+      PackModel pack, TextureAtlas.TextureAtlasData atlasData,
+      Array<PackingProcessor.ImageEntry> imageEntries) throws IOException {
+    SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
     // skeleton
     Skeleton skeleton = new Skeleton();
     skeleton.setSpine("3.8.55");
@@ -76,6 +106,7 @@ public class ExportSpineProcessor extends SpineProcessor {
     List<Bone> bones = Collections.singletonList(root);
     // slot
     Slot body = new Slot();
+    String slotName = skeletonSettings.getSlotName();
     body.setName(slotName);
     body.setBone("root");
     body.setAttachment(slotName);
@@ -104,6 +135,7 @@ public class ExportSpineProcessor extends SpineProcessor {
       addFrame(actions, region.name);
     }
     Map<String, Animation> animations = new TreeMap<>();
+    float frameDuration = skeletonSettings.getDuration();
     for (Map.Entry<String, List<String>> entry : actions.entrySet()) {
       animations.put(entry.getKey(), toAnimation(entry.getValue(), slotName, frameDuration));
     }
@@ -114,7 +146,7 @@ public class ExportSpineProcessor extends SpineProcessor {
     data.setSlots(slots);
     data.setSkins(skins);
     data.setAnimations(animations);
-    JacksonUtils.writeValue(Paths.get(jsonPath).toFile(), data);
+    return data;
   }
 
   private Bound getBound(
