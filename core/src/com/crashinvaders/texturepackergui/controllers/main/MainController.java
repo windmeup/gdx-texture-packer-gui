@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Align;
@@ -642,20 +643,29 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     }
 
     @LmlAction("onMoveLeft") void onMoveLeft() {
-        skeletonController.moveSelected(-1, 0);
+        skeletonController.moveSelected(multiple(-1), 0);
     }
 
     @LmlAction("onMoveRight") void onMoveRight() {
         AnimationPanel panel = canvas.getAnimationViewer().getAnimationPanel();
-        skeletonController.moveSelected(1, 0);
+        skeletonController.moveSelected(multiple(1), 0);
     }
 
     @LmlAction("onMoveUp") void onMoveUp() {
-        skeletonController.moveSelected(0, 1);
+        skeletonController.moveSelected(0, multiple(1));
     }
 
     @LmlAction("onMoveDown") void onMoveDown() {
-        skeletonController.moveSelected(0, -1);
+        skeletonController.moveSelected(0, multiple(-1));
+    }
+
+    private int multiple(int delta) {
+        if (UIUtils.shift()) {
+            delta *= 10;
+        } else if (UIUtils.ctrl()) {
+            delta *= 100;
+        }
+        return delta;
     }
 
     private void updateViewsFromPack(PackModel pack) {

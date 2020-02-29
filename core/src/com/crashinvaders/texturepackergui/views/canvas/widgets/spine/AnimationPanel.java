@@ -86,6 +86,12 @@ public class AnimationPanel extends Group {
           ((AnimationActor) actor).drawCoords(shapeDrawer, aabb, x, y, scaleX, scaleY);
         }
       }
+    } else if (selected.animationActor != null) {
+      if (shapeDrawer == null) {
+        shapeDrawer = new ShapeDrawer(batch, GraphicsUtils.onePix);
+      }
+      shapeDrawer.setDefaultLineWidth(2f);
+      selected.animationActor.drawCoords(shapeDrawer, aabb, x, y, scaleX, scaleY);
     }
   }
 
@@ -141,6 +147,10 @@ public class AnimationPanel extends Group {
     if (hovered.animationActor != null) {
       selected.setAnimationActor(hovered.animationActor);
     }
+  }
+
+  public AnimationActor getSelected() {
+    return selected.animationActor;
   }
 
   private void layout() {
