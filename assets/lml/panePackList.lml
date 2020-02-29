@@ -41,8 +41,8 @@
 
             <separator growy="true" height="0" width="2" padtop="1" padbottom="1"/>
 
-            <:sidebutton id="btnFrames2spine" icon="custom/ic-export-spine" onchange="exportSpine" tooltip="@exportSpine" style="accent"/>
-            <:sidebutton id="btnFrames2spineAll" icon="custom/ic-export-spine-all" onchange="exportSpineAll" tooltip="@exportSpineAll" style="accent"/>
+            <:sidebutton id="btnExportSpine" icon="custom/ic-export-spine" onchange="exportSpine" tooltip="@exportSpine" style="accent"/>
+            <:sidebutton id="btnExportSpineAll" icon="custom/ic-export-spine-all" onchange="exportSpineAll" tooltip="@exportSpineAll" style="accent"/>
         </vistable>
 
         <vistable grow="true" pad="4">

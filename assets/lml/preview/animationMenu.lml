@@ -3,10 +3,10 @@
 
 <popupmenu>
     <menuitem
-            id="miRepack"
-            text="@repack"
-            onchange="frames2spine"
-            icon="custom/ic-frames2spine"/>
+            id="exportSpine"
+            text="@exportSpine"
+            onchange="exportSpine"
+            icon="custom/ic-export-spine"/>
     <menuitem
             id="miChangeBackground"
             text="@dPbChangeBackground"

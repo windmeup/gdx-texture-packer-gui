@@ -404,15 +404,18 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlAction("onCanvasRightClick") void onCanvasRightClick(OnRightClickLmlAttribute.Params params) {
         PopupMenu popupMenu;
+        String itemName;
         if (canvas.isShowAnimations()) {
             popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/animationMenu.lml"));
+            itemName = "exportSpine";
         } else {
             popupMenu = LmlAutumnUtils.parseLml(interfaceService, VIEW_ID, this, Gdx.files.internal("lml/preview/canvasMenu.lml"));
+            itemName = "miRepack";
         }
         PackModel pack = getSelectedPack();
 
         MenuItem menuItem;
-        menuItem = popupMenu.findActor("miRepack");
+        menuItem = popupMenu.findActor(itemName);
         menuItem.setDisabled(pack == null);
 
         popupMenu.showMenu(getStage(), params.stageX, params.stageY);
