@@ -184,7 +184,7 @@ public class ExportSpineProcessor extends SpineProcessor {
       FileHandle handle = new FileHandle(dir + "/" + splits[splits.length - 1] + ".txt");
       if (handle.exists()) {
         BufferedReader reader = handle.reader(8);
-        anchorX += Integer.parseInt(reader.readLine());
+        anchorX -= Integer.parseInt(reader.readLine());
         anchorY += rect.getOriginalHeight() - 1 + Integer.parseInt(reader.readLine());
       } else {
         anchorX += settings.getAnchorX();
