@@ -22,6 +22,7 @@ import com.crashinvaders.texturepackergui.views.canvas.widgets.BackgroundWidget;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.preview.InfoPanel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.preview.PreviewHolder;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationInfoPanel;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationPanel;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationViewer;
 import com.esotericsoftware.spine.SkeletonData;
 import com.github.czyzby.lml.parser.LmlParser;
@@ -195,26 +196,38 @@ public class PagePreviewCanvas extends Stack {
           }
           callback.atlasLoadError(pack);
         }
-        if (atlas != null) {
-          SkeletonData skeletonData = null;
-          try {
-            skeletonData = new ExportSpineProcessor().getSkeletonPreview(pack, atlas.getAtlasData());
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-          if (skeletonData != null) {
-            skeletonController.set(skeletonData, pack.getSkeletonSettings());
-            animationViewer.getAnimationPanel().set(skeletonData, pack.getSkeletonSettings());
-          }
-        }
+        doReloadAnimations(pack, skeletonController);
       }
     }
     updatePageButtonsVisibility();
     infoPanel.setVisible(atlas != null);
   }
 
+  public void reloadAnimations(PackModel pack, SkeletonController skeletonController) {
+    skeletonController.clear();
+    animationViewer.getAnimationPanel().clear();
+    doReloadAnimations(pack, skeletonController);
+  }
+
   public void setCallback(Callback callback) {
     this.callback = callback;
+  }
+
+  private void doReloadAnimations(PackModel pack, SkeletonController skeletonController) {
+    if (atlas == null) {
+      return;
+    }
+    SkeletonData skeletonData = null;
+    try {
+      skeletonData = new ExportSpineProcessor().getSkeletonPreview(pack, atlas.getAtlasData());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    if (skeletonData != null) {
+      AnimationPanel animationPanel = animationViewer.getAnimationPanel();
+      skeletonController.set(skeletonData, pack.getSkeletonSettings());
+      animationPanel.set(skeletonData, pack.getSkeletonSettings());
+    }
   }
 
   private void showNextPage() {

@@ -122,13 +122,9 @@ public class AnimationPanel extends Group {
   }
 
   public void relayout() {
-    String animationName = selected.animationName;
     super.clear();
     selected.clearAnimationActor();
     hovered.clearAnimationActor();
-    if (animationName != null) {
-      selected.animationName = animationName;
-    }
     layout();
   }
 
@@ -306,7 +302,6 @@ public class AnimationPanel extends Group {
     @Override
     void clearAnimationActor() {
       super.clearAnimationActor();
-      animationName = null;
     }
   }
 

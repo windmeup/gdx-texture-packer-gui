@@ -44,6 +44,7 @@ import com.crashinvaders.texturepackergui.controllers.model.filetype.FileTypeMod
 import com.crashinvaders.texturepackergui.controllers.model.filetype.JpegFileTypeModel;
 import com.crashinvaders.texturepackergui.controllers.model.filetype.KtxFileTypeModel;
 import com.crashinvaders.texturepackergui.controllers.model.filetype.PngFileTypeModel;
+import com.crashinvaders.texturepackergui.controllers.packing.processors.spine.ExportSpineProcessor;
 import com.crashinvaders.texturepackergui.controllers.projectserializer.ProjectSerializer;
 import com.crashinvaders.texturepackergui.events.PackListOrderChangedEvent;
 import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent;
@@ -537,7 +538,11 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         float value = ((FloatSeekBarModel) seekBar.getModel()).getValue();
         switch (seekBar.getName()) {
             case "skbDuration":
+                if (skeletonSettings.getDuration() == value) {
+                    break;
+                }
                 skeletonSettings.setDuration(value);
+                getCanvas().reloadAnimations(pack, skeletonController);
                 break;
         }
     }
