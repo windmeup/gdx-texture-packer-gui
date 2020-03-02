@@ -44,7 +44,6 @@ import com.crashinvaders.texturepackergui.controllers.model.filetype.FileTypeMod
 import com.crashinvaders.texturepackergui.controllers.model.filetype.JpegFileTypeModel;
 import com.crashinvaders.texturepackergui.controllers.model.filetype.KtxFileTypeModel;
 import com.crashinvaders.texturepackergui.controllers.model.filetype.PngFileTypeModel;
-import com.crashinvaders.texturepackergui.controllers.packing.processors.spine.ExportSpineProcessor;
 import com.crashinvaders.texturepackergui.controllers.projectserializer.ProjectSerializer;
 import com.crashinvaders.texturepackergui.events.PackListOrderChangedEvent;
 import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent;
@@ -526,8 +525,22 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
                 skeletonSettings.setHeight(skeletonHeight);
                 skeletonController.setSkeletonHeight(skeletonHeight);
                 break;
-            case "skbAnchorX": skeletonSettings.setAnchorX(model.getValue()); break;
-            case "skbAnchorY": skeletonSettings.setAnchorY(model.getValue()); break;
+            case "skbAnchorX":
+                int anchorX = model.getValue();
+                if (skeletonSettings.getAnchorX() == anchorX) {
+                    break;
+                }
+                skeletonSettings.setAnchorX(anchorX);
+                getCanvas().reloadAnimations(pack, skeletonController);
+                break;
+            case "skbAnchorY":
+                int anchorY = model.getValue();
+                if (skeletonSettings.getAnchorY() == anchorY) {
+                    break;
+                }
+                skeletonSettings.setAnchorY(anchorY);
+                getCanvas().reloadAnimations(pack, skeletonController);
+                break;
         }
     }
 
@@ -555,8 +568,16 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
 
     @LmlAction("onAnchorFilesDirChanged") void onAnchorFilesDirChanged(VisTextField textField) {
         PackModel pack = getSelectedPack();
-        if (pack == null) return;
-        pack.getSkeletonSettings().setAnchorFilesDir(textField.getText().trim());
+        if (pack == null) {
+            return;
+        }
+        SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
+        String dir = textField.getText().trim();
+        if (skeletonSettings.getAnchorFilesDir().equals(dir)) {
+            return;
+        }
+        skeletonSettings.setAnchorFilesDir(dir);
+        getCanvas().reloadAnimations(pack, skeletonController);
     }
 
 //    @LmlAction("onSettingsFloatSpinnerChanged") void onSettingsFloatSpinnerChanged(SeekBar seekBar) {
