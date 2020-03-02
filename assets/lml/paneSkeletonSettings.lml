@@ -89,7 +89,7 @@
                                 onchange="onSettingsIntSeekBarChanged"
                                 value="0"
                                 tooltip="@ssTtAnchorX"
-                                min="0"
+                                min="-1024"
                                 max="1024"/>
                     </:item>
 
@@ -99,7 +99,7 @@
                                 onchange="onSettingsIntSeekBarChanged"
                                 value="0"
                                 tooltip="@ssTtAnchorY"
-                                min="0"
+                                min="-1024"
                                 max="1024"/>
                     </:item>
 

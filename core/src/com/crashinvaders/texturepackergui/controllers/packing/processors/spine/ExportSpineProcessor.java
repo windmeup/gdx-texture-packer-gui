@@ -166,29 +166,20 @@ public class ExportSpineProcessor extends SpineProcessor {
     int regWidth = toEven(rect.getRegionWidth());
     int regHeight = toEven(rect.getRegionHeight());
     String dir = settings.getAnchorFilesDir();
-    int anchorX;
-    int anchorY;
+    int anchorX = settings.getAnchorX();
+    int anchorY = settings.getAnchorY();
     Point animationOffset = settings.getAnimationOffsets().get(animationName);
-    if (animationOffset == null) {
-      anchorX = 0;
-      anchorY = 0;
-    } else {
-      anchorX = -animationOffset.getX();
-      anchorY = -animationOffset.getY();
+    if (animationOffset != null) {
+      anchorX -= animationOffset.getX();
+      anchorY -= animationOffset.getY();
     }
-    if (Strings.isEmpty(dir)) {
-      anchorX += settings.getAnchorX();
-      anchorY += settings.getAnchorY();
-    } else {
+    if (!Strings.isEmpty(dir)) {
       String[] splits = region.name.split("/");
       FileHandle handle = new FileHandle(dir + "/" + splits[splits.length - 1] + ".txt");
       if (handle.exists()) {
         BufferedReader reader = handle.reader(8);
         anchorX -= Integer.parseInt(reader.readLine());
         anchorY += rect.getOriginalHeight() - 1 + Integer.parseInt(reader.readLine());
-      } else {
-        anchorX += settings.getAnchorX();
-        anchorY += settings.getAnchorY();
       }
     }
     Bound bound = new Bound();
