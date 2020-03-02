@@ -3,6 +3,7 @@ package com.crashinvaders.texturepackergui.controllers.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.tools.spine.Point;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
@@ -17,6 +18,7 @@ import com.github.czyzby.kiwi.util.common.Strings;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 public class PackModel implements StateHashable {
@@ -244,6 +246,15 @@ public class PackModel implements StateHashable {
                 skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), skeletonSettings.getDuration(),
                 skeletonSettings.getAnchorFilesDir()
             );
+        Point point;
+        for (Map.Entry<String, Point> entry : skeletonSettings.getAnimationOffsets().entrySet()) {
+            point = entry.getValue();
+            if (point.same(0, 0)) {
+                continue;
+            }
+            result = 31 * result + entry.getKey().hashCode();
+            result = 31 * result + point.hashCode();
+        }
         result = 31 * result + Arrays.hashCode(settings.scale);
         result = 31 * result + Arrays.hashCode(settings.scaleSuffix);
         result = 31 * result + Arrays.hashCode(settings.scaleResampling);

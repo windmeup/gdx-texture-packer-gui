@@ -1,5 +1,7 @@
 package com.crashinvaders.texturepackergui.controllers;
 
+import com.badlogic.gdx.tools.spine.Point;
+import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.crashinvaders.texturepackergui.controllers.main.MainController;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationActor;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationPanel;
@@ -9,19 +11,25 @@ import com.esotericsoftware.spine.attachments.Attachment;
 import com.esotericsoftware.spine.attachments.RegionAttachment;
 import com.github.czyzby.autumn.annotation.Component;
 import com.github.czyzby.autumn.annotation.Inject;
-import lombok.Setter;
 
 @Component
 public class SkeletonController {
 
-  @Setter
   private SkeletonData skeletonData;
+
+  private SkeletonSettings skeletonSettings;
 
   @Inject
   MainController mainController;
 
+  public void set(SkeletonData skeletonData, SkeletonSettings skeletonSettings) {
+    this.skeletonData = skeletonData;
+    this.skeletonSettings = skeletonSettings;
+  }
+
   public void clear() {
     skeletonData = null;
+    skeletonSettings = null;
   }
 
   public void setSkeletonX(int skeletonX) {
@@ -61,7 +69,8 @@ public class SkeletonController {
         int slotIndex;
         Attachment attachment;
         RegionAttachment regionAttachment;
-        for (Animation.Timeline timeline : skeletonData.findAnimation(animationActor.getName()).getTimelines()) {
+        String animationName = animationActor.getName();
+        for (Animation.Timeline timeline : skeletonData.findAnimation(animationName).getTimelines()) {
           if (timeline instanceof Animation.AttachmentTimeline) {
             attachmentTimeline = (Animation.AttachmentTimeline) timeline;
             slotIndex = attachmentTimeline.getSlotIndex();
@@ -76,7 +85,10 @@ public class SkeletonController {
             }
           }
         }
-        // TODO animation offset settings
+        Point point = skeletonSettings.getAnimationOffsets().computeIfAbsent(
+            animationName, k -> new Point(0, 0)
+        );
+        point.translate(offsetX, offsetY);
         animationPanel.relayout();
       }
     }

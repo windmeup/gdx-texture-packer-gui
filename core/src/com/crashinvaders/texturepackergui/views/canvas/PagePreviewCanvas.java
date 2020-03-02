@@ -203,7 +203,7 @@ public class PagePreviewCanvas extends Stack {
             e.printStackTrace();
           }
           if (skeletonData != null) {
-            skeletonController.setSkeletonData(skeletonData);
+            skeletonController.set(skeletonData, pack.getSkeletonSettings());
             animationViewer.getAnimationPanel().setSkeletonData(skeletonData);
           }
         }

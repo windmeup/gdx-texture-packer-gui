@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.tools.spine.Point;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
@@ -27,6 +28,9 @@ import com.github.czyzby.autumn.processor.event.EventDispatcher;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 import static com.crashinvaders.texturepackergui.utils.CommonUtils.splitAndTrim;
 import static com.crashinvaders.texturepackergui.utils.FileUtils.loadTextFromFile;
@@ -166,6 +170,15 @@ public class ProjectSerializer {
         sb.append("anchorY=").append(skeletonSettings.getAnchorY()).append("\n");
         sb.append("duration=").append(skeletonSettings.getDuration()).append("\n");
         sb.append("anchorFilesDir=").append(skeletonSettings.getAnchorFilesDir()).append('\n');
+        Point point;
+        for (Map.Entry<String, Point> entry : skeletonSettings.getAnimationOffsets().entrySet()) {
+            point = entry.getValue();
+            if (point.same(0, 0)) {
+                continue;
+            }
+            sb.append("animationOffset.").append(entry.getKey()).append("=").append(point.getX())
+                .append(",").append(point.getY()).append('\n');
+        }
 
         sb.append('\n');
 
@@ -317,6 +330,9 @@ public class ProjectSerializer {
         skeletonSettings.setAnchorY(find(lines, "anchorY=", defaultSkeletonSettings.getAnchorY()));
         skeletonSettings.setDuration(find(lines, "duration=", defaultSkeletonSettings.getDuration()));
         skeletonSettings.setAnchorFilesDir(find(lines, "anchorFilesDir=", defaultSkeletonSettings.getAnchorFilesDir()));
+        Map<String, Point> animationOffsets = new TreeMap<>();
+        findPoints(lines, "animationOffset.", animationOffsets::put);
+        skeletonSettings.setAnimationOffsets(animationOffsets);
 
         String scaleFactorsSerialized = find(lines, "scaleFactors=", null);
         if (scaleFactorsSerialized != null) {
@@ -391,5 +407,17 @@ public class ProjectSerializer {
         String str = find(lines, start, null);
         if (str != null) return Float.parseFloat(str);
         return defaultValue;
+    }
+
+    private static void findPoints(Array<String> lines, String start, BiConsumer<String, Point> consumer) {
+        String[] entry;
+        String[] point;
+        for (String line : lines) {
+            if (line.startsWith(start)) {
+                entry = line.substring(start.length()).split("=");
+                point = entry[1].split(",");
+                consumer.accept(entry[0], new Point(Integer.parseInt(point[0]), Integer.parseInt(point[1])));
+            }
+        }
     }
 }
