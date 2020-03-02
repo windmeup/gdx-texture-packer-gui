@@ -48,58 +48,59 @@
                     <!--<:separator/>-->
 
                     <:item title="@psMinPageWidth">
-                        <intseekbar
+                        <validatable
                                 id="skbMinPageWidth"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="2048"
-                                tooltip="@psTtMinWidth"
-                                min="16"
-                                max="8192"
-                                step="128"/>
+                                onchange="onSettingsIntChanged"
+                                text="2048"
+                                tooltip="@psTtMinWidth">
+                                <greaterThan value=16 orEqual=true />
+                                <lesserThan value=8192 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@psMinPageHeight">
-                        <intseekbar
+                        <validatable
                                 id="skbMinPageHeight"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="2048"
-                                tooltip="@psTtMinHeight"
-                                min="16"
-                                max="8192"
-                                step="128"/>
+                                onchange="onSettingsIntChanged"
+                                text="2048"
+                                tooltip="@psTtMinHeight">
+                                <greaterThan value=16 orEqual=true />
+                                <lesserThan value=8192 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@psMaxPageWidth">
-                        <intseekbar
+                        <validatable
                                 id="skbMaxPageWidth"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="2048"
-                                tooltip="@psTtMaxWidth"
-                                min="16"
-                                max="8192"
-                                step="128"/>
+                                onchange="onSettingsIntChanged"
+                                text="2048"
+                                tooltip="@psTtMaxWidth">
+                                <greaterThan value=16 orEqual=true />
+                                <lesserThan value=8192 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@psMaxPageHeight">
-                        <intseekbar
+                        <validatable
                                 id="skbMaxPageHeight"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="2048"
-                                tooltip="@psTtMaxHeight"
-                                min="16"
-                                max="8192"
-                                step="128"/>
+                                onchange="onSettingsIntChanged"
+                                text="2048"
+                                tooltip="@psTtMaxHeight">
+                                <greaterThan value=16 orEqual=true />
+                                <lesserThan value=8192 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:separator/>
 
                     <:item title="@psAlphaThreshold">
-                        <intseekbar
+                        <validatable
                                 id="skbAlphaThreshold"
-                                onchange="onSettingsIntSeekBarChanged"
-                                tooltip="@psTtAlphaThreshold"
-                                min="0"
-                                max="255"/>
+                                onchange="onSettingsIntChanged"
+                                tooltip="@psTtAlphaThreshold">
+                                <greaterThan value=0 orEqual=true />
+                                <lesserThan value=255 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@psMinFilter">
@@ -119,21 +120,23 @@
                     <:separator/>
 
                     <:item title="@psPaddingX">
-                        <intseekbar
+                        <validatable
                                 id="skbPaddingX"
-                                onchange="onSettingsIntSeekBarChanged"
-                                tooltip="@psTtPaddingX"
-                                min="0"
-                                max="64"/>
+                                onchange="onSettingsIntChanged"
+                                tooltip="@psTtPaddingX">
+                                <greaterThan value=0 orEqual=true />
+                                <lesserThan value=64 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@psPaddingY">
-                        <intseekbar
+                        <validatable
                                 id="skbPaddingY"
-                                onchange="onSettingsIntSeekBarChanged"
-                                tooltip="@psTtPaddingY"
-                                min="0"
-                                max="64"/>
+                                onchange="onSettingsIntChanged"
+                                tooltip="@psTtPaddingY">
+                                <greaterThan value=0 orEqual=true />
+                                <lesserThan value=64 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@psWrapX">

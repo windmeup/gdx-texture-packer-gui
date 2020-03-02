@@ -1,8 +1,8 @@
 package com.crashinvaders.texturepackergui.controllers.main;
 
-import com.crashinvaders.texturepackergui.views.seekbar.SeekBar;
 import com.github.czyzby.lml.annotation.LmlActor;
 import com.kotcrab.vis.ui.widget.VisTextField;
+import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
 public class SkeletonSettingsActors {
 
@@ -10,26 +10,26 @@ public class SkeletonSettingsActors {
   VisTextField edtSlotName;
 
   @LmlActor("skbSkeletonX")
-  SeekBar skbSkeletonX;
+  VisValidatableTextField skbSkeletonX;
 
   @LmlActor("skbSkeletonY")
-  SeekBar skbSkeletonY;
+  VisValidatableTextField skbSkeletonY;
 
   @LmlActor("skbSkeletonWidth")
-  SeekBar skbSkeletonWidth;
+  VisValidatableTextField skbSkeletonWidth;
 
   @LmlActor("skbSkeletonHeight")
-  SeekBar skbSkeletonHeight;
+  VisValidatableTextField skbSkeletonHeight;
 
   @LmlActor("skbAnchorX")
-  SeekBar skbAnchorX;
+  VisValidatableTextField skbAnchorX;
 
   @LmlActor("skbAnchorY")
-  SeekBar skbAnchorY;
+  VisValidatableTextField skbAnchorY;
 
   @LmlActor("edtAnchorFilesDir")
   VisTextField edtAnchorFilesDir;
 
   @LmlActor("skbDuration")
-  SeekBar skbDuration;
+  VisValidatableTextField skbDuration;
 }

@@ -58,9 +58,6 @@ import com.crashinvaders.texturepackergui.utils.CommonUtils;
 import com.crashinvaders.texturepackergui.utils.LmlAutumnUtils;
 import com.crashinvaders.texturepackergui.views.canvas.PagePreviewCanvas;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationPanel;
-import com.crashinvaders.texturepackergui.views.seekbar.FloatSeekBarModel;
-import com.crashinvaders.texturepackergui.views.seekbar.IntSeekBarModel;
-import com.crashinvaders.texturepackergui.views.seekbar.SeekBar;
 import com.github.czyzby.autumn.annotation.Destroy;
 import com.github.czyzby.autumn.annotation.Initiate;
 import com.github.czyzby.autumn.annotation.Inject;
@@ -71,6 +68,7 @@ import com.github.czyzby.autumn.mvc.component.ui.controller.ViewResizer;
 import com.github.czyzby.autumn.mvc.component.ui.controller.ViewShower;
 import com.github.czyzby.autumn.mvc.stereotype.View;
 import com.github.czyzby.autumn.mvc.stereotype.ViewStage;
+import com.github.czyzby.kiwi.util.common.Strings;
 import com.github.czyzby.lml.annotation.LmlAction;
 import com.github.czyzby.lml.annotation.LmlActor;
 import com.github.czyzby.lml.annotation.LmlAfter;
@@ -81,7 +79,6 @@ import com.kotcrab.vis.ui.util.adapter.ListSelectionAdapter;
 import com.kotcrab.vis.ui.widget.*;
 import lombok.Getter;
 
-import java.io.IOException;
 import java.util.Locale;
 
 @SuppressWarnings("WeakerAccess")
@@ -490,66 +487,80 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         }
     }
 
-    @LmlAction("onSettingsIntSeekBarChanged") void onSettingsIntSeekBarChanged(SeekBar seekBar) throws IOException {
+    @LmlAction("onSettingsIntChanged") void onSettingsIntChanged(VisValidatableTextField textField) {
+        if (!textField.isInputValid()) {
+            return;
+        }
         PackModel pack = getSelectedPack();
         if (pack == null) return;
-
         TexturePacker.Settings settings = pack.getSettings();
         SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
-        IntSeekBarModel model = (IntSeekBarModel) seekBar.getModel();
-        switch (seekBar.getName()) {
-            case "skbMinPageWidth": settings.minWidth = model.getValue(); break;
-            case "skbMinPageHeight": settings.minHeight = model.getValue(); break;
-            case "skbMaxPageWidth": settings.maxWidth = model.getValue(); break;
-            case "skbMaxPageHeight": settings.maxHeight = model.getValue(); break;
-            case "skbAlphaThreshold": settings.alphaThreshold = model.getValue(); break;
-            case "skbPaddingX": settings.paddingX = model.getValue(); break;
-            case "skbPaddingY": settings.paddingY = model.getValue(); break;
+        String text = textField.getText().trim();
+        int value = Strings.isInt(text) ? Integer.parseInt(text) : 0;
+        switch (textField.getName()) {
+            case "skbMinPageWidth":
+                settings.minWidth = value;
+                break;
+            case "skbMinPageHeight":
+                settings.minHeight = value;
+                break;
+            case "skbMaxPageWidth": settings.maxWidth = value;
+                break;
+            case "skbMaxPageHeight":
+                settings.maxHeight = value;
+                break;
+            case "skbAlphaThreshold":
+                settings.alphaThreshold = value;
+                break;
+            case "skbPaddingX":
+                settings.paddingX = value;
+                break;
+            case "skbPaddingY":
+                settings.paddingY = value;
+                break;
             case "skbSkeletonX":
-                int skeletonX = model.getValue();
-                skeletonSettings.setX(skeletonX);
-                skeletonController.setSkeletonX(skeletonX);
+                skeletonSettings.setX(value);
+                skeletonController.setSkeletonX(value);
                 break;
             case "skbSkeletonY":
-                int skeletonY = model.getValue();
-                skeletonSettings.setY(skeletonY);
-                skeletonController.setSkeletonY(skeletonY);
+                skeletonSettings.setY(value);
+                skeletonController.setSkeletonY(value);
                 break;
             case "skbSkeletonWidth":
-                int skeletonWidth = model.getValue();
-                skeletonSettings.setWidth(skeletonWidth);
-                skeletonController.setSkeletonWidth(skeletonWidth);
+                skeletonSettings.setWidth(value);
+                skeletonController.setSkeletonWidth(value);
                 break;
             case "skbSkeletonHeight":
-                int skeletonHeight = model.getValue();
-                skeletonSettings.setHeight(skeletonHeight);
-                skeletonController.setSkeletonHeight(skeletonHeight);
+                skeletonSettings.setHeight(value);
+                skeletonController.setSkeletonHeight(value);
                 break;
             case "skbAnchorX":
-                int anchorX = model.getValue();
-                if (skeletonSettings.getAnchorX() == anchorX) {
+                if (skeletonSettings.getAnchorX() == value) {
                     break;
                 }
-                skeletonSettings.setAnchorX(anchorX);
+                skeletonSettings.setAnchorX(value);
                 getCanvas().reloadAnimations(pack, skeletonController);
                 break;
             case "skbAnchorY":
-                int anchorY = model.getValue();
-                if (skeletonSettings.getAnchorY() == anchorY) {
+                if (skeletonSettings.getAnchorY() == value) {
                     break;
                 }
-                skeletonSettings.setAnchorY(anchorY);
+                skeletonSettings.setAnchorY(value);
                 getCanvas().reloadAnimations(pack, skeletonController);
                 break;
         }
     }
 
-    @LmlAction("onSettingsFloatSeekBarChanged") void onSettingsFloatSeekBarChanged(SeekBar seekBar) {
+    @LmlAction("onSettingsFloatChanged") void onSettingsFloatChanged(VisValidatableTextField textField) {
+        if (!textField.isInputValid()) {
+            return;
+        }
         PackModel pack = getSelectedPack();
         if (pack == null) return;
         SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
-        float value = ((FloatSeekBarModel) seekBar.getModel()).getValue();
-        switch (seekBar.getName()) {
+        String text = textField.getText().trim();
+        float value = Strings.isFloat(text) ? Float.parseFloat(text) : 0f;
+        switch (textField.getName()) {
             case "skbDuration":
                 if (skeletonSettings.getDuration() == value) {
                     break;
@@ -579,17 +590,6 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         skeletonSettings.setAnchorFilesDir(dir);
         getCanvas().reloadAnimations(pack, skeletonController);
     }
-
-//    @LmlAction("onSettingsFloatSpinnerChanged") void onSettingsFloatSpinnerChanged(SeekBar seekBar) {
-//        PackModel pack = getSelectedPack();
-//        if (pack == null) return;
-//
-//        TexturePacker.Settings settings = pack.getSettings();
-//        FloatSeekBarModel model = (FloatSeekBarModel) seekBar.getModel();
-//        switch (spinner.getName()) {
-//            case "skbJpegQuality": settings.jpegQuality = model.getValue().floatValue(); break;
-//        }
-//    }
 
     @LmlAction("onSettingsCboChanged") void onSettingsCboChanged(VisSelectBox selectBox) {
         if (!viewShown) return;
@@ -688,6 +688,11 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         skeletonController.moveSelected(0, multiple(-1));
     }
 
+    @LmlAction("isNotBlank")
+    public boolean isStringNotBlank(final String value) {
+        return Strings.isNotBlank(value);
+    }
+
     private int multiple(int delta) {
         if (UIUtils.shift()) {
             delta *= 10;
@@ -741,13 +746,13 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             actorsPackSettings.cbSquare.setChecked(settings.square);
             actorsPackSettings.cbLimitMemory.setChecked(settings.limitMemory);
 
-            ((IntSeekBarModel) actorsPackSettings.skbMinPageWidth.getModel()).setValue(settings.minWidth, false);
-            ((IntSeekBarModel) actorsPackSettings.skbMinPageHeight.getModel()).setValue(settings.minHeight, false);
-            ((IntSeekBarModel) actorsPackSettings.skbMaxPageWidth.getModel()).setValue(settings.maxWidth, false);
-            ((IntSeekBarModel) actorsPackSettings.skbMaxPageHeight.getModel()).setValue(settings.maxHeight, false);
-            ((IntSeekBarModel) actorsPackSettings.skbAlphaThreshold.getModel()).setValue(settings.alphaThreshold, false);
-            ((IntSeekBarModel) actorsPackSettings.skbPaddingX.getModel()).setValue(settings.paddingX, false);
-            ((IntSeekBarModel) actorsPackSettings.skbPaddingY.getModel()).setValue(settings.paddingY, false);
+            actorsPackSettings.skbMinPageWidth.setText(Integer.toString(settings.minWidth));
+            actorsPackSettings.skbMinPageHeight.setText(Integer.toString(settings.minHeight));
+            actorsPackSettings.skbMaxPageWidth.setText(Integer.toString(settings.maxWidth));
+            actorsPackSettings.skbMaxPageHeight.setText(Integer.toString(settings.maxHeight));
+            actorsPackSettings.skbAlphaThreshold.setText(Integer.toString(settings.alphaThreshold));
+            actorsPackSettings.skbPaddingX.setText(Integer.toString(settings.paddingX));
+            actorsPackSettings.skbPaddingY.setText(Integer.toString(settings.paddingY));
 
             actorsPackSettings.cboMinFilter.setSelected(settings.filterMin);
             actorsPackSettings.cboMagFilter.setSelected(settings.filterMag);
@@ -769,14 +774,14 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
             // Skeleton settings
             SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
             actorsSkeletonSettings.edtSlotName.setText(skeletonSettings.getSlotName());
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonX.getModel()).setValue(skeletonSettings.getX(), false);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonY.getModel()).setValue(skeletonSettings.getY(), false);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonWidth.getModel()).setValue(skeletonSettings.getWidth(), false);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbSkeletonHeight.getModel()).setValue(skeletonSettings.getHeight(), false);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorX.getModel()).setValue(skeletonSettings.getAnchorX(), false);
-            ((IntSeekBarModel)actorsSkeletonSettings.skbAnchorY.getModel()).setValue(skeletonSettings.getAnchorY(), false);
+            actorsSkeletonSettings.skbSkeletonX.setText(Integer.toString(skeletonSettings.getX()));
+            actorsSkeletonSettings.skbSkeletonY.setText(Integer.toString(skeletonSettings.getY()));
+            actorsSkeletonSettings.skbSkeletonWidth.setText(Integer.toString(skeletonSettings.getWidth()));
+            actorsSkeletonSettings.skbSkeletonHeight.setText(Integer.toString(skeletonSettings.getHeight()));
+            actorsSkeletonSettings.skbAnchorX.setText(Integer.toString(skeletonSettings.getAnchorX()));
+            actorsSkeletonSettings.skbAnchorY.setText(Integer.toString(skeletonSettings.getAnchorY()));
             actorsSkeletonSettings.edtAnchorFilesDir.setText(skeletonSettings.getAnchorFilesDir());
-            ((FloatSeekBarModel)actorsSkeletonSettings.skbDuration.getModel()).setValue(skeletonSettings.getDuration(), false);
+            actorsSkeletonSettings.skbDuration.setText(Float.toString(skeletonSettings.getDuration()));
         }
 
         // Update pane lockers

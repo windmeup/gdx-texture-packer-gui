@@ -1,23 +1,23 @@
 package com.crashinvaders.texturepackergui.controllers.main;
 
 import com.crashinvaders.texturepackergui.views.ExpandEditTextButton;
-import com.crashinvaders.texturepackergui.views.seekbar.SeekBar;
 import com.github.czyzby.lml.annotation.LmlActor;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
+import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
 @SuppressWarnings("WeakerAccess")
 public class PackSettingsActors {
 
-    @LmlActor("skbMinPageWidth") SeekBar skbMinPageWidth;
-    @LmlActor("skbMinPageHeight") SeekBar skbMinPageHeight;
-    @LmlActor("skbMaxPageWidth") SeekBar skbMaxPageWidth;
-    @LmlActor("skbMaxPageHeight") SeekBar skbMaxPageHeight;
-    @LmlActor("skbAlphaThreshold") SeekBar skbAlphaThreshold;
+    @LmlActor("skbMinPageWidth") VisValidatableTextField skbMinPageWidth;
+    @LmlActor("skbMinPageHeight") VisValidatableTextField skbMinPageHeight;
+    @LmlActor("skbMaxPageWidth") VisValidatableTextField skbMaxPageWidth;
+    @LmlActor("skbMaxPageHeight") VisValidatableTextField skbMaxPageHeight;
+    @LmlActor("skbAlphaThreshold") VisValidatableTextField skbAlphaThreshold;
     @LmlActor("cboMinFilter") VisSelectBox cboMinFilter;
     @LmlActor("cboMagFilter") VisSelectBox cboMagFilter;
-    @LmlActor("skbPaddingX") SeekBar skbPaddingX;
-    @LmlActor("skbPaddingY") SeekBar skbPaddingY;
+    @LmlActor("skbPaddingX") VisValidatableTextField skbPaddingX;
+    @LmlActor("skbPaddingY") VisValidatableTextField skbPaddingY;
     @LmlActor("cboWrapX") VisSelectBox cboWrapX;
     @LmlActor("cboWrapY") VisSelectBox cboWrapY;
     @LmlActor("eetbScaleFactors") ExpandEditTextButton eetbScaleFactors;

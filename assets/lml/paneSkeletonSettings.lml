@@ -25,7 +25,7 @@
                             align="right"
                             text="@ssSlotName"
                             tooltip="@ssTtSlotName"/>
-                    <textfield
+                    <validatable
                             id="edtSlotName"
                             colspan="2"
                             minwidth="24"
@@ -33,74 +33,78 @@
                             padright="0"
                             padbottom="0"
                             tooltip="@ssTtSlotName"
-                            onchange="onSlotNameChanged"/>
+                            onchange="onSlotNameChanged">
+                            <validator validate=isNotBlank />
+                    </validatable>
 
                     <:separator/>
 
                     <:item title="@ssSkeletonX">
-                        <intseekbar
+                        <validatable
                                 id="skbSkeletonX"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="0"
-                                tooltip="@ssTtSkeletonX"
-                                min="-1024"
-                                max="1024"
-                                step="1"/>
+                                onchange="onSettingsIntChanged"
+                                text="0"
+                                tooltip="@ssTtSkeletonX">
+                                <greaterThan value=-1024 orEqual=true />
+                                <lesserThan value=1024 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@ssSkeletonY">
-                        <intseekbar
+                        <validatable
                                 id="skbSkeletonY"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="0"
-                                tooltip="@ssTtSkeletonY"
-                                min="-1024"
-                                max="1024"
-                                step="1"/>
+                                onchange="onSettingsIntChanged"
+                                text="0"
+                                tooltip="@ssTtSkeletonY">
+                                <greaterThan value=-1024 orEqual=true />
+                                <lesserThan value=1024 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@ssSkeletonWidth">
-                        <intseekbar
+                        <validatable
                                 id="skbSkeletonWidth"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="0"
-                                tooltip="@ssTtSkeletonWidth"
-                                min="0"
-                                max="1024"
-                                step="1"/>
+                                onchange="onSettingsIntChanged"
+                                text="0"
+                                tooltip="@ssTtSkeletonWidth">
+                                <greaterThan value=0 orEqual=true />
+                                <lesserThan value=1024 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@ssSkeletonHeight">
-                        <intseekbar
+                        <validatable
                                 id="skbSkeletonHeight"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="0"
-                                tooltip="@ssTtSkeletonHeight"
-                                min="0"
-                                max="1024"
-                                step="1"/>
+                                onchange="onSettingsIntChanged"
+                                text="0"
+                                tooltip="@ssTtSkeletonWidth">
+                                <greaterThan value=0 orEqual=true />
+                                <lesserThan value=1024 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:separator/>
 
                     <:item title="@ssAnchorX">
-                        <intseekbar
+                        <validatable
                                 id="skbAnchorX"
-                                onchange="onSettingsIntSeekBarChanged"
-                                value="0"
-                                tooltip="@ssTtAnchorX"
-                                min="-1024"
-                                max="1024"/>
+                                onchange="onSettingsIntChanged"
+                                text="0"
+                                tooltip="@ssTtAnchorX">
+                                <greaterThan value=-1024 orEqual=true />
+                                <lesserThan value=1024 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <:item title="@ssAnchorY">
-                        <intseekbar
+                        <validatable
                                 id="skbAnchorY"
-                                onchange="onSettingsIntSeekBarChanged"
+                                onchange="onSettingsIntChanged"
                                 value="0"
-                                tooltip="@ssTtAnchorY"
-                                min="-1024"
-                                max="1024"/>
+                                tooltip="@ssTtAnchorY">
+                                <greaterThan value=-1024 orEqual=true />
+                                <lesserThan value=1024 orEqual=true />
+                        </validatable>
                     </:item>
 
                     <label
@@ -127,15 +131,15 @@
                     <:separator/>
 
                     <:item title="@ssDuration">
-                        <floatseekbar
+                        <validatable
                                 id="skbDuration"
-                                onchange="onSettingsFloatSeekBarChanged"
+                                onchange="onSettingsFloatChanged"
                                 value="0.125"
-                                tooltip="@ssTtDuration"
-                                precision="3"
-                                min="0.02"
-                                max="100"
-                                step="0.02"/>
+                                tooltip="@ssTtDuration">
+                                <isFloat/>
+                                <greaterThan value=0.02 orEqual=true />
+                                <lesserThan value=100 orEqual=true />
+                        </validatable>
                     </:item>
 
                 </vistable>
