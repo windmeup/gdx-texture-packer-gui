@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.tools.spine.Point;
+import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.utils.Align;
 import com.crashinvaders.texturepackergui.utils.GraphicsUtils;
 import com.esotericsoftware.spine.Animation;
@@ -50,6 +52,8 @@ public class AnimationPanel extends Group {
   private final Rectangle aabb = new Rectangle();
 
   private SkeletonData skeletonData;
+
+  private SkeletonSettings skeletonSettings;
 
   private final Hovered hovered;
 
@@ -107,11 +111,13 @@ public class AnimationPanel extends Group {
     selected.clearAnimationActor();
     hovered.clearAnimationActor();
     skeletonData = null;
+    skeletonSettings = null;
     setSize(0f, 0f);
   }
 
-  public void setSkeletonData(SkeletonData skeletonData) {
+  public void set(SkeletonData skeletonData, SkeletonSettings skeletonSettings) {
     this.skeletonData = skeletonData;
+    this.skeletonSettings = skeletonSettings;
     layout();
   }
 
@@ -409,7 +415,11 @@ public class AnimationPanel extends Group {
       if (this.animationActor == animationActor) return;
       this.animationActor = animationActor;
       font.getData().setScale(1f);
-      glText.setText(font, animationActor.getName(), textColor, 0f, Align.left, false);
+      String animationName = animationActor.getName();
+      Point point = skeletonSettings.getAnimationOffsets().get(animationName);
+      int x = point == null ? 0 : point.getX();
+      int y = point == null ? 0 : point.getY();
+      glText.setText(font, animationName + ": " + x + "," + y, textColor, 0f, Align.left, false);
     }
 
     void clearAnimationActor() {

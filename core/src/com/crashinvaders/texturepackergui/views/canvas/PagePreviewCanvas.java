@@ -204,7 +204,7 @@ public class PagePreviewCanvas extends Stack {
           }
           if (skeletonData != null) {
             skeletonController.set(skeletonData, pack.getSkeletonSettings());
-            animationViewer.getAnimationPanel().setSkeletonData(skeletonData);
+            animationViewer.getAnimationPanel().set(skeletonData, pack.getSkeletonSettings());
           }
         }
       }
