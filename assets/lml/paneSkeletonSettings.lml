@@ -112,13 +112,13 @@
                             text="@ssAnchorFilesDir"
                             tooltip="@ssTtAnchorFilesDir"/>
                     <textfield
+                            readonly="true"
                             id="edtAnchorFilesDir"
                             minwidth="24"
                             growx="true"
                             padright="0"
                             padbottom="0"
-                            tooltip="@ssTtAnchorFilesDir"
-                            onchange="onAnchorFilesDirChanged"/>
+                            tooltip="@ssTtAnchorFilesDir"/>
                     <imagebutton
                             image="custom/ic-folder-pick"
                             imagescaling="none"
@@ -126,7 +126,17 @@
                             padright="0"
                             filly="true"
                             onchange="pickAnchorFilesDir"
-                            focusborderenabled="false"/>
+                            focusborderenabled="false"
+                            tooltip="@ttChooseDirectory"/>
+                    <imagebutton
+                            image="custom/ic-scale-del"
+                            imagescaling="none"
+                            width="22"
+                            padright="0"
+                            filly="true"
+                            onchange="clearAnchorFilesDir"
+                            focusborderenabled="false"
+                            tooltip="@ttClearDirectory"/>
 
                     <:separator/>
 

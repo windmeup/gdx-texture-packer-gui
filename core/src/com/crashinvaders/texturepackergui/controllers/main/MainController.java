@@ -288,9 +288,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
                     break;
                 case ANCHOR_FILES:
                     if (event.getPack() == getSelectedPack()) {
-                        actorsSkeletonSettings.edtAnchorFilesDir.setProgrammaticChangeEvents(false);
                         actorsSkeletonSettings.edtAnchorFilesDir.setText(event.getPack().getSkeletonSettings().getAnchorFilesDir());
-                        actorsSkeletonSettings.edtAnchorFilesDir.setProgrammaticChangeEvents(true);
                     }
                     break;
             }
@@ -539,14 +537,14 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
                     break;
                 }
                 skeletonSettings.setAnchorX(value);
-                getCanvas().reloadAnimations(pack, skeletonController);
+                reloadAnimations(pack);
                 break;
             case "skbAnchorY":
                 if (skeletonSettings.getAnchorY() == value) {
                     break;
                 }
                 skeletonSettings.setAnchorY(value);
-                getCanvas().reloadAnimations(pack, skeletonController);
+                reloadAnimations(pack);
                 break;
         }
     }
@@ -566,7 +564,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
                     break;
                 }
                 skeletonSettings.setDuration(value);
-                getCanvas().reloadAnimations(pack, skeletonController);
+                reloadAnimations(pack);
                 break;
         }
     }
@@ -575,20 +573,6 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         PackModel pack = getSelectedPack();
         if (pack == null) return;
         pack.getSkeletonSettings().setSlotName(textField.getText().trim());
-    }
-
-    @LmlAction("onAnchorFilesDirChanged") void onAnchorFilesDirChanged(VisTextField textField) {
-        PackModel pack = getSelectedPack();
-        if (pack == null) {
-            return;
-        }
-        SkeletonSettings skeletonSettings = pack.getSkeletonSettings();
-        String dir = textField.getText().trim();
-        if (skeletonSettings.getAnchorFilesDir().equals(dir)) {
-            return;
-        }
-        skeletonSettings.setAnchorFilesDir(dir);
-        getCanvas().reloadAnimations(pack, skeletonController);
     }
 
     @LmlAction("onSettingsCboChanged") void onSettingsCboChanged(VisSelectBox selectBox) {
@@ -691,6 +675,10 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     @LmlAction("isNotBlank")
     public boolean isStringNotBlank(final String value) {
         return Strings.isNotBlank(value);
+    }
+
+    public void reloadAnimations(PackModel pack) {
+        canvas.reloadAnimations(pack, skeletonController);
     }
 
     private int multiple(int delta) {

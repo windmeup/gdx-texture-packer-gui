@@ -28,6 +28,7 @@ import com.github.czyzby.autumn.mvc.component.ui.InterfaceService;
 import com.github.czyzby.autumn.mvc.component.ui.SkinService;
 import com.github.czyzby.autumn.mvc.stereotype.ViewActionContainer;
 import com.github.czyzby.autumn.processor.event.EventDispatcher;
+import com.github.czyzby.kiwi.util.common.Strings;
 import com.github.czyzby.lml.annotation.LmlAction;
 import com.github.czyzby.lml.parser.action.ActionContainer;
 import com.kotcrab.vis.ui.FocusManager;
@@ -335,10 +336,20 @@ public class GlobalActions implements ActionContainer {
             public void selected (Array<FileHandle> file) {
                 FileHandle chosenFile = file.first();
                 fileChooserHistory.putLastDir(FileChooserHistory.Type.ANCHOR_FILES_DIR, chosenFile);
-                pack.setAnchorFilesDir(chosenFile.file().getAbsolutePath());
+                if(pack.setAnchorFilesDir(chosenFile.file().getAbsolutePath())) {
+                    mainController.reloadAnimations(pack);
+                }
             }
         });
         getStage().addActor(fileChooser.fadeIn());
+    }
+
+    @LmlAction("clearAnchorFilesDir") public void clearAnchorFilesDir() {
+        final PackModel pack = getSelectedPack();
+        if (pack == null) return;
+        if(pack.setAnchorFilesDir(Strings.EMPTY_STRING)) {
+            mainController.reloadAnimations(pack);
+        }
     }
 
     //TODO move model logic code to ModelUtils

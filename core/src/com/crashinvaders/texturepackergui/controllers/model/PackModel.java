@@ -86,14 +86,15 @@ public class PackModel implements StateHashable {
         }
     }
 
-    public void setAnchorFilesDir(String dir) {
+    public boolean setAnchorFilesDir(String dir) {
         if (Strings.equals(skeletonSettings.getAnchorFilesDir(), dir)) {
-            return;
+            return false;
         }
         skeletonSettings.setAnchorFilesDir(dir);
         if (eventDispatcher != null) {
             eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.ANCHOR_FILES));
         }
+        return true;
     }
 
     public String getName() {
