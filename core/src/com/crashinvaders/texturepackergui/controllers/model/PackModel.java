@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 public class PackModel implements StateHashable {
     private static final String TAG = PackModel.class.getSimpleName();
@@ -36,6 +37,7 @@ public class PackModel implements StateHashable {
 
     public PackModel() {
         scaleFactors.add(new ScaleFactorModel("", 1f, TexturePacker.Resampling.bicubic));
+        skeletonSettings.setAnimationOffsets(new TreeMap<>());
     }
 
     public PackModel(PackModel pack) {
