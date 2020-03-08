@@ -324,7 +324,7 @@ public class TexturePacker {
     if (0 <= x && x < dst.getWidth() && 0 <= y && y < dst.getHeight()) dst.setRGB(x, y, argb);
   }
 
-  static private void copy(BufferedImage src, int x, int y, int w, int h, BufferedImage dst, int dx, int dy, boolean rotated) {
+  static public void copy(BufferedImage src, int x, int y, int w, int h, BufferedImage dst, int dx, int dy, boolean rotated) {
     if (rotated) {
       for (int i = 0; i < w; i++)
         for (int j = 0; j < h; j++)

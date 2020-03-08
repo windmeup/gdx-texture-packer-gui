@@ -16,6 +16,7 @@ import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.controllers.model.ProjectModel;
 import com.crashinvaders.texturepackergui.controllers.ninepatcheditor.NinePatchToolController;
 import com.crashinvaders.texturepackergui.controllers.packing.PackDialogController;
+import com.crashinvaders.texturepackergui.controllers.premultipliedalpha.PremultipliedAlphaToolController;
 import com.crashinvaders.texturepackergui.controllers.projectserializer.ProjectSerializer;
 import com.crashinvaders.texturepackergui.events.ShowToastEvent;
 import com.crashinvaders.texturepackergui.utils.AppIconProvider;
@@ -385,6 +386,10 @@ public class GlobalActions implements ActionContainer {
 
     @LmlAction("launchNinePatchTool") public void launchNinePatchTool() {
         ninePatchToolController.initiateFromFilePicker();
+    }
+
+    @LmlAction("launchPremultipliedAlphaTool") public void launchPremultipliedAlphaTool() {
+        interfaceService.showDialog(PremultipliedAlphaToolController.class);
     }
 
     @LmlAction("changePreviewBackground") public void changePreviewBackground() {
