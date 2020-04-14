@@ -298,11 +298,6 @@ public class AnimationPanel extends Group {
         this.animationName = animationActor.getName();
       }
     }
-
-    @Override
-    void clearAnimationActor() {
-      super.clearAnimationActor();
-    }
   }
 
   private class Hovered extends Spotlight {
