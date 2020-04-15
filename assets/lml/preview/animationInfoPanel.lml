@@ -75,6 +75,18 @@
 
     <actor width="12"/>
 
+    <visimagebutton id="btEditAnimation"
+            icon="custom/ic-small-edit"
+            onchange="onEditAnimation"
+            tooltip="@ttEditAnimation"
+            width="12"
+            height="12"
+            imagescaling="none"
+            generatedisabled="true"
+            focusborder="false"/>
+
+    <actor width="12"/>
+
     <visimagebutton id="btZoomIn"
         icon="custom/ic-small-zoom-in"
         onchange="zoomIn"

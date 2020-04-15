@@ -5,6 +5,7 @@ import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.crashinvaders.texturepackergui.controllers.main.MainController;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationActor;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationPanel;
+import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.editor.EditAnimationDialog;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.SkeletonData;
 import com.esotericsoftware.spine.attachments.Attachment;
@@ -90,6 +91,17 @@ public class SkeletonController {
         );
         point.translate(offsetX, offsetY);
         animationPanel.relayout();
+      }
+    }
+  }
+
+  public void editSelected() {
+    if (skeletonData != null) {
+      AnimationPanel animationPanel = getAnimationPanel();
+      AnimationActor animationActor = animationPanel.getSelected();
+      if (animationActor != null) {
+        EditAnimationDialog dialog = new EditAnimationDialog(animationActor);
+        mainController.getStage().addActor(dialog);
       }
     }
   }

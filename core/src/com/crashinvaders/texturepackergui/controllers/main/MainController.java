@@ -104,6 +104,7 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     @Inject @LmlInject JpegFileTypeController ftJpegController;
     @Inject @LmlInject KtxFileTypeController ftKtxController;
 
+    @Getter
     @ViewStage Stage stage;
 
     @LmlActor("mainRoot") Group mainRoot;
@@ -672,6 +673,10 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
         skeletonController.moveSelected(0, multiple(-1));
     }
 
+    @LmlAction("onEditAnimation") void onEditAnimation() {
+        skeletonController.editSelected();
+    }
+
     @LmlAction("isNotBlank")
     public boolean isStringNotBlank(final String value) {
         return Strings.isNotBlank(value);
@@ -873,10 +878,6 @@ public class MainController implements ActionContainer, ViewShower, ViewResizer 
     /** @return localized string */
     private String getString(String key, Object... args) {
         return localeService.getI18nBundle().format(key, args);
-    }
-
-    private Stage getStage() {
-        return stage;
     }
 
     private PackModel getSelectedPack() {

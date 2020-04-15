@@ -22,9 +22,10 @@ public class AnimationActor extends SkeletonActor {
   @Getter
   private final Rectangle bound;
 
+  @Getter
   private final NinePatch border;
 
-  AnimationActor(
+  public AnimationActor(
       SkeletonRenderer renderer, Skeleton skeleton, AnimationState state,
       Rectangle bound, NinePatch border) {
     super(renderer, skeleton, state);
