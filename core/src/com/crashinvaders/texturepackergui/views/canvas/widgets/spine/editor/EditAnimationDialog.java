@@ -1,5 +1,6 @@
 package com.crashinvaders.texturepackergui.views.canvas.widgets.spine.editor;
 
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -14,12 +15,12 @@ public class EditAnimationDialog extends VisDialog {
 
   private final VisScrollPane scrollPane;
 
-  public EditAnimationDialog(AnimationActor actor) {
+  public EditAnimationDialog(AnimationActor actor, Polygon bounds) {
     super("edit - " + actor.getName());
     addCloseButton();
     closeOnEscape();
     centerWindow();
-    AnimationEditPanel editPanel = new AnimationEditPanel(actor);
+    AnimationEditPanel editPanel = new AnimationEditPanel(actor, bounds);
     VisTextButton saveButton = new VisTextButton("Save");
     VisTextButton zoomInButton = new VisTextButton("Zoom in");
     VisTextButton zoomOutButton = new VisTextButton("Zoom out");

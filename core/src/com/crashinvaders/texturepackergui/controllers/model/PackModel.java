@@ -3,6 +3,7 @@ package com.crashinvaders.texturepackergui.controllers.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.tools.spine.Point;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
@@ -10,7 +11,6 @@ import com.badlogic.gdx.tools.texturepacker.TexturePacker.Settings;
 import com.badlogic.gdx.utils.Array;
 import com.crashinvaders.common.statehash.StateHashUtils;
 import com.crashinvaders.common.statehash.StateHashable;
-import com.crashinvaders.texturepackergui.controllers.packing.processors.PackingProcessor;
 import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent;
 import com.crashinvaders.texturepackergui.events.PackPropertyChangedEvent.Property;
 import com.github.czyzby.autumn.processor.event.EventDispatcher;
@@ -23,244 +23,240 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 public class PackModel implements StateHashable {
-    private static final String TAG = PackModel.class.getSimpleName();
+  private static final String TAG = PackModel.class.getSimpleName();
 
-    private final Array<ScaleFactorModel> scaleFactors = new Array<>();
-    private final Array<InputFile> inputFiles = new Array<>();
-    private final Settings settings = new Settings();
-    private final SkeletonSettings skeletonSettings = new SkeletonSettings();
-    private String name = "";
-    private String filename = "";
-    private String outputDir = "";
+  private final Array<ScaleFactorModel> scaleFactors = new Array<>();
+  private final Array<InputFile> inputFiles = new Array<>();
+  private final Settings settings = new Settings();
+  private final SkeletonSettings skeletonSettings = new SkeletonSettings();
+  private String name = "";
+  private String filename = "";
+  private String outputDir = "";
 
-    private EventDispatcher eventDispatcher;
+  private EventDispatcher eventDispatcher;
 
-    public PackModel() {
-        scaleFactors.add(new ScaleFactorModel("", 1f, TexturePacker.Resampling.bicubic));
-        skeletonSettings.setAnimationOffsets(new TreeMap<>());
+  public PackModel() {
+    scaleFactors.add(new ScaleFactorModel("", 1f, TexturePacker.Resampling.bicubic));
+    skeletonSettings.setAnimationOffsets(new TreeMap<>());
+    skeletonSettings.setAnimationBounds(new TreeMap<>());
+  }
+
+  public PackModel(PackModel pack) {
+    settings.set(pack.settings);
+    skeletonSettings.set(pack.skeletonSettings);
+
+    this.name = pack.name;
+    this.filename = pack.filename;
+    this.outputDir = pack.outputDir;
+
+    scaleFactors.addAll(pack.scaleFactors);
+
+    inputFiles.addAll(pack.inputFiles);
+  }
+
+  public void setEventDispatcher(EventDispatcher eventDispatcher) {
+    this.eventDispatcher = eventDispatcher;
+
+    for (InputFile inputFile : inputFiles) {
+      inputFile.setEventDispatcher(eventDispatcher);
     }
+  }
 
-    public PackModel(PackModel pack) {
-        settings.set(pack.settings);
-        skeletonSettings.set(pack.skeletonSettings);
+  public void setName(String name) {
+    if (Strings.equals(this.name, name)) return;
 
-        this.name = pack.name;
-        this.filename = pack.filename;
-        this.outputDir = pack.outputDir;
-
-        scaleFactors.addAll(pack.scaleFactors);
-
-        inputFiles.addAll(pack.inputFiles);
+    this.name = name;
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.NAME));
     }
+  }
 
-    public void setEventDispatcher(EventDispatcher eventDispatcher) {
-        this.eventDispatcher = eventDispatcher;
+  public void setFilename(String filename) {
+    if (Strings.equals(this.filename, filename)) return;
 
-        for (InputFile inputFile : inputFiles) {
-            inputFile.setEventDispatcher(eventDispatcher);
-        }
+    this.filename = filename;
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.FILENAME));
     }
+  }
 
-    public void setName(String name) {
-        if (Strings.equals(this.name, name)) return;
+  public void setOutputDir(String outputDir) {
+    if (Strings.equals(this.outputDir, outputDir)) return;
 
-        this.name = name;
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.NAME));
-        }
+    this.outputDir = outputDir;
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.OUTPUT));
     }
+  }
 
-    public void setFilename(String filename) {
-        if (Strings.equals(this.filename, filename)) return;
-
-        this.filename = filename;
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.FILENAME));
-        }
+  public boolean setAnchorFilesDir(String dir) {
+    if (Strings.equals(skeletonSettings.getAnchorFilesDir(), dir)) {
+      return false;
     }
-
-    public void setOutputDir(String outputDir) {
-        if (Strings.equals(this.outputDir, outputDir)) return;
-
-        this.outputDir = outputDir;
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.OUTPUT));
-        }
+    skeletonSettings.setAnchorFilesDir(dir);
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.ANCHOR_FILES));
     }
+    return true;
+  }
 
-    public boolean setAnchorFilesDir(String dir) {
-        if (Strings.equals(skeletonSettings.getAnchorFilesDir(), dir)) {
-            return false;
-        }
-        skeletonSettings.setAnchorFilesDir(dir);
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.ANCHOR_FILES));
-        }
-        return true;
+  public String getName() {
+    return name;
+  }
+
+  public String getFilename() {
+    return filename;
+  }
+
+  public String getOutputDir() {
+    return outputDir;
+  }
+
+  public Array<InputFile> getInputFiles() {
+    return inputFiles;
+  }
+
+  public Settings getSettings() {
+    return settings;
+  }
+
+  public void setSettings(Settings settings) {
+    this.settings.set(settings);
+  }
+
+  public SkeletonSettings getSkeletonSettings() {
+    return skeletonSettings;
+  }
+
+  public void setSkeletonSettings(SkeletonSettings settings) {
+    skeletonSettings.set(settings);
+  }
+
+  public String getCanonicalName() {
+    return name.trim().isEmpty() ? "unnamed" : name;
+  }
+
+  public String getCanonicalFilename() {
+    if (!filename.trim().isEmpty()) {
+      String name = filename;
+      String extension = "";
+      int dotIndex = filename.lastIndexOf(".");
+      if (dotIndex != -1 && dotIndex != filename.length() - 1) {
+        name = filename.substring(0, dotIndex);
+        extension = filename.substring(dotIndex);
+      }
+      return name + scaleFactors.first().getSuffix() + extension;
+    } else {
+      return getCanonicalName() + scaleFactors.first().getSuffix() + settings.atlasExtension;
     }
+  }
 
-    public String getName() {
-        return name;
+  /**
+   * @return may be null
+   */
+  public String getAtlasPath() {
+    String atlasPath = null;
+    if (outputDir != null && !outputDir.trim().isEmpty()) {
+      String filename = getCanonicalFilename();
+      atlasPath = outputDir + File.separator + filename;
     }
+    return atlasPath;
+  }
 
-    public String getFilename() {
-        return filename;
+  public Array<ScaleFactorModel> getScaleFactors() {
+    return scaleFactors;
+  }
+
+  public void setScaleFactors(Array<ScaleFactorModel> scaleFactors) {
+    this.scaleFactors.clear();
+    this.scaleFactors.addAll(scaleFactors);
+
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.SCALE_FACTORS));
     }
+  }
 
-    public String getOutputDir() {
-        return outputDir;
+  public void addInputFile(FileHandle fileHandle, InputFile.Type type) {
+    addInputFile(new InputFile(fileHandle, type));
+  }
+
+  public void addInputFile(InputFile inputFile) {
+    if (inputFiles.contains(inputFile, false)) {
+      Gdx.app.error(TAG, "File: " + inputFile + " is already added");
+      return;
     }
-
-    public Array<InputFile> getInputFiles() {
-        return inputFiles;
+    if (inputFile.isDirectory() && inputFile.getType() == InputFile.Type.Ignore) {
+      Gdx.app.error(TAG, "File: " + inputFile + " is a directory. Ignore files cannot be directories.");
+      return;
     }
+    inputFiles.add(inputFile);
+    inputFile.setEventDispatcher(eventDispatcher);
 
-    public Settings getSettings() {
-        return settings;
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(PackModel.this, Property.INPUT_FILE_ADDED)
+          .setInputFile(inputFile));
     }
+  }
 
-    public void setSettings(Settings settings) {
-        this.settings.set(settings);
+  public void removeInputFile(InputFile inputFile) {
+    // Since we use equals and not == operator to compare InputFile values,
+    // we have to find real value and don't use reference from parameter.
+    int index = inputFiles.indexOf(inputFile, false);
+    InputFile actualInputFile = index >= 0 ? inputFiles.get(index) : null;
+
+    if (actualInputFile == null) {
+      Gdx.app.error(TAG, "File: " + inputFile + " wasn't added");
+      return;
     }
+    inputFiles.removeValue(actualInputFile, false);
+    actualInputFile.setEventDispatcher(null);
 
-    public SkeletonSettings getSkeletonSettings() {
-        return skeletonSettings;
+    if (eventDispatcher != null) {
+      eventDispatcher.postEvent(new PackPropertyChangedEvent(PackModel.this, Property.INPUT_FILE_REMOVED)
+          .setInputFile(actualInputFile));
     }
+  }
 
-    public void setSkeletonSettings(SkeletonSettings settings) {
-        skeletonSettings.set(settings);
+  @Override
+  public String toString() {
+    return name;
+  }
+
+  @Override
+  public int computeStateHash() {
+    int settingsHash = computeSettingsStateHash();
+    return StateHashUtils.computeHash(scaleFactors, inputFiles, settingsHash, name, filename, outputDir);
+  }
+
+  private int computeSettingsStateHash() {
+    int result = Objects.hash(settings.pot, settings.multipleOfFour, settings.paddingX, settings.paddingY, settings.edgePadding, settings.duplicatePadding,
+        settings.rotation, settings.minWidth, settings.minHeight, settings.maxWidth, settings.maxHeight,
+        settings.square, settings.stripWhitespaceX, settings.stripWhitespaceY, settings.alphaThreshold,
+        settings.filterMin, settings.filterMag, settings.wrapX, settings.wrapY, settings.format, settings.alias, settings.ignoreBlankImages,
+        settings.fast, settings.debug, settings.silent, settings.combineSubdirectories, settings.ignore, settings.flattenPaths,
+        settings.premultiplyAlpha, settings.useIndexes, settings.bleed, settings.bleedIterations, settings.limitMemory,
+        settings.grid, settings.atlasExtension,
+        skeletonSettings.getSlotName(), skeletonSettings.getX(), skeletonSettings.getY(),
+        skeletonSettings.getWidth(), skeletonSettings.getHeight(),
+        skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), skeletonSettings.getDuration(),
+        skeletonSettings.getAnchorFilesDir()
+    );
+    Point point;
+    for (Map.Entry<String, Point> entry : skeletonSettings.getAnimationOffsets().entrySet()) {
+      point = entry.getValue();
+      if (point.same(0, 0)) {
+        continue;
+      }
+      result = 31 * result + entry.getKey().hashCode();
+      result = 31 * result + point.hashCode();
     }
-
-    public String getCanonicalName() {
-        return name.trim().isEmpty() ? "unnamed" : name;
+    for (Map.Entry<String, Polygon> entry : skeletonSettings.getAnimationBounds().entrySet()) {
+      result = 31 * result + entry.getKey().hashCode();
+      result = 31 * result + Arrays.hashCode(entry.getValue().getVertices());
     }
-
-    public String getCanonicalFilename() {
-        if (!filename.trim().isEmpty()) {
-            String name = filename;
-            String extension = "";
-            int dotIndex = filename.lastIndexOf(".");
-            if (dotIndex != -1 && dotIndex != filename.length()-1) {
-                name = filename.substring(0, dotIndex);
-                extension = filename.substring(dotIndex, filename.length());
-            }
-            return name + scaleFactors.first().getSuffix() + extension;
-        } else {
-            return getCanonicalName() + scaleFactors.first().getSuffix() + settings.atlasExtension;
-        }
-    }
-
-    /**
-     * @return may be null
-     */
-    public String getAtlasPath() {
-        String atlasPath = null;
-        if (outputDir != null && !outputDir.trim().isEmpty()) {
-            String filename = getCanonicalFilename();
-            atlasPath = outputDir + File.separator + filename;
-        }
-        return atlasPath;
-    }
-
-    public String getSkeletonPath() {
-        if (outputDir != null && !outputDir.trim().isEmpty()) {
-            return outputDir + File.separator + PackingProcessor.obtainFilename(this) + ".json";
-        }
-        return null;
-    }
-
-    public Array<ScaleFactorModel> getScaleFactors() {
-        return scaleFactors;
-    }
-
-    public void setScaleFactors(Array<ScaleFactorModel> scaleFactors) {
-        this.scaleFactors.clear();
-        this.scaleFactors.addAll(scaleFactors);
-
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(this, Property.SCALE_FACTORS));
-        }
-    }
-
-    public void addInputFile(FileHandle fileHandle, InputFile.Type type) {
-        addInputFile(new InputFile(fileHandle, type));
-    }
-    public void addInputFile(InputFile inputFile) {
-        if (inputFiles.contains(inputFile, false)) {
-            Gdx.app.error(TAG, "File: " + inputFile + " is already added");
-            return;
-        }
-        if (inputFile.isDirectory() && inputFile.getType() == InputFile.Type.Ignore) {
-            Gdx.app.error(TAG, "File: " + inputFile + " is a directory. Ignore files cannot be directories.");
-            return;
-        }
-        inputFiles.add(inputFile);
-        inputFile.setEventDispatcher(eventDispatcher);
-
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(PackModel.this, Property.INPUT_FILE_ADDED)
-                    .setInputFile(inputFile));
-        }
-    }
-
-    public void removeInputFile(final FileHandle fileHandle, final InputFile.Type type) {
-        removeInputFile(new InputFile(fileHandle, type));
-    }
-    public void removeInputFile(InputFile inputFile) {
-        // Since we use equals and not == operator to compare InputFile values,
-        // we have to find real value and don't use reference from parameter.
-        int index = inputFiles.indexOf(inputFile, false);
-        InputFile actualInputFile = index >= 0 ? inputFiles.get(index) : null;
-
-        if (actualInputFile == null) {
-            Gdx.app.error(TAG, "File: " + inputFile + " wasn't added");
-            return;
-        }
-        inputFiles.removeValue(actualInputFile, false);
-        actualInputFile.setEventDispatcher(null);
-
-        if (eventDispatcher != null) {
-            eventDispatcher.postEvent(new PackPropertyChangedEvent(PackModel.this, Property.INPUT_FILE_REMOVED)
-                    .setInputFile(actualInputFile));
-        }
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public int computeStateHash() {
-        int settingsHash = computeSettingsStateHash();
-        return StateHashUtils.computeHash(scaleFactors, inputFiles, settingsHash, name, filename, outputDir);
-    }
-
-    private int computeSettingsStateHash() {
-        int result = Objects.hash(settings.pot, settings.multipleOfFour, settings.paddingX, settings.paddingY, settings.edgePadding, settings.duplicatePadding,
-                settings.rotation, settings.minWidth, settings.minHeight, settings.maxWidth, settings.maxHeight,
-                settings.square, settings.stripWhitespaceX, settings.stripWhitespaceY, settings.alphaThreshold,
-                settings.filterMin, settings.filterMag, settings.wrapX, settings.wrapY, settings.format, settings.alias, settings.ignoreBlankImages,
-                settings.fast, settings.debug, settings.silent, settings.combineSubdirectories, settings.ignore, settings.flattenPaths,
-                settings.premultiplyAlpha, settings.useIndexes, settings.bleed, settings.bleedIterations, settings.limitMemory,
-                settings.grid, settings.atlasExtension,
-                skeletonSettings.getSlotName(), skeletonSettings.getX(), skeletonSettings.getY(),
-                skeletonSettings.getWidth(), skeletonSettings.getHeight(),
-                skeletonSettings.getAnchorX(), skeletonSettings.getAnchorY(), skeletonSettings.getDuration(),
-                skeletonSettings.getAnchorFilesDir()
-            );
-        Point point;
-        for (Map.Entry<String, Point> entry : skeletonSettings.getAnimationOffsets().entrySet()) {
-            point = entry.getValue();
-            if (point.same(0, 0)) {
-                continue;
-            }
-            result = 31 * result + entry.getKey().hashCode();
-            result = 31 * result + point.hashCode();
-        }
-        result = 31 * result + Arrays.hashCode(settings.scale);
-        result = 31 * result + Arrays.hashCode(settings.scaleSuffix);
-        result = 31 * result + Arrays.hashCode(settings.scaleResampling);
-        return result;
-    }
+    result = 31 * result + Arrays.hashCode(settings.scale);
+    result = 31 * result + Arrays.hashCode(settings.scaleSuffix);
+    result = 31 * result + Arrays.hashCode(settings.scaleResampling);
+    return result;
+  }
 }

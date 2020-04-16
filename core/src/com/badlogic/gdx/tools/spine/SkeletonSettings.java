@@ -1,5 +1,6 @@
 package com.badlogic.gdx.tools.spine;
 
+import com.badlogic.gdx.math.Polygon;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +31,8 @@ public class SkeletonSettings {
 
   private Map<String, Point> animationOffsets;
 
+  private Map<String, Polygon> animationBounds;
+
   public void set(SkeletonSettings settings) {
     slotName = settings.slotName;
     x = settings.x;
@@ -43,6 +46,15 @@ public class SkeletonSettings {
     animationOffsets = new TreeMap<>();
     for (Map.Entry<String, Point> entry : settings.animationOffsets.entrySet()) {
       animationOffsets.put(entry.getKey(), new Point(entry.getValue()));
+    }
+    animationBounds = new TreeMap<>();
+    float[] vertices;
+    float[] verticesCopy;
+    for (Map.Entry<String, Polygon> entry : settings.animationBounds.entrySet()) {
+      vertices = entry.getValue().getVertices();
+      verticesCopy = new float[vertices.length];
+      System.arraycopy(vertices, 0, verticesCopy, 0, vertices.length);
+      animationBounds.put(entry.getKey(), new Polygon(verticesCopy));
     }
   }
 }

@@ -100,7 +100,9 @@ public class SkeletonController {
       AnimationPanel animationPanel = getAnimationPanel();
       AnimationActor animationActor = animationPanel.getSelected();
       if (animationActor != null) {
-        EditAnimationDialog dialog = new EditAnimationDialog(animationActor);
+        String name = animationActor.getName();
+        EditAnimationDialog dialog =
+            new EditAnimationDialog(animationActor, skeletonSettings.getAnimationBounds().get(name));
         mainController.getStage().addActor(dialog);
       }
     }

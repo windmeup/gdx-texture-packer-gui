@@ -13,7 +13,7 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class AnimationActor extends SkeletonActor {
 
-  private static final float PAD = 2f;
+  private static final float PAD = 10f;
 
   private static final Color AXES = new Color(0x00ff0066);
 
