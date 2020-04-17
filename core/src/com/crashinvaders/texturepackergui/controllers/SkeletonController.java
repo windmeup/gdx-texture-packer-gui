@@ -102,7 +102,9 @@ public class SkeletonController {
       if (animationActor != null) {
         String name = animationActor.getName();
         EditAnimationDialog dialog =
-            new EditAnimationDialog(animationActor, skeletonSettings.getAnimationBounds().get(name));
+            new EditAnimationDialog(animationActor, skeletonSettings.getAnimationBounds().get(name), boundsVertices -> {
+              // TODO
+            });
         mainController.getStage().addActor(dialog);
       }
     }

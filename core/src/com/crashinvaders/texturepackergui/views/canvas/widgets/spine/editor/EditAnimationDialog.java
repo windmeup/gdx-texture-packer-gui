@@ -17,12 +17,14 @@ public class EditAnimationDialog extends VisDialog {
 
   private final VisScrollPane scrollPane;
 
-  public EditAnimationDialog(AnimationActor actor, Polygon bounds) {
+  public EditAnimationDialog(AnimationActor actor, Polygon bounds, Listener listener) {
     super("edit - " + actor.getName());
     addCloseButton();
     closeOnEscape();
     centerWindow();
+    setSize(800f, 600f);
     editPanel = new AnimationEditPanel(actor, bounds);
+    scrollPane = new VisScrollPane(editPanel);
     VisTextButton saveButton = new VisTextButton("Save");
     VisTextButton optimizeButton = new VisTextButton("Optimize");
     VisTextButton resetButton = new VisTextButton("Reset");
@@ -35,13 +37,19 @@ public class EditAnimationDialog extends VisDialog {
     VisTable toolbarRight = new VisTable();
     toolbarRight.add(zoomInButton);
     toolbarRight.add(zoomOutButton);
-    scrollPane = new VisScrollPane(editPanel);
     Table contentTable = getContentTable();
     contentTable.add(toolbarLeft).left();
     contentTable.add(toolbarRight).right();
     contentTable.row();
     contentTable.add(scrollPane).colspan(2).expand();
-    setSize(800f, 600f);
+    saveButton.addListener(
+        new ButtonListener() {
+          @Override
+          void changed() {
+            listener.saved(editPanel.getBoundsVertices());
+          }
+        }
+    );
     resetButton.addListener(
         new ButtonListener() {
           @Override
@@ -100,5 +108,10 @@ public class EditAnimationDialog extends VisDialog {
     }
 
     abstract void changed();
+  }
+
+  public interface Listener {
+
+    void saved(float[] boundsVertices);
   }
 }

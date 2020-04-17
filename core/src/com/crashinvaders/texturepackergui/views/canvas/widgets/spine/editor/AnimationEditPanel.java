@@ -74,9 +74,7 @@ public class AnimationEditPanel extends Group {
     if (bounds == null) {
       verticesCopy = copyVertices(actorBound); // copy actor's bound
     } else {
-      float[] vertices = bounds.getVertices();
-      verticesCopy = new float[vertices.length];
-      System.arraycopy(vertices, 0, verticesCopy, 0, vertices.length);
+      verticesCopy = copyVertices(bounds.getVertices());
     }
     this.bounds = new Polygon(verticesCopy);
     this.bounds.setPosition(actorLocation.x, actorLocation.y);
@@ -179,6 +177,12 @@ public class AnimationEditPanel extends Group {
         (bound.height + GAP_DOUBLE) * scaleXY);
   }
 
+  public float[] getBoundsVertices() {
+    float[] vertices = bounds.getVertices();
+    float[] newVertices = removeCollinearVertices(vertices);
+    return vertices == newVertices ? copyVertices(vertices) : newVertices;
+  }
+
   public void zoomIn() {
     float scaleXY = getScaleX();
     if (scaleXY < 10f) {
@@ -205,50 +209,8 @@ public class AnimationEditPanel extends Group {
    */
   public void optimize() {
     float[] vertices = bounds.getVertices();
-    int length = vertices.length;
-    if (length == 6) {
-      return;
-    }
-    float startX = vertices[length - 2];
-    float startY = vertices[length - 1];
-    float x = vertices[0];
-    float y = vertices[1];
-    float endX;
-    float endY;
-    List<Integer> removes = null;
-    for (int i = 0; i < length; i += 2) {
-      endX = vertices[(i + 2) % length];
-      endY = vertices[(i + 3) % length];
-      if (Intersector.distanceSegmentPoint(startX, startY, endX, endY, x, y) < 0.0001f) {
-        if (removes == null) {
-          removes = new ArrayList<>();
-        }
-        removes.add(i);
-      } else {
-        startX = x;
-        startY = y;
-      }
-      x = endX;
-      y = endY;
-    }
-    if (removes != null) {
-      int newLength = length - removes.size() * 2;
-      if (newLength < 6) {
-        return;
-      }
-      float[] newVertices = new float[newLength];
-      int index = 0;
-      int selected = selectedVertex;
-      for (int i = 0; i < length; i += 2) {
-        if (removes.contains(i)) {
-          if (i < selected) {
-            selectedVertex -= 2;
-          }
-          continue;
-        }
-        newVertices[index++] = vertices[i];
-        newVertices[index++] = vertices[i + 1];
-      }
+    float[] newVertices = removeCollinearVertices(vertices);
+    if (newVertices != vertices) {
       bounds.setVertices(newVertices);
       bounds.dirty();
     }
@@ -309,6 +271,56 @@ public class AnimationEditPanel extends Group {
     if (selectedVertex == length) {
       selectedVertex = 0;
     }
+  }
+
+  private float[] removeCollinearVertices(float[] vertices) {
+    int length = vertices.length;
+    if (length == 6) {
+      return vertices;
+    }
+    float startX = vertices[length - 2];
+    float startY = vertices[length - 1];
+    float x = vertices[0];
+    float y = vertices[1];
+    float endX;
+    float endY;
+    List<Integer> removes = null;
+    for (int i = 0; i < length; i += 2) {
+      endX = vertices[(i + 2) % length];
+      endY = vertices[(i + 3) % length];
+      if (Intersector.distanceSegmentPoint(startX, startY, endX, endY, x, y) < 0.0001f) {
+        if (removes == null) {
+          removes = new ArrayList<>();
+        }
+        removes.add(i);
+      } else {
+        startX = x;
+        startY = y;
+      }
+      x = endX;
+      y = endY;
+    }
+    if (removes == null) {
+      return vertices;
+    }
+    int newLength = length - removes.size() * 2;
+    if (newLength < 6) {
+      return vertices;
+    }
+    float[] newVertices = new float[newLength];
+    int index = 0;
+    int selected = selectedVertex;
+    for (int i = 0; i < length; i += 2) {
+      if (removes.contains(i)) {
+        if (i < selected) {
+          selectedVertex -= 2;
+        }
+        continue;
+      }
+      newVertices[index++] = vertices[i];
+      newVertices[index++] = vertices[i + 1];
+    }
+    return newVertices;
   }
 
   private boolean inBounds() {
@@ -372,5 +384,11 @@ public class AnimationEditPanel extends Group {
     vertices[6] = vertices[4];
     vertices[7] = rectangle.y;
     return vertices;
+  }
+
+  private float[] copyVertices(float[] vertices) {
+    float[] copyVertices = new float[vertices.length];
+    System.arraycopy(vertices, 0, copyVertices, 0, vertices.length);
+    return copyVertices;
   }
 }
