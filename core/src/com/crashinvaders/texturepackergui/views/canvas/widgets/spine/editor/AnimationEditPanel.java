@@ -243,11 +243,15 @@ public class AnimationEditPanel extends Group {
     if (length <= 6) {
       return;
     }
-    float[] newVertices = new float[length - 2];
+    length -= 2;
+    float[] newVertices = new float[length];
     System.arraycopy(vertices, 0, newVertices, 0, selectedVertex);
-    System.arraycopy(vertices, selectedVertex + 2, newVertices, selectedVertex, length - selectedVertex - 2);
+    System.arraycopy(vertices, selectedVertex + 2, newVertices, selectedVertex, length - selectedVertex);
     bounds.setVertices(newVertices);
     bounds.dirty();
+    if (selectedVertex == length) {
+      selectedVertex = 0;
+    }
   }
 
   private boolean inBounds() {
