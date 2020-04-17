@@ -1,5 +1,6 @@
 package com.crashinvaders.texturepackergui.views.canvas.widgets.spine.editor;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -47,6 +48,8 @@ public class AnimationEditPanel extends Group {
 
   private final Vector2 mouse = new Vector2();
 
+  private final Vector2 mouseDelta = new Vector2();
+
   private final Vector2 vertexBackup = new Vector2();
 
   private int action;
@@ -56,25 +59,17 @@ public class AnimationEditPanel extends Group {
   AnimationEditPanel(AnimationActor actor, Polygon bounds) {
     Skeleton skeleton = new Skeleton(actor.getSkeleton());
     SkeletonData data = skeleton.getData();
-    Rectangle bound = actor.getBound();
-    actorLocation.set(GAP - bound.x, GAP - bound.y);
+    Rectangle actorBound = actor.getBound();
+    actorLocation.set(GAP - actorBound.x, GAP - actorBound.y);
     this.actor = new AnimationActor(
         actor.getRenderer(), skeleton, new AnimationState(new AnimationStateData(data)),
-        bound, actor.getBorder());
+        actorBound, actor.getBorder());
     this.actor.getAnimationState().setAnimation(0, actor.getName(), true); // actor name is the animation name
     this.actor.setPosition(actorLocation.x, actorLocation.y);
     addActor(this.actor);
     float[] verticesCopy;
     if (bounds == null) {
-      verticesCopy = new float[8]; // copy actor's bound counter clockwise
-      verticesCopy[0] = bound.x;
-      verticesCopy[1] = bound.y;
-      verticesCopy[2] = bound.x;
-      verticesCopy[3] = bound.y + bound.height;
-      verticesCopy[4] = bound.x + bound.width;
-      verticesCopy[5] = verticesCopy[3];
-      verticesCopy[6] = verticesCopy[4];
-      verticesCopy[7] = bound.y;
+      verticesCopy = copyVertices(actorBound); // copy actor's bound
     } else {
       float[] vertices = bounds.getVertices();
       verticesCopy = new float[vertices.length];
@@ -90,7 +85,7 @@ public class AnimationEditPanel extends Group {
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
             if (button == Input.Buttons.LEFT) {
               setMouse(x, y);
-              selectedVertex = getVertex();
+              selectedVertex = selectVertex();
               if (selectedVertex >= 0) {
                 event.stop();
                 action = ACTION_MOVE_VERTEX;
@@ -114,7 +109,7 @@ public class AnimationEditPanel extends Group {
                 moveVertex();
                 break;
               case ACTION_MOVE_BOUNDS:
-                // TODO
+                moveBounds();
                 break;
               default:
                 break;
@@ -124,18 +119,22 @@ public class AnimationEditPanel extends Group {
           @Override
           public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
             if (button == Input.Buttons.LEFT) {
-              switch (action) {
-                case ACTION_MOVE_VERTEX:
-                  vertexMoved();
-                  break;
-                case ACTION_MOVE_BOUNDS:
-                  // TODO
-                  break;
-                default:
-                  break;
+              if (action == ACTION_MOVE_VERTEX) {
+                vertexMoved();
               }
               action = ACTION_NONE;
             }
+          }
+
+          @Override
+          public boolean keyDown(InputEvent event, int keycode) {
+            switch (keycode) {
+              case Input.Keys.DEL:
+              case Input.Keys.FORWARD_DEL:
+                removeVertex();
+                return true;
+            }
+            return false;
           }
         }
     );
@@ -193,11 +192,16 @@ public class AnimationEditPanel extends Group {
     }
   }
 
+  public void resetBounds() {
+    selectedVertex = -1;
+    bounds.setVertices(copyVertices(actor.getBound()));
+  }
+
   private void setMouse(float screenX, float screenY) {
     mouse.set(screenX, screenY).sub(actorLocation);
   }
 
-  private int getVertex() {
+  private int selectVertex() {
     float[] vertices = bounds.getVertices();
     int length = vertices.length;
     for (int i = 0; i < length; i += 2) { // in vertex
@@ -230,15 +234,52 @@ public class AnimationEditPanel extends Group {
     return -1;
   }
 
+  private void removeVertex() {
+    if (selectedVertex < 0) {
+      return;
+    }
+    float[] vertices = bounds.getVertices();
+    int length = vertices.length;
+    if (length <= 6) {
+      return;
+    }
+    float[] newVertices = new float[length - 2];
+    System.arraycopy(vertices, 0, newVertices, 0, selectedVertex);
+    System.arraycopy(vertices, selectedVertex + 2, newVertices, selectedVertex, length - selectedVertex - 2);
+    bounds.setVertices(newVertices);
+    bounds.dirty();
+  }
+
   private boolean inBounds() {
     float[] vertices = bounds.getVertices();
-    return Intersector.isPointInPolygon(vertices, 0, vertices.length, mouse.x, mouse.y);
+    if (Intersector.isPointInPolygon(vertices, 0, vertices.length, mouse.x, mouse.y)) {
+      mouseDelta.setZero();
+      return true;
+    }
+    return false;
   }
 
   private void moveVertex() {
     float[] vertices = bounds.getVertices();
     vertices[selectedVertex] = mouse.x;
     vertices[selectedVertex + 1] = mouse.y;
+    bounds.dirty();
+  }
+
+  private void moveBounds() {
+    float scaleXY = getScaleX();
+    float x = Gdx.input.getDeltaX() / scaleXY;
+    float y = -Gdx.input.getDeltaY() / scaleXY;
+    mouseDelta.add(x, y);
+    moveBounds(x, y);
+  }
+
+  private void moveBounds(float x, float y) {
+    float[] vertices = bounds.getVertices();
+    for (int i = 0; i < vertices.length; i += 2) {
+      vertices[i] += x;
+      vertices[i + 1] += y;
+    }
     bounds.dirty();
   }
 
@@ -257,5 +298,18 @@ public class AnimationEditPanel extends Group {
         return;
       }
     }
+  }
+
+  private float[] copyVertices(Rectangle rectangle) {
+    float[] vertices = new float[8]; // clockwise vertices
+    vertices[0] = rectangle.x;
+    vertices[1] = rectangle.y;
+    vertices[2] = rectangle.x;
+    vertices[3] = rectangle.y + rectangle.height;
+    vertices[4] = rectangle.x + rectangle.width;
+    vertices[5] = vertices[3];
+    vertices[6] = vertices[4];
+    vertices[7] = rectangle.y;
+    return vertices;
   }
 }
