@@ -2,20 +2,16 @@ package com.crashinvaders.texturepackergui.controllers.packing.processors.spine;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.tools.spine.Point;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
-import com.badlogic.gdx.tools.spine.data.Animation;
-import com.badlogic.gdx.tools.spine.data.AnimationAttachment;
-import com.badlogic.gdx.tools.spine.data.AnimationSlot;
-import com.badlogic.gdx.tools.spine.data.Bone;
-import com.badlogic.gdx.tools.spine.data.Bound;
-import com.badlogic.gdx.tools.spine.data.Skeleton;
-import com.badlogic.gdx.tools.spine.data.SkeletonData;
-import com.badlogic.gdx.tools.spine.data.Skin;
-import com.badlogic.gdx.tools.spine.data.Slot;
+import com.badlogic.gdx.tools.spine.data.*;
 import com.crashinvaders.texturepackergui.controllers.model.PackModel;
 import com.crashinvaders.texturepackergui.controllers.packing.processors.PackingProcessor;
+import com.crashinvaders.texturepackergui.utils.GeoUtils;
 import com.crashinvaders.texturepackergui.utils.JacksonUtils;
+import com.crashinvaders.texturepackergui.utils.SpineUtils;
 import com.crashinvaders.texturepackergui.utils.packprocessing.PackProcessingNode;
 import com.esotericsoftware.spine.SkeletonJson;
 import com.github.czyzby.kiwi.util.common.Strings;
@@ -34,6 +30,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ExportSpineProcessor extends SpineProcessor {
+
+  private static final String ANIMATION_BOUNDING = "aniBounding";
 
   @Override
   public void processPackage(PackProcessingNode node) throws Exception {
@@ -117,11 +115,19 @@ public class ExportSpineProcessor extends SpineProcessor {
     slot.setName(slotName);
     slot.setBone("root");
     slot.setAttachment(slotName);
-    List<Slot> slots = Collections.singletonList(slot);
+    Slot aniBoundingSlot = new Slot();
+    aniBoundingSlot.setName(ANIMATION_BOUNDING);
+    aniBoundingSlot.setBone("root");
+    aniBoundingSlot.setAttachment(ANIMATION_BOUNDING);
+    List<Slot> slots = new ArrayList<>();
+    slots.add(slot);
+    slots.add(aniBoundingSlot);
     // skin
-    Map<String, Bound> slotAttachments = new TreeMap<>();
-    Map<String, Map<String, Bound>> attachments = new HashMap<>();
+    Map<String, Region> slotAttachments = new TreeMap<>();
+    Map<String, Map<String, ? extends Attachment>> attachments = new HashMap<>();
     attachments.put(slotName, slotAttachments);
+    Map<String, BoundingBox> aniBoundingSlotAttachments = new TreeMap<>();
+    attachments.put(ANIMATION_BOUNDING, aniBoundingSlotAttachments);
     Skin skin = new Skin();
     skin.setName("default");
     skin.setAttachments(attachments);
@@ -138,10 +144,12 @@ public class ExportSpineProcessor extends SpineProcessor {
     for (Map.Entry<String, List<TextureAtlas.TextureAtlasData.Region>> entry : animationRegions.entrySet()) {
       animationName = entry.getKey();
       regions = entry.getValue();
-      animations.put(animationName, toAnimation(regions, slotName, frameDuration));
+      animations.put(animationName, toAnimation(animationName, regions, slotName, frameDuration));
       for (TextureAtlas.TextureAtlasData.Region region : regions) {
-        slotAttachments.put(region.name, getBound(animationName, region, skeletonSettings, rects));
+        slotAttachments.put(region.name, getRegionAttachment(animationName, region, skeletonSettings, rects));
       }
+      aniBoundingSlotAttachments.put(animationName,
+          getBoundingBoxAttachment(animationName, regions, slotAttachments, skeletonSettings));
     }
     // data
     SkeletonData data = new SkeletonData();
@@ -153,7 +161,7 @@ public class ExportSpineProcessor extends SpineProcessor {
     return data;
   }
 
-  private Bound getBound(
+  private Region getRegionAttachment(
       String animationName,
       TextureAtlas.TextureAtlasData.Region region, SkeletonSettings settings,
       Map<String, Rect> rects) throws IOException {
@@ -182,12 +190,36 @@ public class ExportSpineProcessor extends SpineProcessor {
         anchorY += rect.getOriginalHeight() - 1 + Integer.parseInt(reader.readLine());
       }
     }
-    Bound bound = new Bound();
-    bound.setX(rect.getOffsetX() - anchorX + regWidth / 2); // x,y is location of bound's center
-    bound.setY(offsetY - anchorY + regHeight / 2);
-    bound.setWidth(regWidth);
-    bound.setHeight(regHeight);
-    return bound;
+    Region regionAttachment = new Region();
+    regionAttachment.setX(rect.getOffsetX() - anchorX + regWidth / 2); // x,y is location of bound's center
+    regionAttachment.setY(offsetY - anchorY + regHeight / 2);
+    regionAttachment.setWidth(regWidth);
+    regionAttachment.setHeight(regHeight);
+    return regionAttachment;
+  }
+
+  private BoundingBox getBoundingBoxAttachment(
+      String animationName,
+      List<TextureAtlas.TextureAtlasData.Region> regions,
+      Map<String, Region> slotAttachments,
+      SkeletonSettings skeletonSettings) {
+    BoundingBox boundingBox = new BoundingBox();
+    Polygon bounding = skeletonSettings.getAnimationBounds().get(animationName);
+    float[] vertices;
+    if (bounding == null) {
+      Rectangle boundingRect = new Rectangle(-5f, -5f, 10f, 10f); //  // origin always in bound
+      for (TextureAtlas.TextureAtlasData.Region atlasRegion : regions) {
+        boundingRect.merge(SpineUtils.getBound(slotAttachments.get(atlasRegion.name)));
+      }
+      boundingRect.merge(new Rectangle(skeletonSettings.getX(), skeletonSettings.getY(),
+          skeletonSettings.getWidth(), skeletonSettings.getHeight()));
+      vertices = GeoUtils.copyVertices(boundingRect);
+    } else {
+      vertices = bounding.getVertices();
+    }
+    boundingBox.setVertexCount(vertices.length / 2);
+    boundingBox.setVertices(vertices);
+    return boundingBox;
   }
 
   private int toEven(int v) {
@@ -210,7 +242,8 @@ public class ExportSpineProcessor extends SpineProcessor {
     regions.add(region);
   }
 
-  private Animation toAnimation(List<TextureAtlas.TextureAtlasData.Region> regions, String slotName, float frameDuration) {
+  private Animation toAnimation(String animationName, List<TextureAtlas.TextureAtlasData.Region> regions, String slotName, float frameDuration) {
+    // regions
     regions.sort(Comparator.comparing(r -> r.name));
     List<AnimationAttachment> attachment = new ArrayList<>();
     float duration = 0f;
@@ -230,6 +263,18 @@ public class ExportSpineProcessor extends SpineProcessor {
     slot.setAttachment(attachment);
     Map<String, AnimationSlot> slots = new HashMap<>();
     slots.put(slotName, slot);
+    // bounding boxes
+    attachment = new ArrayList<>();
+    animationAttachment = new AnimationAttachment();
+    animationAttachment.setName(animationName);
+    attachment.add(animationAttachment);
+    animationAttachment = new AnimationAttachment(); // end attachment
+    animationAttachment.setTime(duration);
+    animationAttachment.setName("");
+    attachment.add(animationAttachment);
+    slot = new AnimationSlot();
+    slot.setAttachment(attachment);
+    slots.put(ANIMATION_BOUNDING, slot);
     Animation animation = new Animation();
     animation.setSlots(slots);
     return animation;

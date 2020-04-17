@@ -11,5 +11,5 @@ public class Skin {
 
   private String name;
 
-  private Map<String, Map<String, Bound>> attachments;
+  private Map<String, Map<String, ? extends Attachment>> attachments;
 }

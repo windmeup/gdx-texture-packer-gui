@@ -17,6 +17,7 @@ import com.badlogic.gdx.tools.spine.Point;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.badlogic.gdx.utils.Align;
 import com.crashinvaders.texturepackergui.utils.GraphicsUtils;
+import com.crashinvaders.texturepackergui.utils.SpineUtils;
 import com.esotericsoftware.spine.Animation;
 import com.esotericsoftware.spine.AnimationState;
 import com.esotericsoftware.spine.AnimationStateData;
@@ -164,18 +165,18 @@ public class AnimationPanel extends Group {
       return;
     }
     aabb.set(skeletonData.getX(), skeletonData.getY(), skeletonData.getWidth(), skeletonData.getHeight());
-    Map<String, Rectangle> actorBounds = new HashMap<>();
+    Map<String, Rectangle> regionBounds = new HashMap<>();
     Attachment attachment;
     for (Skin.SkinEntry skinEntry : skin.getAttachments()) {
       attachment = skinEntry.getAttachment();
       if (attachment instanceof RegionAttachment) {
-        actorBounds.put(attachment.getName(), getBound((RegionAttachment) attachment));
+        regionBounds.put(attachment.getName(), SpineUtils.getBound((RegionAttachment) attachment));
       }
     }
     Rectangle actorBound;
     float maxActorWidth = 0f;
     for (Animation animation : skeletonData.getAnimations()) {
-      actorBound = getBound(animation, actorBounds);
+      actorBound = getBound(animation, regionBounds);
       maxActorWidth = Math.max(maxActorWidth, actorBound.getWidth());
     }
     AnimationActor animationActor;
@@ -192,7 +193,7 @@ public class AnimationPanel extends Group {
     List<AnimationActor> actors = new ArrayList<>();
     List<AnimationActor> currentRow = new ArrayList<>();
     for (Animation animation : skeletonData.getAnimations()) {
-      actorBound = getBound(animation, actorBounds);
+      actorBound = getBound(animation, regionBounds);
       actorHeight = actorBound.getHeight() + GAP;
       actorWidth = actorBound.getWidth();
       if (actorX + actorWidth + GAP > width) {
@@ -253,21 +254,13 @@ public class AnimationPanel extends Group {
     }
   }
 
-  private Rectangle getBound(RegionAttachment attachment) {
-    float x = attachment.getX();
-    float y = attachment.getY();
-    float width = attachment.getWidth();
-    float height = attachment.getHeight();
-    return new Rectangle(x - width / 2f, y - height / 2f, width, height);
-  }
-
-  private Rectangle getBound(Animation animation, Map<String, Rectangle> actorBounds) {
+  private Rectangle getBound(Animation animation, Map<String, Rectangle> regionBounds) {
     Rectangle bound = new Rectangle(-5f, -5f, 10f, 10f); // origin always in bound
     for (Animation.Timeline timeline : animation.getTimelines()) {
       if (timeline instanceof Animation.AttachmentTimeline) {
         for (String name : ((Animation.AttachmentTimeline) timeline).getAttachmentNames()) {
-          if (actorBounds.containsKey(name)) {
-            bound.merge(actorBounds.get(name));
+          if (regionBounds.containsKey(name)) {
+            bound.merge(regionBounds.get(name));
           }
         }
       }

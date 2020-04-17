@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
+import com.crashinvaders.texturepackergui.utils.GeoUtils;
 import com.crashinvaders.texturepackergui.utils.GraphicsUtils;
 import com.crashinvaders.texturepackergui.views.canvas.widgets.spine.AnimationActor;
 import com.esotericsoftware.spine.AnimationState;
@@ -72,9 +73,9 @@ public class AnimationEditPanel extends Group {
     addActor(this.actor);
     float[] verticesCopy;
     if (bounds == null) {
-      verticesCopy = copyVertices(actorBound); // copy actor's bound
+      verticesCopy = GeoUtils.copyVertices(actorBound); // copy actor's bound
     } else {
-      verticesCopy = copyVertices(bounds.getVertices());
+      verticesCopy = GeoUtils.copyVertices(bounds.getVertices());
     }
     this.bounds = new Polygon(verticesCopy);
     this.bounds.setPosition(actorLocation.x, actorLocation.y);
@@ -186,7 +187,7 @@ public class AnimationEditPanel extends Group {
     if (isDefaultBounds(newVertices)) {
       return null;
     }
-    return vertices == newVertices ? copyVertices(vertices) : newVertices;
+    return vertices == newVertices ? GeoUtils.copyVertices(vertices) : newVertices;
   }
 
   public void zoomIn() {
@@ -207,7 +208,7 @@ public class AnimationEditPanel extends Group {
 
   public void resetBounds() {
     selectedVertex = -1;
-    bounds.setVertices(copyVertices(actor.getBound()));
+    bounds.setVertices(GeoUtils.copyVertices(actor.getBound()));
   }
 
   /**
@@ -379,27 +380,8 @@ public class AnimationEditPanel extends Group {
     }
   }
 
-  private float[] copyVertices(Rectangle rectangle) {
-    float[] vertices = new float[8]; // clockwise vertices
-    vertices[0] = rectangle.x;
-    vertices[1] = rectangle.y;
-    vertices[2] = rectangle.x;
-    vertices[3] = rectangle.y + rectangle.height;
-    vertices[4] = rectangle.x + rectangle.width;
-    vertices[5] = vertices[3];
-    vertices[6] = vertices[4];
-    vertices[7] = rectangle.y;
-    return vertices;
-  }
-
-  private float[] copyVertices(float[] vertices) {
-    float[] copyVertices = new float[vertices.length];
-    System.arraycopy(vertices, 0, copyVertices, 0, vertices.length);
-    return copyVertices;
-  }
-
   private boolean isDefaultBounds(float[] vertices) {
-    float[] defaultVertices = copyVertices(actor.getBound());
+    float[] defaultVertices = GeoUtils.copyVertices(actor.getBound());
     if (vertices.length == 8) {
       _out:
       for (int i = 0; i < 8; i += 2) {

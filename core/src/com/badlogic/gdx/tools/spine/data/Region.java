@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Bound {
+public class Region implements Attachment {
 
   @JsonInclude(JsonInclude.Include.NON_DEFAULT)
   private int x;
