@@ -24,12 +24,14 @@ public class EditAnimationDialog extends VisDialog {
     centerWindow();
     editPanel = new AnimationEditPanel(actor, bounds);
     VisTextButton saveButton = new VisTextButton("Save");
+    VisTextButton optimizeButton = new VisTextButton("Optimize");
     VisTextButton resetButton = new VisTextButton("Reset");
     VisTextButton zoomInButton = new VisTextButton("Zoom in");
     VisTextButton zoomOutButton = new VisTextButton("Zoom out");
     VisTable toolbarLeft = new VisTable();
     toolbarLeft.add(saveButton);
     toolbarLeft.add(resetButton);
+    toolbarLeft.add(optimizeButton);
     VisTable toolbarRight = new VisTable();
     toolbarRight.add(zoomInButton);
     toolbarRight.add(zoomOutButton);
@@ -45,6 +47,14 @@ public class EditAnimationDialog extends VisDialog {
           @Override
           public void changed() {
             editPanel.resetBounds();
+          }
+        }
+    );
+    optimizeButton.addListener(
+        new ButtonListener() {
+          @Override
+          void changed() {
+            editPanel.optimize();
           }
         }
     );

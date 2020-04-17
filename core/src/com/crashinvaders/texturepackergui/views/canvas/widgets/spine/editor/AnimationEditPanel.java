@@ -20,6 +20,9 @@ import com.esotericsoftware.spine.Skeleton;
 import com.esotericsoftware.spine.SkeletonData;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AnimationEditPanel extends Group {
 
   private static final Color BOUNDS_COLOR = Color.BLUE;
@@ -195,6 +198,60 @@ public class AnimationEditPanel extends Group {
   public void resetBounds() {
     selectedVertex = -1;
     bounds.setVertices(copyVertices(actor.getBound()));
+  }
+
+  /**
+   * remove collinear vertex
+   */
+  public void optimize() {
+    float[] vertices = bounds.getVertices();
+    int length = vertices.length;
+    if (length == 6) {
+      return;
+    }
+    float startX = vertices[length - 2];
+    float startY = vertices[length - 1];
+    float x = vertices[0];
+    float y = vertices[1];
+    float endX;
+    float endY;
+    List<Integer> removes = null;
+    for (int i = 0; i < length; i += 2) {
+      endX = vertices[(i + 2) % length];
+      endY = vertices[(i + 3) % length];
+      if (Intersector.distanceSegmentPoint(startX, startY, endX, endY, x, y) < 0.0001f) {
+        if (removes == null) {
+          removes = new ArrayList<>();
+        }
+        removes.add(i);
+      } else {
+        startX = x;
+        startY = y;
+      }
+      x = endX;
+      y = endY;
+    }
+    if (removes != null) {
+      int newLength = length - removes.size() * 2;
+      if (newLength < 6) {
+        return;
+      }
+      float[] newVertices = new float[newLength];
+      int index = 0;
+      int selected = selectedVertex;
+      for (int i = 0; i < length; i += 2) {
+        if (removes.contains(i)) {
+          if (i < selected) {
+            selectedVertex -= 2;
+          }
+          continue;
+        }
+        newVertices[index++] = vertices[i];
+        newVertices[index++] = vertices[i + 1];
+      }
+      bounds.setVertices(newVertices);
+      bounds.dirty();
+    }
   }
 
   private void setMouse(float screenX, float screenY) {
