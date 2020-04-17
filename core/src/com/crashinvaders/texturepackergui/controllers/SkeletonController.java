@@ -1,5 +1,6 @@
 package com.crashinvaders.texturepackergui.controllers;
 
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.tools.spine.Point;
 import com.badlogic.gdx.tools.spine.SkeletonSettings;
 import com.crashinvaders.texturepackergui.controllers.main.MainController;
@@ -102,9 +103,15 @@ public class SkeletonController {
       if (animationActor != null) {
         String name = animationActor.getName();
         EditAnimationDialog dialog =
-            new EditAnimationDialog(animationActor, skeletonSettings.getAnimationBounds().get(name), boundsVertices -> {
-              // TODO
-            });
+            new EditAnimationDialog(
+                animationActor, skeletonSettings.getAnimationBounds().get(name),
+                boundsVertices -> {
+                  if (boundsVertices == null) {
+                    skeletonSettings.getAnimationBounds().remove(name);
+                  } else {
+                    skeletonSettings.getAnimationBounds().put(name, new Polygon(boundsVertices));
+                  }
+                });
         mainController.getStage().addActor(dialog);
       }
     }

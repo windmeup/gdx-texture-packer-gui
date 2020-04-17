@@ -177,9 +177,15 @@ public class AnimationEditPanel extends Group {
         (bound.height + GAP_DOUBLE) * scaleXY);
   }
 
+  /**
+   * @return null: if animation's bounding box is default value
+   */
   public float[] getBoundsVertices() {
     float[] vertices = bounds.getVertices();
     float[] newVertices = removeCollinearVertices(vertices);
+    if (isDefaultBounds(newVertices)) {
+      return null;
+    }
     return vertices == newVertices ? copyVertices(vertices) : newVertices;
   }
 
@@ -390,5 +396,21 @@ public class AnimationEditPanel extends Group {
     float[] copyVertices = new float[vertices.length];
     System.arraycopy(vertices, 0, copyVertices, 0, vertices.length);
     return copyVertices;
+  }
+
+  private boolean isDefaultBounds(float[] vertices) {
+    float[] defaultVertices = copyVertices(actor.getBound());
+    if (vertices.length == 8) {
+      _out:
+      for (int i = 0; i < 8; i += 2) {
+        for (int j = 0; j < 8; ++j) {
+          if (vertices[(i + j) % 8] != defaultVertices[j]) {
+            continue _out;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
   }
 }
